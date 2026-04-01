@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản Lý Nhà Trọ</title>
+
+  <!-- ============================================================
+       THƯ VIỆN BÊN NGOÀI
+       ============================================================ -->
+  <!-- Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <!-- html2canvas – chụp DOM thành ảnh -->
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <!-- Google Fonts – hỗ trợ tiếng Việt tốt -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ================================================================
+       BIẾN MÀU & THIẾT LẬP GỐC
+       ================================================================ */
+    :root {
+      --bg:            #F5F5F5;
+      --surface:       #FFFFFF;
+      --surface2:      #FAFAFA;
+      --border:        #E0E0E0;
+      --border-dark:   #BDBDBD;
+      --txt:           #1A1A1A;
+      --txt2:          #555555;
+      --txt3:          #999999;
+      --gold:          #D4AF37;
+      --gold-h:        #B8960C;
+      --gold-bg:       #FFF8DC;
+      --green:         #2E7D32;
+      --green-bg:      #E8F5E9;
+      --red:           #C62828;
+      --red-bg:        #FFEBEE;
+      --blue:          #1565C0;
+      --blue-bg:       #E3F2FD;
+      --gray:          #757575;
+      --shadow:        0 1px 4px rgba(0,0,0,.10);
+      --shadow-md:     0 4px 12px rgba(0,0,0,.12);
+      --r:             4px;
+      --r2:            6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+      font-size: 13.5px;
+      line-height: 1.55;
+    }
+
+    /* ================================================================
+       LỚP PHỦ MẬT KHẨU (PASSWORD OVERLAY)
+       ================================================================ */
+    #pw-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,.72);
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    #pw-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--gold);
+      border-radius: var(--r2);
+      padding: 36px 40px;
+      width: 340px;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+    #pw-box h2 {
+      font-size: 17px; font-weight: 700; letter-spacing: .04em;
+      color: var(--txt); margin-bottom: 4px;
+    }
+    #pw-box p { font-size: 12px; color: var(--txt3); margin-bottom: 22px; }
+    #pw-input {
+      width: 100%; padding: 10px 14px;
+      border: 1px solid var(--border-dark); border-radius: var(--r);
+      font-size: 14px; font-family: 'Roboto Mono', monospace;
+      letter-spacing: .2em; text-align: center;
+      background: var(--surface2); color: var(--txt);
+      outline: none; margin-bottom: 10px;
+    }
+    #pw-input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-bg); }
+    #pw-error { color: var(--red); font-size: 12px; min-height: 18px; margin-bottom: 8px; }
+
+    /* ================================================================
+       LAYOUT CHÍNH
+       ================================================================ */
+    #app { display: none; min-height: 100vh; flex-direction: column; }
+    #app.visible { display: flex; }
+
+    /* HEADER */
+    #header {
+      background: var(--surface);
+      border-bottom: 2px solid var(--gold);
+      padding: 0 24px;
+      display: flex; align-items: center; gap: 16px;
+      height: 52px;
+      box-shadow: var(--shadow);
+      position: sticky; top: 0; z-index: 100;
+    }
+    #header .logo {
+      font-weight: 700; font-size: 15px; letter-spacing: .05em;
+      color: var(--txt); display: flex; align-items: center; gap: 8px;
+    }
+    #header .logo span { color: var(--gold); }
+    #header .tabs { display: flex; gap: 4px; margin-left: 20px; flex: 1; }
+    .tab-btn {
+      padding: 8px 18px; border: 1px solid transparent;
+      background: none; cursor: pointer; border-radius: var(--r);
+      font-size: 13px; font-weight: 500; color: var(--txt2);
+      font-family: 'Roboto', sans-serif; transition: all .15s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { background: var(--gold-bg); color: var(--txt); }
+    .tab-btn.active {
+      background: var(--gold-bg); border-color: var(--gold);
+      color: var(--gold-h); font-weight: 700;
+    }
+    #header .meta { font-size: 11px; color: var(--txt3); white-space: nowrap; }
+
+    /* MAIN CONTENT */
+    #main { flex: 1; padding: 20px 24px 80px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ================================================================
+       TIÊU ĐỀ SECTION CHUNG
+       ================================================================ */
+    .section-title {
+      font-size: 13px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--txt2);
+      border-left: 3px solid var(--gold);
+      padding-left: 10px; margin-bottom: 14px;
+    }
+
+    /* ================================================================
+       COMPONENTS CƠ BẢN
+       ================================================================ */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: var(--r); border: 1px solid transparent;
+      font-size: 12.5px; font-weight: 500; font-family: 'Roboto', sans-serif;
+      cursor: pointer; white-space: nowrap; transition: all .15s;
+      text-decoration: none;
+    }
+    .btn-gold {
+      background: var(--gold); color: #1A1A1A; border-color: var(--gold-h);
+    }
+    .btn-gold:hover { background: var(--gold-h); color: #fff; }
+    .btn-outline {
+      background: var(--surface); color: var(--txt);
+      border-color: var(--border-dark);
+    }
+    .btn-outline:hover { background: var(--border); }
+    .btn-red { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+    .btn-red:hover { background: var(--red); color: #fff; }
+    .btn-green { background: var(--green-bg); color: var(--green); border-color: var(--green); }
+    .btn-green:hover { background: var(--green); color: #fff; }
+    .btn-blue { background: var(--blue-bg); color: var(--blue); border-color: var(--blue); }
+    .btn-blue:hover { background: var(--blue); color: #fff; }
+    .btn-sm { padding: 4px 10px; font-size: 11.5px; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    input, select, textarea {
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px; color: var(--txt);
+      border: 1px solid var(--border-dark); border-radius: var(--r);
+      padding: 7px 10px; background: var(--surface);
+      outline: none; width: 100%; transition: border .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-bg);
+    }
+    textarea { resize: vertical; min-height: 60px; }
+    label.field-label {
+      display: block; font-size: 11.5px; font-weight: 600;
+      color: var(--txt2); margin-bottom: 4px; text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .field { margin-bottom: 12px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+    /* Card chung */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r2); padding: 16px; box-shadow: var(--shadow);
+    }
+
+    /* Badge trạng thái */
+    .badge {
+      display: inline-block; padding: 2px 8px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .badge-vacant { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
+    .badge-occupied { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue); }
+    .badge-paid { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
+    .badge-unpaid { background: var(--red-bg); color: var(--red); border: 1px solid var(--red); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,.5); backdrop-filter: blur(3px);
+      display: none; align-items: flex-start; justify-content: center;
+      padding: 40px 16px; overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-top: 3px solid var(--gold); border-radius: var(--r2);
+      padding: 24px; width: 100%; max-width: 500px;
+      box-shadow: var(--shadow-md); position: relative;
+    }
+    .modal-title {
+      font-size: 15px; font-weight: 700; margin-bottom: 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 18px; color: var(--txt3); line-height: 1;
+    }
+    .modal-close:hover { color: var(--red); }
+    .modal-footer { margin-top: 18px; display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* Notification toast */
+    #toast {
+      position: fixed; bottom: 80px; right: 20px; z-index: 9000;
+      background: var(--txt); color: #fff; padding: 10px 18px;
+      border-radius: var(--r2); font-size: 13px;
+      box-shadow: var(--shadow-md); opacity: 0; pointer-events: none;
+      transition: opacity .3s; max-width: 300px;
+    }
+    #toast.show { opacity: 1; }
+    #toast.success { background: var(--green); }
+    #toast.error   { background: var(--red); }
+
+    /* ================================================================
+       TAB 1 – CRM & QUẢN LÝ PHÒNG
+       ================================================================ */
+    .rooms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .room-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r2); overflow: hidden;
+      box-shadow: var(--shadow); transition: box-shadow .15s;
+    }
+    .room-card:hover { box-shadow: var(--shadow-md); }
+    .room-card.vacant { border-top: 3px solid var(--green); }
+    .room-card.occupied { border-top: 3px solid var(--gold); }
+
+    .room-header {
+      background: var(--surface2); padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .room-number {
+      font-size: 16px; font-weight: 700;
+      font-family: 'Roboto Mono', monospace; color: var(--txt);
+    }
+    .room-body { padding: 12px 14px; }
+    .room-info-row {
+      display: flex; justify-content: space-between;
+      font-size: 12.5px; margin-bottom: 5px;
+      color: var(--txt2);
+    }
+    .room-info-row strong { color: var(--txt); }
+    .room-actions { padding: 10px 14px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+
+    /* ================================================================
+       TAB 2 – QUẢN LÝ GIẤY TỜ
+       ================================================================ */
+    .doc-upload-box {
+      background: var(--surface2); border: 2px dashed var(--border-dark);
+      border-radius: var(--r2); padding: 20px 24px;
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .doc-upload-box input[type=text] { flex: 1; min-width: 180px; }
+    .doc-list { display: flex; flex-direction: column; gap: 8px; }
+    .doc-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .doc-item .doc-name { font-weight: 500; flex: 1; }
+    .doc-item .doc-meta { font-size: 11.5px; color: var(--txt3); }
+
+    /* ================================================================
+       TAB 3 – TÍNH TIỀN THÁNG
+       ================================================================ */
+    .billing-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
+    }
+    .month-selector { display: flex; align-items: center; gap: 8px; }
+    .month-selector select, .month-selector input { width: auto; }
+
+    .billing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
+    }
+
+    .billing-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r2); box-shadow: var(--shadow); overflow: hidden;
+    }
+    .billing-card-header {
+      padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .billing-card-header.paid-bg { background: var(--green-bg); }
+    .billing-card-header.unpaid-bg { background: var(--surface2); }
+
+    .billing-card-body { padding: 12px 14px; }
+
+    /* Checkbox trạng thái */
+    .status-checks { display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+    .status-check {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12px; cursor: pointer; user-select: none;
+    }
+    .status-check input[type=checkbox] { width: auto; cursor: pointer; accent-color: var(--gold); }
+
+    /* Bảng chi tiết tiền */
+    .bill-line {
+      display: flex; justify-content: space-between;
+      font-size: 12.5px; padding: 3px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .bill-line:last-child { border-bottom: none; }
+    .bill-line.total {
+      font-weight: 700; font-size: 14px; padding-top: 6px;
+      border-top: 2px solid var(--border-dark); border-bottom: none;
+      color: var(--gold-h);
+    }
+    .bill-line .label { color: var(--txt2); }
+    .bill-line .value { font-family: 'Roboto Mono', monospace; font-weight: 500; }
+    .bill-line.total .value { color: var(--gold-h); }
+
+    /* ================================================================
+       BILL XUẤT ẢNH (ẩn, chỉ dùng để chụp)
+       ================================================================ */
+    #bill-render-zone {
+      position: fixed; left: -9999px; top: 0;
+      width: 420px; background: #fff;
+      font-family: 'Roboto', sans-serif; font-size: 13px;
+    }
+    .bill-doc { padding: 28px; color: #1A1A1A; }
+    .bill-doc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; padding-bottom: 14px;
+      border-bottom: 2px solid #D4AF37;
+    }
+    .bill-doc-title { font-size: 20px; font-weight: 700; color: #B8960C; }
+    .bill-doc-sub { font-size: 11px; color: #888; margin-top: 2px; }
+    .bill-doc-room { font-size: 28px; font-weight: 900; color: #D4AF37; font-family: 'Roboto Mono', monospace; }
+    .bill-section { margin-bottom: 16px; }
+    .bill-section-title {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: #999; margin-bottom: 8px;
+      border-left: 3px solid #D4AF37; padding-left: 8px;
+    }
+    .bill-row {
+      display: flex; justify-content: space-between;
+      font-size: 12.5px; padding: 4px 0;
+      border-bottom: 1px solid #F0F0F0;
+    }
+    .bill-row.total-row {
+      font-weight: 700; font-size: 15px; padding: 8px 0 4px;
+      border-top: 2px solid #D4AF37; border-bottom: none;
+      color: #B8960C;
+    }
+    .bill-row .v { font-family: 'Roboto Mono', monospace; font-weight: 500; }
+    .bill-evn-img { width: 100%; border-radius: 4px; margin-top: 8px; max-height: 200px; object-fit: contain; }
+    .bill-qr-zone {
+      display: flex; align-items: center; gap: 14px; margin-top: 14px;
+      padding: 14px; background: #FAFAFA; border-radius: 6px;
+      border: 1px solid #E0E0E0;
+    }
+    .bill-qr-zone img { width: 90px; height: 90px; }
+    .bill-qr-info { flex: 1; }
+    .bill-qr-info .bank { font-weight: 700; font-size: 13px; }
+    .bill-qr-info .acct { font-family: 'Roboto Mono', monospace; font-size: 14px; color: #B8960C; font-weight: 700; }
+    .bill-footer { margin-top: 18px; text-align: center; font-size: 11px; color: #aaa; }
+
+    /* ================================================================
+       NÚT LƯU CỐ ĐỊNH GÓC DƯỚI (FLOATING SAVE BUTTON)
+       ================================================================ */
+    #float-save {
+      position: fixed; bottom: 20px; right: 24px; z-index: 200;
+      background: var(--gold); color: #1A1A1A;
+      border: 2px solid var(--gold-h); border-radius: 30px;
+      padding: 11px 22px; font-size: 13px; font-weight: 700;
+      font-family: 'Roboto', sans-serif; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(212,175,55,.4);
+      display: flex; align-items: center; gap: 8px;
+      transition: all .2s;
+    }
+    #float-save:hover {
+      background: var(--gold-h); color: #fff;
+      box-shadow: 0 6px 20px rgba(212,175,55,.6);
+    }
+    #float-save.saving { opacity: .7; pointer-events: none; }
+
+    /* ================================================================
+       MISC UTILITIES
+       ================================================================ */
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .text-muted { color: var(--txt3); font-size: 12px; }
+    .text-money {
+      font-family: 'Roboto Mono', monospace; font-weight: 600; color: var(--gold-h);
+    }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .gap-8 { gap: 8px; }
+    .mb-8 { margin-bottom: 8px; }
+    .mb-16 { margin-bottom: 16px; }
+
+    /* Supabase config notice */
+    #config-notice {
+      background: #FFF3CD; border: 1px solid #FFC107;
+      border-radius: var(--r); padding: 10px 14px;
+      font-size: 12.5px; margin-bottom: 16px;
+      display: none;
+    }
+    #config-notice.show { display: flex; align-items: center; gap: 8px; }
+
+    .config-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-top: 3px solid var(--gold); border-radius: var(--r2);
+      padding: 20px; margin-bottom: 20px;
+    }
+    .config-box .cfg-title { font-weight: 700; margin-bottom: 12px; font-size: 14px; }
+
+    @media (max-width: 600px) {
+      #main { padding: 14px 12px 80px; }
+      .field-row, .field-row3 { grid-template-columns: 1fr; }
+      .rooms-grid, .billing-grid { grid-template-columns: 1fr; }
+      #header .meta { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================================================================
+     LỚP PHỦ MẬT KHẨU
+     ================================================================ -->
+<div id="pw-overlay">
+  <div id="pw-box">
+    <h2>🔒 NHÀ TRỌ QUẢN LÝ</h2>
+    <p>Nhập mật khẩu quản trị để tiếp tục</p>
+    <input type="password" id="pw-input" placeholder="••••••••" autocomplete="off" />
+    <div id="pw-error"></div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center" onclick="checkPassword()">ĐĂNG NHẬP</button>
+  </div>
+</div>
+
+<!-- ================================================================
+     ỨNG DỤNG CHÍNH
+     ================================================================ -->
+<div id="app">
+
+  <!-- HEADER + TABS -->
+  <div id="header">
+    <div class="logo">🏠 <span>NHÀ TRỌ</span>&nbsp;Admin</div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('crm')">📋 Phòng &amp; CRM</button>
+      <button class="tab-btn" onclick="switchTab('docs')">📁 Giấy Tờ</button>
+      <button class="tab-btn" onclick="switchTab('billing')">💰 Tính Tiền</button>
+      <button class="tab-btn" onclick="switchTab('config')">⚙️ Cài Đặt</button>
+    </div>
+    <div class="meta" id="header-date"></div>
+  </div>
+
+  <!-- MAIN PANELS -->
+  <div id="main">
+
+    <!-- ============================================================
+         TAB CẤU HÌNH SUPABASE
+         ============================================================ -->
+    <div id="tab-config" class="tab-panel">
+      <div class="config-box">
+        <div class="cfg-title">⚙️ Cấu Hình Supabase & Ngân Hàng</div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Supabase URL</label>
+            <input type="text" id="cfg-url" placeholder="https://xxxx.supabase.co" />
+          </div>
+          <div class="field">
+            <label class="field-label">Supabase Anon Key</label>
+            <input type="text" id="cfg-key" placeholder="eyJhbGciOiJIUzI1NiIs..." />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Ngân Hàng (VD: MB, VCB, TCB)</label>
+            <input type="text" id="cfg-bank" placeholder="MB" />
+          </div>
+          <div class="field">
+            <label class="field-label">Số Tài Khoản</label>
+            <input type="text" id="cfg-account" placeholder="0123456789" />
+          </div>
+          <div class="field">
+            <label class="field-label">Tên Chủ TK</label>
+            <input type="text" id="cfg-owner" placeholder="NGUYEN VAN A" />
+          </div>
+        </div>
+        <div class="flex-between" style="margin-top:8px;">
+          <button class="btn btn-gold" onclick="saveConfig()">💾 Lưu Cấu Hình</button>
+          <button class="btn btn-outline btn-sm" onclick="initSupabase()">🔌 Kết Nối Supabase</button>
+        </div>
+      </div>
+      <div class="config-box">
+        <div class="cfg-title">🏗️ Hướng Dẫn Tạo Bảng Supabase (SQL)</div>
+        <p class="text-muted mb-8">Chạy SQL này trong Supabase SQL Editor để tạo các bảng cần thiết:</p>
+        <textarea style="font-family:'Roboto Mono',monospace;font-size:11px;height:320px;background:#F5F5F5" readonly id="sql-guide"></textarea>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         TAB 1: CRM & QUẢN LÝ PHÒNG
+         ============================================================ -->
+    <div id="tab-crm" class="tab-panel active">
+      <div id="config-notice" class="show">
+        ⚠️ Chưa cấu hình Supabase – đang dùng dữ liệu local. Vào tab <strong>⚙️ Cài Đặt</strong> để thiết lập.
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+        <div class="section-title" style="margin-bottom:0">Danh Sách 9 Phòng</div>
+        <button class="btn btn-outline btn-sm" onclick="loadRooms()">🔄 Tải lại</button>
+      </div>
+      <div class="rooms-grid" id="rooms-grid">
+        <!-- Render bằng JS -->
+      </div>
+    </div>
+
+    <!-- ============================================================
+         TAB 2: GIẤY TỜ
+         ============================================================ -->
+    <div id="tab-docs" class="tab-panel">
+      <div class="section-title">Upload Giấy Tờ</div>
+      <div class="doc-upload-box">
+        <input type="text" id="doc-name-input" placeholder="Tên giấy tờ (VD: Hợp đồng trống tháng 7)" style="max-width:300px;" />
+        <input type="file" id="doc-file-input" style="width:auto;flex:none;" />
+        <button class="btn btn-gold" onclick="uploadDoc()">📤 Upload</button>
+      </div>
+      <div class="section-title">Danh Sách Tài Liệu</div>
+      <div class="doc-list" id="doc-list">
+        <div class="text-muted text-center" style="padding:20px;">Chưa có tài liệu nào. Upload tài liệu đầu tiên ↑</div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         TAB 3: TÍNH TIỀN THÁNG
+         ============================================================ -->
+    <div id="tab-billing" class="tab-panel">
+      <div class="billing-header">
+        <div class="section-title" style="margin-bottom:0">Tính Tiền Tháng</div>
+        <div class="month-selector">
+          <label class="field-label" style="margin:0">Tháng:</label>
+          <select id="bill-month" onchange="loadBillingCards()"></select>
+          <select id="bill-year" onchange="loadBillingCards()"></select>
+        </div>
+      </div>
+      <div class="billing-grid" id="billing-grid">
+        <!-- Render bằng JS -->
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast"></div>
+
+  <!-- NÚT LƯU SUPABASE CỐ ĐỊNH -->
+  <button id="float-save" onclick="saveAllToSupabase()">
+    ☁️ LƯU LÊN SUPABASE
+  </button>
+
+</div><!-- /app -->
+
+<!-- ================================================================
+     MODAL THÊM KHÁCH MỚI
+     ================================================================ -->
+<div class="modal-overlay" id="modal-add-tenant">
+  <div class="modal">
+    <div class="modal-title">
+      <span>➕ Thêm Khách Mới – Phòng <span id="modal-room-num"></span></span>
+      <button class="modal-close" onclick="closeModal('modal-add-tenant')">✕</button>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Họ Tên</label>
+        <input type="text" id="t-name" placeholder="Nguyễn Văn A" />
+      </div>
+      <div class="field">
+        <label class="field-label">SĐT Zalo</label>
+        <input type="text" id="t-phone" placeholder="0901234567" />
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Danh Xưng</label>
+        <select id="t-title">
+          <option value="Bạn">Bạn</option>
+          <option value="Anh">Anh</option>
+          <option value="Chị">Chị</option>
+          <option value="Chú">Chú</option>
+          <option value="Cô">Cô</option>
+          <option value="Em">Em</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Tiền Cọc (VNĐ)</label>
+        <input type="number" id="t-deposit" placeholder="1000000" />
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Ngày Vào Ở</label>
+        <input type="date" id="t-checkin" />
+      </div>
+      <div class="field">
+        <label class="field-label">Số Nước Ban Đầu</label>
+        <input type="number" id="t-water-init" placeholder="0" />
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Dùng Wifi?</label>
+        <select id="t-wifi">
+          <option value="true">✅ Có dùng Wifi</option>
+          <option value="false">❌ Không dùng</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Loại Nước</label>
+        <select id="t-water-type">
+          <option value="hot">Nóng (20k/khối)</option>
+          <option value="cold">Lạnh (15k/khối)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Upload CCCD (Supabase Storage)</label>
+      <input type="file" id="t-cccd" accept="image/*,.pdf" />
+    </div>
+    <!-- Tính tiền vào giữa tháng -->
+    <div id="prorated-info" style="background:var(--gold-bg);border:1px solid var(--gold);border-radius:var(--r);padding:10px 12px;font-size:12.5px;margin-top:4px;display:none;">
+      <strong>📅 Tính tiền vào giữa tháng:</strong>
+      <span id="prorated-text"></span>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-tenant')">Hủy</button>
+      <button class="btn btn-gold" onclick="saveTenant()">💾 Lưu Khách</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL NHẬP SỐ TÍNH TIỀN
+     ================================================================ -->
+<div class="modal-overlay" id="modal-billing">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-title">
+      <span>💰 Nhập Số Tính Tiền – Phòng <span id="bill-room-num"></span></span>
+      <button class="modal-close" onclick="closeModal('modal-billing')">✕</button>
+    </div>
+
+    <!-- Thông tin khách -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-bottom:14px;font-size:12.5px;">
+      <span id="bill-tenant-info"></span>
+    </div>
+
+    <!-- Tiền phòng (readonly) -->
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Tiền Phòng / Tháng</label>
+        <input type="text" id="bill-room-price" readonly style="background:var(--surface2);" />
+      </div>
+      <div class="field">
+        <label class="field-label">Tiền Wifi / Tháng</label>
+        <input type="text" id="bill-wifi-price" readonly style="background:var(--surface2);" />
+      </div>
+    </div>
+
+    <!-- Điện -->
+    <div class="field">
+      <label class="field-label">Tổng Tiền Điện (VNĐ) – nhập tay từ bill EVN</label>
+      <input type="number" id="bill-elec" placeholder="150000" oninput="recalcBill()" />
+    </div>
+    <div class="field">
+      <label class="field-label">Ảnh Bill EVN (tuỳ chọn)</label>
+      <input type="file" id="bill-evn-img" accept="image/*" onchange="previewEvn()" />
+      <img id="bill-evn-preview" src="" style="display:none;max-width:100%;margin-top:6px;border-radius:var(--r);" />
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Nước -->
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Số Nước Tháng Trước (từ DB)</label>
+        <input type="number" id="bill-water-old" readonly style="background:var(--surface2);" />
+      </div>
+      <div class="field">
+        <label class="field-label">Số Nước Tháng Này (nhập vào)</label>
+        <input type="number" id="bill-water-new" placeholder="100" oninput="recalcBill()" />
+      </div>
+    </div>
+    <div class="field" style="margin-top:-4px;">
+      <label class="status-check">
+        <input type="checkbox" id="bill-water-debt" onchange="recalcBill()" />
+        Khách nợ số nước tháng này (tiền nước = 0, giữ số cũ để cộng dồn tháng sau)
+      </label>
+    </div>
+    <div id="water-calc-info" style="font-size:12px;color:var(--txt2);margin-bottom:10px;"></div>
+
+    <hr class="divider" />
+
+    <!-- Chi phí phát sinh -->
+    <div class="field">
+      <label class="field-label">Chi Phí Phát Sinh / Ghi Chú</label>
+      <input type="number" id="bill-extra-amount" placeholder="0" oninput="recalcBill()" style="margin-bottom:6px;" />
+      <textarea id="bill-extra-note" placeholder="Ghi chú thêm..."></textarea>
+    </div>
+
+    <!-- Rác/Vệ sinh -->
+    <div class="field">
+      <label class="field-label">Phí Rác / Vệ Sinh Tháng Này</label>
+      <input type="number" id="bill-garbage" placeholder="0" oninput="recalcBill()" />
+    </div>
+
+    <hr class="divider" />
+
+    <!-- TỔNG KẾT -->
+    <div id="bill-summary" style="background:var(--gold-bg);border:1px solid var(--gold);border-radius:var(--r);padding:12px 14px;font-size:13px;">
+      <!-- Tự render bằng JS -->
+    </div>
+
+    <div class="modal-footer" style="flex-wrap:wrap;">
+      <button class="btn btn-outline" onclick="closeModal('modal-billing')">Hủy</button>
+      <button class="btn btn-blue" onclick="sendWaterRequest()">💬 Nhắn Xin Số Nước</button>
+      <button class="btn btn-green" onclick="saveBillingRecord()">💾 Lưu Số Liệu</button>
+      <button class="btn btn-gold" onclick="exportBillImage()">📸 Xuất Bill Ảnh</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     POPUP NHẮN TIN
+     ================================================================ -->
+<div class="modal-overlay" id="modal-message">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title">
+      <span>💬 Nội Dung Tin Nhắn</span>
+      <button class="modal-close" onclick="closeModal('modal-message')">✕</button>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;font-size:14px;line-height:1.7;margin-bottom:14px;" id="msg-content"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="copyMsg()">📋 Copy</button>
+      <a id="zalo-link" href="#" target="_blank" class="btn btn-blue">🟦 Mở Zalo</a>
+      <button class="btn btn-outline" onclick="closeModal('modal-message')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     VÙNG RENDER BILL (ẨN – dùng cho html2canvas)
+     ================================================================ -->
+<div id="bill-render-zone">
+  <div class="bill-doc" id="bill-doc-content">
+    <!-- Render bởi JS trước khi chụp -->
+  </div>
+</div>
+
+<!-- ================================================================
+     JAVASCRIPT CHÍNH
+     ================================================================ -->
+<script>
+// ================================================================
+// HẰNG SỐ & CẤU HÌNH MẶC ĐỊNH
+// ================================================================
+const PASSWORD = 'Admin123';
+const WATER_RATE = { hot: 20000, cold: 15000 }; // VNĐ/khối
+
+// Cấu hình 9 phòng mặc định
+const DEFAULT_ROOMS = [
+  { id:1, room_number:'P01', price:2500000, wifi_price:100000, status:'vacant', water_type:'hot' },
+  { id:2, room_number:'P02', price:2500000, wifi_price:100000, status:'vacant', water_type:'hot' },
+  { id:3, room_number:'P03', price:2800000, wifi_price:100000, status:'vacant', water_type:'hot' },
+  { id:4, room_number:'P04', price:2800000, wifi_price:100000, status:'vacant', water_type:'hot' },
+  { id:5, room_number:'P05', price:3000000, wifi_price:100000, status:'vacant', water_type:'cold' },
+  { id:6, room_number:'P06', price:3000000, wifi_price:100000, status:'vacant', water_type:'cold' },
+  { id:7, room_number:'P07', price:3200000, wifi_price:100000, status:'vacant', water_type:'cold' },
+  { id:8, room_number:'P08', price:3200000, wifi_price:100000, status:'vacant', water_type:'cold' },
+  { id:9, room_number:'P09', price:3500000, wifi_price:100000, status:'vacant', water_type:'cold' },
+];
+
+// ================================================================
+// STATE TOÀN CỤC
+// ================================================================
+let supabase = null;
+let rooms    = [];    // mảng phòng
+let tenants  = {};    // { room_id: {...tenant data} }
+let billings = {};    // { 'room_id-month-year': {...} }
+let documents= [];    // danh sách giấy tờ
+let currentEditRoomId = null;  // phòng đang mở modal
+
+// Biến tạm cho modal billing
+let billModalData = {
+  roomId: null, tenantData: null, roomData: null,
+  evnImageBase64: null
+};
+
+// ================================================================
+// KHỞI ĐỘNG
+// ================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  // Hiển thị ngày trong header
+  const now = new Date();
+  document.getElementById('header-date').textContent =
+    now.toLocaleDateString('vi-VN', { weekday:'short', year:'numeric', month:'long', day:'numeric' });
+
+  // Điền selector tháng/năm
+  populateMonthYear();
+
+  // Load config từ localStorage
+  loadConfig();
+
+  // Load dữ liệu từ localStorage
+  loadFromLocalStorage();
+
+  // Render rooms
+  loadRooms();
+
+  // Render docs
+  renderDocs();
+
+  // SQL guide
+  document.getElementById('sql-guide').value = SQL_GUIDE;
+
+  // Enter key cho password
+  document.getElementById('pw-input').addEventListener('keypress', e => {
+    if (e.key === 'Enter') checkPassword();
+  });
+
+  // Auto-save khi thay đổi input
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('change', autoSaveLocal);
+  });
+
+  // Auto-set ngày vào hôm nay
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('t-checkin').value = today;
+  document.getElementById('t-checkin').addEventListener('change', updateProratedInfo);
+});
+
+// ================================================================
+// MẬT KHẨU
+// ================================================================
+function checkPassword() {
+  const val = document.getElementById('pw-input').value;
+  if (val === PASSWORD) {
+    document.getElementById('pw-overlay').style.display = 'none';
+    const app = document.getElementById('app');
+    app.classList.add('visible');
+    // Thử kết nối Supabase nếu đã có config
+    initSupabase();
+  } else {
+    document.getElementById('pw-error').textContent = '❌ Sai mật khẩu. Thử lại.';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+// ================================================================
+// SUPABASE KHỞI TẠO
+// ================================================================
+function initSupabase() {
+  const url = document.getElementById('cfg-url')?.value || localStorage.getItem('sb_url');
+  const key = document.getElementById('cfg-key')?.value || localStorage.getItem('sb_key');
+  if (url && key && url.includes('supabase.co')) {
+    try {
+      supabase = window.supabase.createClient(url, key);
+      document.getElementById('config-notice').classList.remove('show');
+      showToast('✅ Kết nối Supabase thành công!', 'success');
+      // Load dữ liệu từ Supabase
+      fetchFromSupabase();
+    } catch(e) {
+      showToast('❌ Lỗi kết nối: ' + e.message, 'error');
+    }
+  }
+}
+
+// ================================================================
+// CẤU HÌNH (LƯU / LOAD)
+// ================================================================
+function saveConfig() {
+  const url   = document.getElementById('cfg-url').value.trim();
+  const key   = document.getElementById('cfg-key').value.trim();
+  const bank  = document.getElementById('cfg-bank').value.trim();
+  const acct  = document.getElementById('cfg-account').value.trim();
+  const owner = document.getElementById('cfg-owner').value.trim();
+  localStorage.setItem('sb_url', url);
+  localStorage.setItem('sb_key', key);
+  localStorage.setItem('bank_id', bank);
+  localStorage.setItem('bank_acct', acct);
+  localStorage.setItem('bank_owner', owner);
+  showToast('💾 Đã lưu cấu hình!', 'success');
+  initSupabase();
+}
+function loadConfig() {
+  const f = (id, key) => { const v = localStorage.getItem(key); if (v && document.getElementById(id)) document.getElementById(id).value = v; };
+  f('cfg-url','sb_url'); f('cfg-key','sb_key'); f('cfg-bank','bank_id');
+  f('cfg-account','bank_acct'); f('cfg-owner','bank_owner');
+}
+
+// ================================================================
+// LOCAL STORAGE – AUTO SAVE / LOAD
+// ================================================================
+function autoSaveLocal() {
+  localStorage.setItem('rooms_data',    JSON.stringify(rooms));
+  localStorage.setItem('tenants_data',  JSON.stringify(tenants));
+  localStorage.setItem('billings_data', JSON.stringify(billings));
+  localStorage.setItem('docs_data',     JSON.stringify(documents));
+}
+function loadFromLocalStorage() {
+  try {
+    rooms    = JSON.parse(localStorage.getItem('rooms_data'))    || structuredClone(DEFAULT_ROOMS);
+    tenants  = JSON.parse(localStorage.getItem('tenants_data'))  || {};
+    billings = JSON.parse(localStorage.getItem('billings_data')) || {};
+    documents= JSON.parse(localStorage.getItem('docs_data'))     || [];
+  } catch {
+    rooms    = structuredClone(DEFAULT_ROOMS);
+    tenants  = {}; billings = {}; documents = [];
+  }
+  // Đảm bảo luôn có đủ 9 phòng
+  DEFAULT_ROOMS.forEach(dr => {
+    if (!rooms.find(r => r.id === dr.id)) rooms.push({ ...dr });
+  });
+}
+
+// ================================================================
+// SUPABASE – FETCH & PUSH
+// ================================================================
+async function fetchFromSupabase() {
+  if (!supabase) return;
+  try {
+    const [{ data: rData }, { data: tData }, { data: bData }, { data: dData }] = await Promise.all([
+      supabase.from('rooms').select('*').order('id'),
+      supabase.from('tenants').select('*'),
+      supabase.from('billing').select('*'),
+      supabase.from('documents').select('*').order('created_at', { ascending: false }),
+    ]);
+    if (rData?.length) {
+      rooms = DEFAULT_ROOMS.map(dr => {
+        const sb = rData.find(r => r.id === dr.id);
+        return sb ? { ...dr, ...sb } : { ...dr };
+      });
+    }
+    if (tData) {
+      tenants = {};
+      tData.forEach(t => { tenants[t.room_id] = t; });
+    }
+    if (bData) {
+      billings = {};
+      bData.forEach(b => { billings[`${b.room_id}-${b.month}-${b.year}`] = b; });
+    }
+    if (dData) documents = dData;
+    autoSaveLocal();
+    loadRooms();
+    loadBillingCards();
+    renderDocs();
+    showToast('☁️ Đã đồng bộ dữ liệu từ Supabase', 'success');
+  } catch(e) {
+    showToast('Lỗi fetch: ' + e.message, 'error');
+  }
+}
+
+async function saveAllToSupabase() {
+  if (!supabase) {
+    showToast('⚠️ Chưa kết nối Supabase. Vào ⚙️ Cài Đặt để thiết lập.', 'error');
+    return;
+  }
+  const btn = document.getElementById('float-save');
+  btn.classList.add('saving');
+  btn.textContent = '⏳ Đang lưu...';
+  try {
+    // Upsert rooms
+    await supabase.from('rooms').upsert(rooms.map(r => ({
+      id: r.id, room_number: r.room_number,
+      price: r.price, wifi_price: r.wifi_price,
+      status: r.status, water_type: r.water_type
+    })));
+
+    // Upsert tenants
+    const tenantArr = Object.values(tenants);
+    if (tenantArr.length) await supabase.from('tenants').upsert(tenantArr);
+
+    // Upsert billings
+    const billArr = Object.values(billings);
+    if (billArr.length) await supabase.from('billing').upsert(billArr);
+
+    showToast('✅ Đã lưu lên Supabase thành công!', 'success');
+  } catch(e) {
+    showToast('❌ Lỗi lưu: ' + e.message, 'error');
+  } finally {
+    btn.classList.remove('saving');
+    btn.innerHTML = '☁️ LƯU LÊN SUPABASE';
+  }
+}
+
+// ================================================================
+// TAB NAVIGATION
+// ================================================================
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const idx = { crm:0, docs:1, billing:2, config:3 };
+  document.querySelectorAll('.tab-btn')[idx[name]]?.classList.add('active');
+  if (name === 'billing') loadBillingCards();
+}
+
+// ================================================================
+// TAB 1: RENDER PHÒNG
+// ================================================================
+function loadRooms() {
+  const grid = document.getElementById('rooms-grid');
+  grid.innerHTML = '';
+  rooms.forEach(room => {
+    const tenant = tenants[room.id];
+    const isOccupied = room.status === 'occupied' && tenant;
+    grid.insertAdjacentHTML('beforeend', renderRoomCard(room, tenant, isOccupied));
+  });
+}
+
+function renderRoomCard(room, tenant, isOccupied) {
+  const statusBadge = isOccupied
+    ? `<span class="badge badge-occupied">Có khách</span>`
+    : `<span class="badge badge-vacant">Trống</span>`;
+
+  const bodyContent = isOccupied ? `
+    <div class="room-info-row"><span class="label">Khách:</span> <strong>${tenant.name}</strong></div>
+    <div class="room-info-row"><span class="label">Danh xưng:</span> <strong>${tenant.title}</strong></div>
+    <div class="room-info-row"><span class="label">SĐT Zalo:</span> <strong>${tenant.phone}</strong></div>
+    <div class="room-info-row"><span class="label">Vào ở:</span> <strong>${tenant.check_in_date}</strong></div>
+    <div class="room-info-row"><span class="label">Tiền cọc:</span> <strong class="text-money">${fmt(tenant.deposit)}</strong></div>
+    <div class="room-info-row"><span class="label">Wifi:</span> <strong>${tenant.has_wifi ? '✅' : '❌'}</strong></div>
+    <div class="room-info-row"><span class="label">Nước cuối:</span> <strong>${tenant.water_reading ?? '—'}</strong></div>
+  ` : `
+    <div style="padding:12px 0;text-align:center;color:var(--txt3);font-size:12.5px;">
+      🚪 Phòng trống<br>
+      <span class="text-money">${fmt(room.price)}</span>/tháng
+    </div>
+  `;
+
+  const actionBtns = isOccupied ? `
+    <button class="btn btn-outline btn-sm" onclick="openBillingModal(${room.id})">💰 Tính Tiền</button>
+    <button class="btn btn-red btn-sm" onclick="checkoutTenant(${room.id})">🚪 Trả Phòng</button>
+  ` : `
+    <button class="btn btn-gold btn-sm" onclick="openAddTenantModal(${room.id})">➕ Thêm Khách</button>
+  `;
+
+  return `
+    <div class="room-card ${isOccupied ? 'occupied' : 'vacant'}" id="room-card-${room.id}">
+      <div class="room-header">
+        <span class="room-number">${room.room_number}</span>
+        ${statusBadge}
+      </div>
+      <div class="room-body">
+        <div class="room-info-row">
+          <span>Giá phòng</span><strong class="text-money">${fmt(room.price)}</strong>
+        </div>
+        <div class="room-info-row">
+          <span>Wifi</span><strong>${fmt(room.wifi_price)}</strong>
+        </div>
+        ${bodyContent}
+      </div>
+      <div class="room-actions">${actionBtns}</div>
+    </div>`;
+}
+
+// ================================================================
+// MODAL THÊM KHÁCH
+// ================================================================
+function openAddTenantModal(roomId) {
+  currentEditRoomId = roomId;
+  const room = rooms.find(r => r.id === roomId);
+  document.getElementById('modal-room-num').textContent = room.room_number;
+  // Reset form
+  ['t-name','t-phone','t-deposit','t-water-init'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('t-title').value = 'Bạn';
+  document.getElementById('t-wifi').value = 'true';
+  document.getElementById('t-water-type').value = room.water_type || 'hot';
+  document.getElementById('t-checkin').value = new Date().toISOString().split('T')[0];
+  document.getElementById('prorated-info').style.display = 'none';
+  updateProratedInfo();
+  openModal('modal-add-tenant');
+}
+
+function updateProratedInfo() {
+  const checkin = document.getElementById('t-checkin').value;
+  if (!checkin || !currentEditRoomId) return;
+  const room = rooms.find(r => r.id === currentEditRoomId);
+  if (!room) return;
+  const d = new Date(checkin);
+  const daysInMonth = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  const remainDays = daysInMonth - d.getDate() + 1;
+  const dayRate = room.price / 30;
+  const prorated = Math.round(dayRate * remainDays);
+  const info = document.getElementById('prorated-info');
+  const text = document.getElementById('prorated-text');
+  if (d.getDate() > 1) {
+    text.textContent = ` Còn ${remainDays} ngày trong tháng → Tiền phòng đóng: ${fmt(prorated)}đ (= ${fmt(room.price)}÷30 × ${remainDays})`;
+    info.style.display = 'block';
+  } else {
+    info.style.display = 'none';
+  }
+}
+
+async function saveTenant() {
+  const name   = document.getElementById('t-name').value.trim();
+  const phone  = document.getElementById('t-phone').value.trim();
+  const title  = document.getElementById('t-title').value;
+  const deposit= parseInt(document.getElementById('t-deposit').value) || 0;
+  const checkin= document.getElementById('t-checkin').value;
+  const wifi   = document.getElementById('t-wifi').value === 'true';
+  const wInit  = parseInt(document.getElementById('t-water-init').value) || 0;
+  const wType  = document.getElementById('t-water-type').value;
+  if (!name || !phone || !checkin) { showToast('❌ Điền đầy đủ Tên, SĐT, Ngày vào', 'error'); return; }
+
+  let cccdUrl = '';
+  const cccdFile = document.getElementById('t-cccd').files[0];
+  if (cccdFile && supabase) {
+    try {
+      const path = `cccd/${currentEditRoomId}_${Date.now()}`;
+      const { data, error } = await supabase.storage.from('motel-docs').upload(path, cccdFile);
+      if (!error) {
+        const { data: pub } = supabase.storage.from('motel-docs').getPublicUrl(path);
+        cccdUrl = pub.publicUrl;
+      }
+    } catch {}
+  }
+
+  tenants[currentEditRoomId] = {
+    room_id: currentEditRoomId,
+    name, phone, title, deposit, check_in_date: checkin,
+    has_wifi: wifi, water_reading: wInit, water_type: wType,
+    cccd_url: cccdUrl, created_at: new Date().toISOString()
+  };
+  const room = rooms.find(r => r.id === currentEditRoomId);
+  if (room) room.status = 'occupied';
+
+  autoSaveLocal();
+  closeModal('modal-add-tenant');
+  loadRooms();
+  showToast(`✅ Đã thêm khách ${name} vào phòng ${room?.room_number}`, 'success');
+}
+
+function checkoutTenant(roomId) {
+  const tenant = tenants[roomId];
+  const room   = rooms.find(r => r.id === roomId);
+  if (!confirm(`Xác nhận TRẢ PHÒNG cho khách "${tenant?.name}" – Phòng ${room?.room_number}?\n\nThao tác này sẽ xóa dữ liệu khách.`)) return;
+  delete tenants[roomId];
+  if (room) room.status = 'vacant';
+  autoSaveLocal();
+  loadRooms();
+  showToast(`✅ Đã trả phòng ${room?.room_number}`, 'success');
+}
+
+// ================================================================
+// TAB 2: GIẤY TỜ
+// ================================================================
+async function uploadDoc() {
+  const name = document.getElementById('doc-name-input').value.trim();
+  const file = document.getElementById('doc-file-input').files[0];
+  if (!name || !file) { showToast('❌ Nhập tên và chọn file', 'error'); return; }
+
+  let fileUrl = '';
+  if (supabase) {
+    try {
+      const path = `docs/${Date.now()}_${file.name}`;
+      const { error } = await supabase.storage.from('motel-docs').upload(path, file);
+      if (!error) {
+        const { data: pub } = supabase.storage.from('motel-docs').getPublicUrl(path);
+        fileUrl = pub.publicUrl;
+      }
+    } catch(e) { showToast('Lỗi upload: ' + e.message, 'error'); return; }
+  } else {
+    // Local only – lưu tên file
+    fileUrl = URL.createObjectURL(file);
+  }
+
+  const doc = { id: Date.now(), name, file_url: fileUrl, created_at: new Date().toISOString() };
+  documents.unshift(doc);
+  if (supabase) await supabase.from('documents').insert([{ name, file_url: fileUrl }]);
+  autoSaveLocal();
+  renderDocs();
+  document.getElementById('doc-name-input').value = '';
+  document.getElementById('doc-file-input').value = '';
+  showToast('📁 Đã upload: ' + name, 'success');
+}
+
+function renderDocs() {
+  const list = document.getElementById('doc-list');
+  if (!documents.length) {
+    list.innerHTML = '<div class="text-muted text-center" style="padding:20px;">Chưa có tài liệu nào.</div>';
+    return;
+  }
+  list.innerHTML = documents.map(d => `
+    <div class="doc-item">
+      <span class="doc-name">📄 ${d.name}</span>
+      <span class="doc-meta">${new Date(d.created_at).toLocaleDateString('vi-VN')}</span>
+      <a href="${d.file_url}" download target="_blank" class="btn btn-outline btn-sm">⬇️ Tải về</a>
+      <button class="btn btn-red btn-sm" onclick="deleteDoc(${d.id})">🗑</button>
+    </div>`).join('');
+}
+
+async function deleteDoc(id) {
+  if (!confirm('Xoá tài liệu này?')) return;
+  documents = documents.filter(d => d.id !== id);
+  if (supabase) await supabase.from('documents').delete().eq('id', id);
+  autoSaveLocal();
+  renderDocs();
+}
+
+// ================================================================
+// TAB 3: TÍNH TIỀN – SELECTOR THÁNG NĂM
+// ================================================================
+function populateMonthYear() {
+  const ms = document.getElementById('bill-month');
+  const ys = document.getElementById('bill-year');
+  const now = new Date();
+  for (let m = 1; m <= 12; m++) {
+    ms.insertAdjacentHTML('beforeend', `<option value="${m}" ${m===now.getMonth()+1?'selected':''}>${m}</option>`);
+  }
+  for (let y = 2023; y <= now.getFullYear()+1; y++) {
+    ys.insertAdjacentHTML('beforeend', `<option value="${y}" ${y===now.getFullYear()?'selected':''}>${y}</option>`);
+  }
+}
+
+// ================================================================
+// TAB 3: RENDER BILLING CARDS
+// ================================================================
+function loadBillingCards() {
+  const month = parseInt(document.getElementById('bill-month').value);
+  const year  = parseInt(document.getElementById('bill-year').value);
+  const grid  = document.getElementById('billing-grid');
+  grid.innerHTML = '';
+
+  const occupiedRooms = rooms.filter(r => r.status === 'occupied' && tenants[r.id]);
+  if (!occupiedRooms.length) {
+    grid.innerHTML = '<div class="text-muted text-center" style="padding:30px;grid-column:1/-1;">Chưa có phòng nào đang có khách.</div>';
+    return;
+  }
+  occupiedRooms.forEach(room => {
+    const tenant = tenants[room.id];
+    const key    = `${room.id}-${month}-${year}`;
+    const bill   = billings[key] || {};
+    grid.insertAdjacentHTML('beforeend', renderBillingCard(room, tenant, bill, month, year));
+  });
+}
+
+function renderBillingCard(room, tenant, bill, month, year) {
+  const isPaid      = bill.is_paid      || false;
+  const billSent    = bill.bill_sent    || false;
+  const waterAsked  = bill.water_requested || false;
+  const total       = bill.total_amount || 0;
+
+  return `
+    <div class="billing-card" id="bcard-${room.id}">
+      <div class="billing-card-header ${isPaid ? 'paid-bg' : 'unpaid-bg'}">
+        <div>
+          <strong style="font-size:15px;font-family:'Roboto Mono',monospace;">${room.room_number}</strong>
+          <span style="font-size:12px;color:var(--txt2);margin-left:8px;">${tenant.title} ${tenant.name}</span>
+        </div>
+        <span class="badge ${isPaid ? 'badge-paid' : 'badge-unpaid'}">${isPaid ? '✅ PAID' : '⏳ Chưa TT'}</span>
+      </div>
+      <div class="billing-card-body">
+        <!-- CHECKBOX TRẠNG THÁI -->
+        <div class="status-checks">
+          <label class="status-check">
+            <input type="checkbox" ${waterAsked?'checked':''} onchange="toggleBillStatus(${room.id},'water_requested',this.checked,${month},${year})" />
+            Đã xin số nước
+          </label>
+          <label class="status-check">
+            <input type="checkbox" ${billSent?'checked':''} onchange="toggleBillStatus(${room.id},'bill_sent',this.checked,${month},${year})" />
+            Đã gửi Bill
+          </label>
+          <label class="status-check">
+            <input type="checkbox" ${isPaid?'checked':''} onchange="toggleBillStatus(${room.id},'is_paid',this.checked,${month},${year})" />
+            <strong style="color:var(--green)">✓ PAID</strong>
+          </label>
+        </div>
+        <!-- CHI TIẾT -->
+        ${total ? `
+        <div class="bill-line"><span class="label">Tổng tháng ${month}/${year}</span><span class="value text-money">${fmt(total)}</span></div>
+        ` : `<div class="text-muted" style="font-size:12px;padding:6px 0;">Chưa có số liệu tháng này.</div>`}
+        <!-- ACTIONS -->
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+          <button class="btn btn-blue btn-sm" onclick="openBillingModal(${room.id})">📝 Nhập Số</button>
+          <button class="btn btn-outline btn-sm" onclick="openWaterRequest(${room.id})">💬 Xin Số Nước</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function toggleBillStatus(roomId, field, value, month, year) {
+  const key = `${roomId}-${month}-${year}`;
+  if (!billings[key]) billings[key] = { room_id: roomId, month, year };
+  billings[key][field] = value;
+  autoSaveLocal();
+  if (field === 'is_paid') loadBillingCards(); // refresh màu
+}
+
+// ================================================================
+// MODAL TÍNH TIỀN
+// ================================================================
+function openBillingModal(roomId) {
+  const room   = rooms.find(r => r.id === roomId);
+  const tenant = tenants[roomId];
+  if (!room || !tenant) return;
+
+  const month  = parseInt(document.getElementById('bill-month').value);
+  const year   = parseInt(document.getElementById('bill-year').value);
+  const key    = `${roomId}-${month}-${year}`;
+  const bill   = billings[key] || {};
+
+  billModalData = { roomId, tenantData: tenant, roomData: room, evnImageBase64: null };
+
+  document.getElementById('bill-room-num').textContent = room.room_number;
+  document.getElementById('bill-tenant-info').innerHTML =
+    `<strong>${tenant.title} ${tenant.name}</strong> &nbsp;|&nbsp; SĐT: ${tenant.phone} &nbsp;|&nbsp; Vào: ${tenant.check_in_date} &nbsp;|&nbsp; Wifi: ${tenant.has_wifi ? '✅' : '❌'}`;
+  document.getElementById('bill-room-price').value = fmt(room.price);
+  document.getElementById('bill-wifi-price').value = tenant.has_wifi ? fmt(room.wifi_price) : '0';
+  document.getElementById('bill-water-old').value  = tenant.water_reading ?? 0;
+  document.getElementById('bill-water-new').value  = bill.water_new || '';
+  document.getElementById('bill-elec').value       = bill.elec_amount || '';
+  document.getElementById('bill-extra-amount').value = bill.extra_amount || '';
+  document.getElementById('bill-extra-note').value   = bill.extra_notes || '';
+  document.getElementById('bill-garbage').value       = bill.garbage || '';
+  document.getElementById('bill-water-debt').checked  = bill.water_debt || false;
+  document.getElementById('bill-evn-preview').style.display = 'none';
+  recalcBill();
+  openModal('modal-billing');
+}
+
+function previewEvn() {
+  const file = document.getElementById('bill-evn-img').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    billModalData.evnImageBase64 = e.target.result;
+    const img = document.getElementById('bill-evn-preview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ================================================================
+// TÍNH TIỀN LOGIC
+// ================================================================
+function recalcBill() {
+  const { roomData, tenantData } = billModalData;
+  if (!roomData || !tenantData) return;
+
+  const waterOld  = parseInt(document.getElementById('bill-water-old').value) || 0;
+  const waterNew  = parseInt(document.getElementById('bill-water-new').value) || 0;
+  const elec      = parseInt(document.getElementById('bill-elec').value)      || 0;
+  const extra     = parseInt(document.getElementById('bill-extra-amount').value) || 0;
+  const garbage   = parseInt(document.getElementById('bill-garbage').value)   || 0;
+  const waterDebt = document.getElementById('bill-water-debt').checked;
+  const wType     = tenantData.water_type || roomData.water_type || 'hot';
+  const wRate     = WATER_RATE[wType];
+  const wifiAmt   = tenantData.has_wifi ? roomData.wifi_price : 0;
+
+  // Tính tiền nước
+  let waterCubic = Math.max(0, waterNew - waterOld);
+  let waterAmt   = 0;
+  let waterInfo  = '';
+  if (waterDebt) {
+    waterAmt  = 0;
+    waterInfo = `⚠️ Nợ số nước – giữ nguyên số cũ (${waterOld}). Tháng sau cộng dồn.`;
+  } else if (waterNew > waterOld) {
+    waterAmt  = waterCubic * wRate;
+    waterInfo = `${waterNew} − ${waterOld} = ${waterCubic} khối × ${fmt(wRate)}/khối = ${fmt(waterAmt)}`;
+  } else if (waterNew === 0) {
+    waterInfo = 'Chưa nhập số nước mới.';
+  } else {
+    waterInfo = `⚠️ Số mới (${waterNew}) ≤ số cũ (${waterOld}) – kiểm tra lại!`;
+  }
+  document.getElementById('water-calc-info').textContent = waterInfo;
+
+  const total = roomData.price + elec + waterAmt + wifiAmt + garbage + extra;
+  billModalData.calculated = { waterCubic, waterAmt, total, wRate, wType, wifiAmt, garbage, extra, elec };
+
+  document.getElementById('bill-summary').innerHTML = `
+    <div style="font-weight:700;margin-bottom:8px;">📊 Tổng Kết Tháng</div>
+    <div class="bill-line"><span class="label">🏠 Tiền phòng</span><span class="value">${fmt(roomData.price)}</span></div>
+    <div class="bill-line"><span class="label">⚡ Điện</span><span class="value">${fmt(elec)}</span></div>
+    <div class="bill-line"><span class="label">🚿 Nước (${waterCubic} khối × ${fmt(wRate)})</span><span class="value">${fmt(waterAmt)}</span></div>
+    <div class="bill-line"><span class="label">📡 Wifi</span><span class="value">${fmt(wifiAmt)}</span></div>
+    <div class="bill-line"><span class="label">🗑️ Rác/VS</span><span class="value">${fmt(garbage)}</span></div>
+    ${extra ? `<div class="bill-line"><span class="label">📌 Phát sinh</span><span class="value">${fmt(extra)}</span></div>` : ''}
+    <div class="bill-line total"><span class="label">💰 TỔNG CỘNG</span><span class="value">${fmt(total)}</span></div>
+  `;
+}
+
+// ================================================================
+// LƯU SỐ LIỆU THÁNG
+// ================================================================
+async function saveBillingRecord() {
+  const { roomId, tenantData, roomData, calculated } = billModalData;
+  if (!calculated) { showToast('Hãy nhập đủ số liệu', 'error'); return; }
+  const month = parseInt(document.getElementById('bill-month').value);
+  const year  = parseInt(document.getElementById('bill-year').value);
+  const key   = `${roomId}-${month}-${year}`;
+
+  const waterNew   = parseInt(document.getElementById('bill-water-new').value) || 0;
+  const waterDebt  = document.getElementById('bill-water-debt').checked;
+  const extraNote  = document.getElementById('bill-extra-note').value;
+  const garbage    = parseInt(document.getElementById('bill-garbage').value) || 0;
+
+  // Upload ảnh EVN nếu có
+  let evnUrl = billings[key]?.evn_img_url || '';
+  const evnFile = document.getElementById('bill-evn-img').files[0];
+  if (evnFile && supabase) {
+    try {
+      const path = `evn/${roomId}_${month}_${year}_${Date.now()}`;
+      await supabase.storage.from('motel-docs').upload(path, evnFile);
+      const { data } = supabase.storage.from('motel-docs').getPublicUrl(path);
+      evnUrl = data.publicUrl;
+    } catch {}
+  }
+
+  billings[key] = {
+    ...(billings[key] || {}),
+    room_id: roomId, month, year,
+    water_old: parseInt(document.getElementById('bill-water-old').value) || 0,
+    water_new: waterNew,
+    water_debt: waterDebt,
+    elec_amount: parseInt(document.getElementById('bill-elec').value) || 0,
+    extra_amount: parseInt(document.getElementById('bill-extra-amount').value) || 0,
+    extra_notes: extraNote,
+    garbage,
+    evn_img_url: evnUrl,
+    total_amount: calculated.total,
+    water_cubic: calculated.waterCubic,
+    water_amount: calculated.waterAmt,
+    updated_at: new Date().toISOString()
+  };
+
+  // Cập nhật số nước mới vào tenant (chỉ nếu không nợ)
+  if (!waterDebt && waterNew > 0) {
+    tenants[roomId].water_reading = waterNew;
+  }
+
+  autoSaveLocal();
+  closeModal('modal-billing');
+  loadBillingCards();
+  showToast(`💾 Đã lưu số liệu phòng ${roomData.room_number}`, 'success');
+}
+
+// ================================================================
+// GỬI TIN NHẮN XIN SỐ NƯỚC
+// ================================================================
+function openWaterRequest(roomId) {
+  const tenant = tenants[roomId];
+  if (!tenant) return;
+  const msg = `${tenant.title} ơi nay rảnh gửi con số nước nha`;
+  showMessageModal(msg, tenant.phone);
+}
+
+function sendWaterRequest() {
+  const { tenantData } = billModalData;
+  if (!tenantData) return;
+  const msg = `${tenantData.title} ơi nay rảnh gửi con số nước nha`;
+  showMessageModal(msg, tenantData.phone);
+}
+
+function showMessageModal(msg, phone) {
+  document.getElementById('msg-content').textContent = msg;
+  document.getElementById('zalo-link').href = `https://zalo.me/${phone}`;
+  openModal('modal-message');
+}
+
+function copyMsg() {
+  const text = document.getElementById('msg-content').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Đã copy!', 'success'));
+}
+
+// ================================================================
+// XUẤT BILL ẢNH (html2canvas)
+// ================================================================
+async function exportBillImage() {
+  const { roomData, tenantData, calculated, evnImageBase64 } = billModalData;
+  if (!calculated) { showToast('Nhập số liệu trước', 'error'); return; }
+
+  const month = parseInt(document.getElementById('bill-month').value);
+  const year  = parseInt(document.getElementById('bill-year').value);
+  const key   = `${roomData.id}-${month}-${year}`;
+  const bill  = billings[key] || {};
+  const extraNote = document.getElementById('bill-extra-note').value;
+
+  // Lấy thông tin thanh toán
+  const bankId  = localStorage.getItem('bank_id')    || 'MB';
+  const acct    = localStorage.getItem('bank_acct')  || '0123456789';
+  const owner   = localStorage.getItem('bank_owner') || 'CHU NHA TRO';
+  const qrAmt   = calculated.total;
+  const qrInfo  = encodeURIComponent(`Phong ${roomData.room_number} thang ${month}/${year}`);
+  const qrUrl   = `https://img.vietqr.io/image/${bankId}-${acct}-compact.png?amount=${qrAmt}&addInfo=${qrInfo}&accountName=${encodeURIComponent(owner)}`;
+
+  // Render nội dung bill vào div ẩn
+  const zone = document.getElementById('bill-doc-content');
+  zone.innerHTML = `
+    <div class="bill-doc-header">
+      <div>
+        <div class="bill-doc-title">HÓA ĐƠN THÁNG ${month}/${year}</div>
+        <div class="bill-doc-sub">Nhà Trọ – Thông tin nội bộ</div>
+      </div>
+      <div class="bill-doc-room">${roomData.room_number}</div>
+    </div>
+
+    <div class="bill-section">
+      <div class="bill-section-title">Thông Tin Khách</div>
+      <div class="bill-row"><span>Khách thuê</span><span class="v">${tenantData.title} ${tenantData.name}</span></div>
+      <div class="bill-row"><span>Ngày vào ở</span><span class="v">${tenantData.check_in_date}</span></div>
+    </div>
+
+    <div class="bill-section">
+      <div class="bill-section-title">Chi Tiết Tiền</div>
+      <div class="bill-row"><span>🏠 Tiền phòng</span><span class="v">${fmt(roomData.price)}</span></div>
+      <div class="bill-row"><span>⚡ Tiền điện</span><span class="v">${fmt(calculated.elec || parseInt(document.getElementById('bill-elec').value)||0)}</span></div>
+      <div class="bill-row"><span>🚿 Nước (${calculated.waterCubic} khối × ${fmt(calculated.wRate)})</span><span class="v">${fmt(calculated.waterAmt)}</span></div>
+      <div class="bill-row"><span>📡 Wifi</span><span class="v">${fmt(calculated.wifiAmt)}</span></div>
+      <div class="bill-row"><span>🗑️ Rác/Vệ sinh</span><span class="v">${fmt(calculated.garbage)}</span></div>
+      ${calculated.extra ? `<div class="bill-row"><span>📌 Phát sinh</span><span class="v">${fmt(calculated.extra)}</span></div>` : ''}
+      ${extraNote ? `<div class="bill-row"><span>📝 Ghi chú</span><span class="v" style="font-size:11px;text-align:right;max-width:200px">${extraNote}</span></div>` : ''}
+      <div class="bill-row total-row"><span>💰 TỔNG CỘNG</span><span class="v">${fmt(calculated.total)}</span></div>
+    </div>
+
+    ${evnImageBase64 ? `
+    <div class="bill-section">
+      <div class="bill-section-title">Ảnh Bill EVN</div>
+      <img src="${evnImageBase64}" class="bill-evn-img" crossorigin="anonymous" />
+    </div>` : ''}
+
+    <div class="bill-section">
+      <div class="bill-section-title">Thanh Toán QR</div>
+      <div class="bill-qr-zone">
+        <img src="${qrUrl}" crossorigin="anonymous" onerror="this.style.display='none'" />
+        <div class="bill-qr-info">
+          <div class="bank">${bankId}</div>
+          <div class="acct">${acct}</div>
+          <div style="font-size:12px;color:#555;margin-top:4px;">${owner}</div>
+          <div style="font-size:13px;margin-top:6px;font-weight:600;color:#B8960C;">${fmt(qrAmt)}</div>
+          <div style="font-size:11px;color:#888;">T${month}/${year} – ${roomData.room_number}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bill-footer">Xuất tự động từ hệ thống Quản Lý Nhà Trọ • ${new Date().toLocaleString('vi-VN')}</div>
+  `;
+
+  showToast('📸 Đang tạo ảnh bill...', 'success');
+
+  // Đợi ảnh load (QR)
+  await new Promise(r => setTimeout(r, 900));
+
+  try {
+    const canvas = await html2canvas(document.getElementById('bill-render-zone'), {
+      scale: 3, useCORS: true, allowTaint: true,
+      backgroundColor: '#ffffff', logging: false
+    });
+    const link = document.createElement('a');
+    link.download = `Bill_${roomData.room_number}_T${month}_${year}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('✅ Đã tải ảnh bill!', 'success');
+  } catch(e) {
+    showToast('❌ Lỗi xuất ảnh: ' + e.message, 'error');
+  }
+}
+
+// ================================================================
+// UTILS
+// ================================================================
+function fmt(n) {
+  if (!n && n !== 0) return '—';
+  return new Intl.NumberFormat('vi-VN').format(n) + 'đ';
+}
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+function showToast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => el.className = '', 3000);
+}
+
+// Đóng modal khi click nền
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+// ================================================================
+// SQL HƯỚNG DẪN (HIỂN THỊ TRONG TAB CẤU HÌNH)
+// ================================================================
+const SQL_GUIDE = `-- Chạy trong Supabase SQL Editor
+
+-- Bảng phòng
+CREATE TABLE IF NOT EXISTS rooms (
+  id           INT PRIMARY KEY,
+  room_number  TEXT NOT NULL,
+  price        INT  DEFAULT 0,
+  wifi_price   INT  DEFAULT 100000,
+  status       TEXT DEFAULT 'vacant',
+  water_type   TEXT DEFAULT 'hot'
+);
+
+-- Chèn 9 phòng mặc định
+INSERT INTO rooms (id, room_number, price, wifi_price, status, water_type) VALUES
+(1,'P01',2500000,100000,'vacant','hot'),
+(2,'P02',2500000,100000,'vacant','hot'),
+(3,'P03',2800000,100000,'vacant','hot'),
+(4,'P04',2800000,100000,'vacant','hot'),
+(5,'P05',3000000,100000,'vacant','cold'),
+(6,'P06',3000000,100000,'vacant','cold'),
+(7,'P07',3200000,100000,'vacant','cold'),
+(8,'P08',3200000,100000,'vacant','cold'),
+(9,'P09',3500000,100000,'vacant','cold')
+ON CONFLICT (id) DO NOTHING;
+
+-- Bảng khách thuê
+CREATE TABLE IF NOT EXISTS tenants (
+  id             UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  room_id        INT  REFERENCES rooms(id),
+  name           TEXT,
+  phone          TEXT,
+  title          TEXT DEFAULT 'Bạn',
+  deposit        INT  DEFAULT 0,
+  check_in_date  DATE,
+  has_wifi       BOOL DEFAULT true,
+  water_reading  INT  DEFAULT 0,
+  water_type     TEXT DEFAULT 'hot',
+  cccd_url       TEXT,
+  created_at     TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(room_id)
+);
+
+-- Bảng tính tiền
+CREATE TABLE IF NOT EXISTS billing (
+  id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  room_id       INT  REFERENCES rooms(id),
+  month         INT,
+  year          INT,
+  water_old     INT  DEFAULT 0,
+  water_new     INT  DEFAULT 0,
+  water_debt    BOOL DEFAULT false,
+  water_cubic   INT  DEFAULT 0,
+  water_amount  INT  DEFAULT 0,
+  elec_amount   INT  DEFAULT 0,
+  extra_amount  INT  DEFAULT 0,
+  extra_notes   TEXT,
+  garbage       INT  DEFAULT 0,
+  evn_img_url   TEXT,
+  total_amount  INT  DEFAULT 0,
+  is_paid       BOOL DEFAULT false,
+  bill_sent     BOOL DEFAULT false,
+  water_requested BOOL DEFAULT false,
+  updated_at    TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(room_id, month, year)
+);
+
+-- Bảng giấy tờ
+CREATE TABLE IF NOT EXISTS documents (
+  id         UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name       TEXT NOT NULL,
+  file_url   TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Storage bucket (tạo trong Supabase Dashboard > Storage > New bucket)
+-- Tên bucket: motel-docs | Public: true
+
+-- Row Level Security (tuỳ chọn – tắt nếu dùng anon key)
+-- ALTER TABLE rooms    DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE tenants  DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE billing  DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE documents DISABLE ROW LEVEL SECURITY;
+`;
+</script>
+</body>
+</html>
