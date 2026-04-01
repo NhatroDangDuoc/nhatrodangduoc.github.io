@@ -1,8 +1,8 @@
-name: 🔔 ĐẾN HẠN GHI SỐ NƯỚC VÀ THU TIỀN TRỌ
+name: 🔔 ĐẾN HẠN GHI SỐ NƯỚC VÀ GỬI BÁO TIỀN PHÒNG 🔔
 on:
   schedule:
     # Chạy lúc 2:00 AM UTC (tương đương 9:00 AM giờ Việt Nam) vào các ngày 6, 7, 8 hàng tháng
-    - cron: '0 2 6,7,8 * *'
+    - cron: '0 2 26,27,28,29 * *'
   workflow_dispatch: # Cho phép bấm chạy thủ công để test
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
           -H "Content-Type: application/json" \
           -d '{
             "access_key": "8587548f-533c-48bd-b674-83a927c9f86b",
-            "subject": "🔔 ĐẾN HẠN GHI SỐ NƯỚC VÀ THU TIỀN TRỌ",
+            "subject": "🔔 ĐẾN HẠN GHI SỐ NƯỚC VÀ GỬI BÁO TIỀN PHÒNG 🔔",
             "from_name": "Nhà Trọ Đặng Được ",
-            "message": "Hôm nay là ngày ghi số nước và thu tiền trọ. Hãy nhắn tin lấy số nước, đóng tiền điện sau đó vào website nhập liệu data in bill tính tiền"
+            "message": "NGÀY 26-29 HẰNG THÁNG phải liên hệ khách từng phòng lấy số nước, lên BILL tính tiền và gửi báo tiền phòng từ ngày 1 đầu tháng "
           }'
