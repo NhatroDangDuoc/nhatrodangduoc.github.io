@@ -1,4 +1,4 @@
-name: 🔔 ĐẾN HẠN THU TIỀN TRỌ TRƯỚC NGÀY 10 HẰNG THÁNG
+name: 🔔 ĐẾN HẠN THU TIỀN TRỌ TRƯỚC NGÀY 10 HẰNG THÁNG 🔔
 on:
   schedule:
     # Chạy lúc 2:00 AM UTC (tương đương 9:00 AM giờ Việt Nam) vào các ngày 6, 7, 8, 9 hàng tháng
@@ -15,7 +15,7 @@ jobs:
           -H "Content-Type: application/json" \
           -d '{
             "access_key": "8587548f-533c-48bd-b674-83a927c9f86b",
-            "subject": "🔔 ĐẾN HẠN THU TIỀN TRỌ TRƯỚC NGÀY 10 HẰNG THÁNG",
+            "subject": "🔔 ĐẾN HẠN THU TIỀN TRỌ TRƯỚC NGÀY 10 HẰNG THÁNG 🔔",
             "from_name": "Nhà Trọ Đặng Được ",
-            "message": "Thu tiền trọ trước DEADLINE NGÀY 10 hằng tháng, nhớ vào cập nhật website và xem lại dữ liệu xem đã đúng chưa"
+            "message": "DEADLINE NGÀY 10 HẰNG THÁNG - thu tiền trọ và sau đó phải vào cập nhật website và xem lại dữ liệu xem đã đúng chưa"
           }'
