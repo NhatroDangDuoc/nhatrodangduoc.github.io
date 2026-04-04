@@ -402,6 +402,68 @@ textarea.form-input{resize:vertical;min-height:108px}
 /* SECTION PAGES */
 .page{display:none;min-height:calc(100vh - 72px)}
 .page.active{display:block}
+/* MOBILE-ONLY LAYER */
+.mobile-bottom-nav,.mobile-more-sheet,.mobile-more-backdrop{display:none}
+body.mobile-app{display:block;min-height:100svh;background:linear-gradient(180deg,#F4F6F9 0%,var(--bg) 100%)}
+body.mobile-app #appContainer{display:block!important;width:100%}
+body.mobile-app .sidebar,
+body.mobile-app .hamburger,
+body.mobile-app .overlay{display:none!important}
+body.mobile-app .main{margin-left:0;min-height:100svh;padding-bottom:94px}
+body.mobile-app .page-header{position:sticky;top:0;z-index:140;padding:14px 16px;min-height:auto;gap:12px;align-items:stretch;background:rgba(255,255,255,.92)}
+body.dark-mode.mobile-app .page-header{background:rgba(15,20,26,.94)}
+body.mobile-app .page-header-copy h1{font-size:28px;line-height:1.05}
+body.mobile-app .page-content{padding:16px 16px 110px;max-width:100%}
+body.mobile-app .page-content-medium,
+body.mobile-app .page-content-narrow{max-width:100%}
+body.mobile-app .grid-2,
+body.mobile-app .grid-3,
+body.mobile-app .report-summary,
+body.mobile-app .billing-report-summary,
+body.mobile-app .collection-grid,
+body.mobile-app .overview-top-grid,
+body.mobile-app .overview-summary-grid,
+body.mobile-app .overview-summary-grid-3,
+body.mobile-app .overview-summary-grid-5,
+body.mobile-app .overview-summary-grid-month,
+body.mobile-app .overview-summary-grid-alltime,
+body.mobile-app .overview-split-grid,
+body.mobile-app .billing-detail-grid,
+body.mobile-app .billing-field-stack,
+body.mobile-app .room-static-grid{grid-template-columns:1fr!important}
+body.mobile-app .card,
+body.mobile-app .overview-section,
+body.mobile-app .overview-panel,
+body.mobile-app .billing-room,
+body.mobile-app .room-card{border-radius:20px}
+body.mobile-app .period-toolbar{width:100%;margin-left:0;gap:10px;align-items:stretch}
+body.mobile-app .period-picker{min-width:0;flex:1 1 auto}
+body.mobile-app .period-actions{width:100%;justify-content:space-between}
+body.mobile-app .period-toolbar > .btn{width:100%;justify-content:center}
+body.mobile-app .billing-room-header{grid-template-columns:1fr;gap:12px}
+body.mobile-app .billing-room-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+body.mobile-app .billing-room-total{align-items:flex-start;text-align:left}
+body.mobile-app .overview-table-wrap,
+body.mobile-app .settings-fixed-wrap{overflow:auto;-webkit-overflow-scrolling:touch}
+body.mobile-app .overview-resident-wrap{max-height:none}
+body.mobile-app .theme-toggle{top:auto;bottom:104px;right:16px;width:48px;height:48px;border-radius:999px;z-index:220}
+body.mobile-app .toast-container{top:12px;right:12px;left:12px}
+body.mobile-app .toast{width:100%}
+body.mobile-app .login-page{padding:20px}
+body.mobile-app .login-box{width:100%;max-width:420px;border-radius:24px;padding:32px 24px}
+body.mobile-app .mobile-bottom-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;position:fixed;left:12px;right:12px;bottom:12px;z-index:210;padding:10px;background:rgba(11,15,20,.92);border:1px solid rgba(255,255,255,.06);border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.24);backdrop-filter:blur(18px)}
+body.mobile-app .mobile-nav-btn{border:none;background:transparent;color:#9AA4B2;padding:8px 6px;border-radius:16px;display:flex;flex-direction:column;align-items:center;gap:5px;font:inherit;font-size:11px;font-weight:700;cursor:pointer;min-height:58px}
+body.mobile-app .mobile-nav-btn.active{background:rgba(255,154,77,.12);color:#F8FAFC}
+body.mobile-app .mobile-nav-icon{width:28px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);font-size:11px;font-weight:800;letter-spacing:.04em}
+body.mobile-app .mobile-nav-btn.active .mobile-nav-icon{background:rgba(255,154,77,.22);color:#FFD7B8}
+body.mobile-app .mobile-more-backdrop.show{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:205}
+body.mobile-app .mobile-more-sheet{position:fixed;left:12px;right:12px;bottom:86px;z-index:211;padding:16px;background:rgba(11,15,20,.96);border:1px solid rgba(255,255,255,.06);border-radius:24px;box-shadow:0 24px 50px rgba(0,0,0,.26);display:none}
+body.mobile-app .mobile-more-sheet.show{display:block}
+body.mobile-app .mobile-more-title{font-size:12px;font-weight:800;color:#9AA4B2;letter-spacing:.04em;margin-bottom:12px;text-transform:uppercase}
+body.mobile-app .mobile-more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+body.mobile-app .mobile-more-btn{border:1px solid rgba(255,255,255,.08);background:#151B22;color:#F8FAFC;padding:14px 12px;border-radius:18px;font:inherit;font-size:13px;font-weight:700;text-align:left;cursor:pointer}
+body.mobile-app .mobile-more-btn.active{border-color:rgba(255,154,77,.42);color:#FFB67B}
+body.mobile-app .save-float{bottom:96px;right:16px}
 /* UPLOAD */
 .upload-zone{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;color:var(--text2)}
 .upload-zone:hover{border-color:var(--gold)}
@@ -878,6 +940,40 @@ textarea.form-input{resize:vertical;min-height:108px}
       </div>
     </div>
   </main>
+  <div class="mobile-more-backdrop" id="mobileMoreBackdrop" onclick="closeMobileMoreSheet()"></div>
+  <div class="mobile-more-sheet" id="mobileMoreSheet">
+    <div class="mobile-more-title">Truy cập nhanh</div>
+    <div class="mobile-more-grid">
+      <button class="mobile-more-btn" data-mobile-page="rooms" type="button" onclick="navigateMobileTo('rooms')">Phòng</button>
+      <button class="mobile-more-btn" data-mobile-page="newTenant" type="button" onclick="navigateMobileTo('newTenant')">Khách mới</button>
+      <button class="mobile-more-btn" data-mobile-page="checkout" type="button" onclick="navigateMobileTo('checkout')">Trả phòng</button>
+      <button class="mobile-more-btn" data-mobile-page="documents" type="button" onclick="navigateMobileTo('documents')">Giấy tờ</button>
+      <button class="mobile-more-btn" data-mobile-page="archived" type="button" onclick="navigateMobileTo('archived')">Khách cũ</button>
+      <button class="mobile-more-btn" data-mobile-page="settings" type="button" onclick="navigateMobileTo('settings')">Cài đặt</button>
+    </div>
+  </div>
+  <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Điều hướng mobile">
+    <button class="mobile-nav-btn" data-mobile-page="dashboard" type="button" onclick="navigateMobileTo('dashboard')">
+      <span class="mobile-nav-icon">TQ</span>
+      <span>Tổng quan</span>
+    </button>
+    <button class="mobile-nav-btn" data-mobile-page="waterEntry" type="button" onclick="navigateMobileTo('waterEntry')">
+      <span class="mobile-nav-icon">SN</span>
+      <span>Nước</span>
+    </button>
+    <button class="mobile-nav-btn" data-mobile-page="billing" type="button" onclick="navigateMobileTo('billing')">
+      <span class="mobile-nav-icon">TT</span>
+      <span>Tiền</span>
+    </button>
+    <button class="mobile-nav-btn" data-mobile-page="rooms" type="button" onclick="navigateMobileTo('rooms')">
+      <span class="mobile-nav-icon">P</span>
+      <span>Phòng</span>
+    </button>
+    <button class="mobile-nav-btn" data-mobile-page="more" type="button" onclick="toggleMobileMoreSheet()">
+      <span class="mobile-nav-icon">+</span>
+      <span>Khác</span>
+    </button>
+  </nav>
 </div>
 
 <!-- ROOM DETAIL MODAL -->
@@ -921,6 +1017,7 @@ const DASHBOARD_MONTH_KEY = 'nhatro_dashboard_month_v1';
 const RESIDENT_LIVE_SHEET_KEY = 'nhatro_resident_live_sheet_v1';
 const WEB3FORM_KEY_STORAGE = 'nhatro_web3form_key_v1';
 const RESIDENT_LIVE_DEFAULT_ROWS = 20;
+const MOBILE_BREAKPOINT = 900;
 
 let sb = null; // Supabase client
 let currentUser = null;
@@ -940,6 +1037,57 @@ let dashboardState = {
   depositRows: [],
   selectedResidentSnapshotId: null
 };
+let mobileMode = false;
+
+function isMobileDeviceContext() {
+  const widthMatch = window.matchMedia(`(max-width:${MOBILE_BREAKPOINT}px)`).matches;
+  const coarseMatch = window.matchMedia('(pointer: coarse)').matches;
+  const ua = navigator.userAgent || '';
+  const mobileUa = /Android|iPhone|iPad|iPod|Windows Phone|Mobile/i.test(ua);
+  return widthMatch && (coarseMatch || mobileUa);
+}
+
+function applyMobileShell() {
+  mobileMode = isMobileDeviceContext();
+  document.body.classList.toggle('mobile-app', mobileMode);
+  if (!mobileMode) closeMobileMoreSheet();
+  updateMobileNavState();
+}
+
+function closeMobileMoreSheet() {
+  document.getElementById('mobileMoreSheet')?.classList.remove('show');
+  document.getElementById('mobileMoreBackdrop')?.classList.remove('show');
+}
+
+function toggleMobileMoreSheet() {
+  if (!mobileMode) return;
+  const sheet = document.getElementById('mobileMoreSheet');
+  const backdrop = document.getElementById('mobileMoreBackdrop');
+  const next = !sheet?.classList.contains('show');
+  sheet?.classList.toggle('show', next);
+  backdrop?.classList.toggle('show', next);
+  updateMobileNavState();
+}
+
+function navigateMobileTo(page) {
+  closeMobileMoreSheet();
+  navigate(page);
+}
+
+function updateMobileNavState() {
+  const activePage = document.querySelector('.page.active')?.id?.replace('page-', '') || 'dashboard';
+  document.querySelectorAll('.mobile-nav-btn[data-mobile-page]').forEach(btn => {
+    const page = btn.dataset.mobilePage;
+    const isMore = page === 'more';
+    const active = isMore
+      ? ['newTenant', 'checkout', 'documents', 'archived', 'settings'].includes(activePage) || document.getElementById('mobileMoreSheet')?.classList.contains('show')
+      : page === activePage;
+    btn.classList.toggle('active', !!active);
+  });
+  document.querySelectorAll('.mobile-more-btn[data-mobile-page]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mobilePage === activePage);
+  });
+}
 let hasUnsavedChanges = false;
 let unsavedReason = '';
 
@@ -947,6 +1095,7 @@ let unsavedReason = '';
 // INIT
 // ============================================================
 async function initApp() {
+  applyMobileShell();
   initTheme();
   sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const { data: { session } } = await sb.auth.getSession();
@@ -1123,6 +1272,7 @@ function getPeopleCountForRoom(roomId) {
 // ============================================================
 function navigate(page) {
   closeAllPeriodPickers();
+  closeMobileMoreSheet();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelectorAll('.nav-cluster').forEach(n => n.classList.remove('active-cluster'));
@@ -1145,6 +1295,7 @@ function navigate(page) {
     case 'archived': loadArchived(); break;
     case 'settings': loadSettings(); break;
   }
+  updateMobileNavState();
 }
 
 function toggleSidebar() {
@@ -5248,6 +5399,8 @@ async function exportCsvData() {
 // ============================================================
 // INIT ON LOAD
 // ============================================================
+window.addEventListener('resize', applyMobileShell);
+window.addEventListener('orientationchange', applyMobileShell);
 document.addEventListener('DOMContentLoaded', initApp);
 </script>
 </body>
