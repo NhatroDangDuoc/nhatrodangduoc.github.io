@@ -17,7 +17,6 @@ jobs:
         env:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
-          REMINDER_TO: ${{ secrets.REMINDER_TO }}
         run: |
           python - <<'PY'
           import os, smtplib
@@ -25,21 +24,27 @@ jobs:
 
           user = os.environ["SMTP_USER"]
           password = os.environ["SMTP_PASS"]
-          to_email = os.environ["REMINDER_TO"]
+
+          recipients = [
+              "nguyendangduoc1709@gmail.com",
+              "ronz.zrob@gmail.com",
+              "thuongdangabc@gmail.com"
+          ]
 
           subject = "Nhắc đầu tháng: báo thanh toán tiền trọ"
-          body = """Nhắc thu tiền trọ:
-- Hôm nay cần kiểm tra các phòng chưa thanh toán
+          body = """Hôm nay cần:
+- Kiểm tra các phòng chưa thanh toán
 - Chủ động báo thanh toán tiền trọ
 - Đối soát bill và trạng thái đã thu trên website
 """
 
-          msg = MIMEText(body, "plain", "utf-8")
-          msg["Subject"] = subject
-          msg["From"] = user
-          msg["To"] = to_email
-
           with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
               server.login(user, password)
-              server.send_message(msg)
+
+              for to_email in recipients:
+                  msg = MIMEText(body, "plain", "utf-8")
+                  msg["Subject"] = subject
+                  msg["From"] = user
+                  msg["To"] = to_email
+                  server.send_message(msg)
           PY
