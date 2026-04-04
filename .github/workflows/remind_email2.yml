@@ -2,7 +2,7 @@ name: Nhắc ghi số nước và tính tiền cuối tháng
 
 on:
   schedule:
-    - cron: '0 3 26-31 * *' # 10:00 sáng giờ Việt Nam
+    - cron: '0 3 26-31 * *'
   workflow_dispatch:
 
 jobs:
@@ -34,7 +34,8 @@ jobs:
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
           python - <<'PY'
-          import os, smtplib
+          import os
+          import smtplib
           from email.mime.text import MIMEText
 
           user = os.environ["SMTP_USER"]
@@ -43,16 +44,17 @@ jobs:
           recipients = [
               "nguyendangduoc1709@gmail.com",
               "ronz.zrob@gmail.com",
-              "thuongdangabc@gmail.com"
+              "thuongdangabc@gmail.com",
           ]
 
           subject = "Nhắc cuối tháng: ghi số nước và tính tiền"
-          body = """3 ngày cuối tháng:
-- Liên hệ khách từng phòng để lấy số nước
-- Nhập số nước vào website
-- Tính tiền tháng mới
-- Kiểm tra lại bill trước khi sang tháng mới
-"""
+          body = (
+              "3 ngày cuối tháng:\n"
+              "- Liên hệ khách từng phòng để lấy số nước\n"
+              "- Nhập số nước vào website\n"
+              "- Tính tiền tháng mới\n"
+              "- Kiểm tra lại bill trước khi sang tháng mới\n"
+          )
 
           with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
               server.login(user, password)
