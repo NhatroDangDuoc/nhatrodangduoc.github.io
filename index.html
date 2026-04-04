@@ -8,6 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <style>
 :root{--bg:#F3F4F6;--card:#FFFFFF;--gold:#FF6A00;--gold-hover:#E55F00;--gold-light:#FFF1E7;--text:#111827;--text2:#6B7280;--success:#0F8A5F;--warning:#C97817;--danger:#CE4534;--border:#E5E7EB;--radius:12px;--radius-sm:8px;--shadow:0 1px 2px rgba(17,24,39,.05),0 10px 20px rgba(17,24,39,.04);--shadow-lg:0 20px 40px rgba(17,24,39,.08);--surface-soft:#F9FAFB;--surface-hover:#F5F7FA;--surface-raised:#FFFFFF;--surface-raised-2:#FFFFFF;--table-head:#F5F7FA;--table-hover:#FAFBFC;--input-bg:#FFFFFF;--sidebar-bg:#0B0F14;--sidebar-hover:#141A22;--sidebar-text:#9AA4B2;--sidebar-active:#171E27;--page-max:1440px;--page-medium:1100px;--page-narrow:860px;--card-border:rgba(17,24,39,.08)}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -22,6 +23,18 @@ body.dark-mode{--bg:#0F141A;--card:#151B22;--gold:#FF9A4D;--gold-hover:#FFAF69;-
 .sidebar-brand{display:flex;flex-direction:column;gap:0}
 .sidebar-kicker{display:none}
 .nav-menu{flex:1;padding:14px 12px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.nav-feature-launch{margin:0 12px 6px;padding:14px 14px 14px 16px;border-radius:18px;border:1px solid rgba(255,172,94,.22);background:
+linear-gradient(135deg,rgba(255,140,46,.18) 0%,rgba(255,194,112,.1) 55%,rgba(255,140,46,.16) 100%),
+linear-gradient(180deg,#181e26 0%,#12171d 100%);
+display:flex;align-items:center;justify-content:space-between;gap:12px;color:#F8FAFC;cursor:pointer;position:relative;overflow:hidden;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.nav-feature-launch::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0 6px,transparent 6px 12px);opacity:.14;pointer-events:none}
+.nav-feature-launch:hover{transform:translateY(-1px);border-color:rgba(255,172,94,.38);box-shadow:0 10px 24px rgba(0,0,0,.22)}
+.nav-feature-launch.active{border-color:rgba(255,172,94,.55);box-shadow:0 0 0 1px rgba(255,172,94,.22),0 12px 26px rgba(0,0,0,.26)}
+.nav-feature-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.nav-feature-kicker{font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#FFB56E}
+.nav-feature-title{font-size:15px;font-weight:900;line-height:1.1}
+.nav-feature-note{font-size:12px;color:#D7DEE8;line-height:1.35}
+.nav-feature-badge{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#FF9A4D;color:#261300;font-size:15px;font-weight:900;box-shadow:0 0 0 4px rgba(255,154,77,.16);animation:nav-feature-pulse 2.2s ease-in-out infinite}
 .nav-cluster{padding:0;border:none;border-radius:0;background:transparent;transition:none}
 .nav-cluster.active-cluster{border:none;background:transparent;box-shadow:none}
 .nav-cluster-head{display:flex;align-items:center;justify-content:flex-start;gap:12px;margin-bottom:6px;padding:0 12px}
@@ -46,6 +59,18 @@ body.dark-mode .page-header{background:rgba(15,20,26,.82)}
 .page-header-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
 .page-kicker{display:none}
 .page-header h1{font-size:25px;font-weight:600;letter-spacing:-.03em;line-height:1.05}
+.page-header.page-header-period{display:grid;grid-template-columns:minmax(220px,1fr) minmax(320px,420px) minmax(220px,1fr);align-items:center;column-gap:18px;row-gap:12px}
+.page-header-focus{display:flex;justify-content:center;min-width:0}
+.page-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;min-width:0}
+.page-header.page-header-period .page-header-copy{justify-self:start}
+.page-header.page-header-period .page-header-focus{justify-self:center;width:100%}
+.page-header.page-header-period .page-header-actions{justify-self:end}
+.page-header-focus .period-picker{width:100%;min-width:0}
+.page-header-focus .period-trigger{min-height:54px;border-color:rgba(255,106,0,.22);background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,241,231,.92) 100%);box-shadow:0 0 0 1px rgba(255,106,0,.08)}
+body.dark-mode .page-header-focus .period-trigger{background:linear-gradient(180deg,rgba(22,29,37,.98) 0%,rgba(54,32,17,.82) 100%);border-color:rgba(255,154,77,.28)}
+.page-header-focus .period-trigger-value{font-size:20px}
+.page-header-focus .period-trigger-label{color:var(--gold)}
+.page-header-focus .period-trigger-hint{font-size:12px}
 .page-content{padding:24px 28px 56px;max-width:var(--page-max);margin:0 auto}
 .page-content-medium{max-width:var(--page-medium)}
 .page-content-narrow{max-width:var(--page-narrow)}
@@ -122,13 +147,6 @@ body.dark-mode .theme-toggle{background:rgba(15,20,26,.86)}
 .period-mini-btn{min-width:auto;padding:0 12px;height:36px;border:none;background:transparent;color:var(--text2);font-weight:500;border-radius:10px}
 .period-mini-btn:hover{color:var(--gold);background:var(--surface-soft)}
 .period-mini-btn-danger:hover{color:var(--danger)}
-.period-inline-status{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border-radius:999px;background:var(--surface-soft);border:1px solid transparent;color:var(--text2);font-size:12px;font-weight:600;white-space:nowrap;opacity:0;transform:translateY(-2px);pointer-events:none;transition:opacity .18s ease,transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease}
-.period-inline-status.show{opacity:1;transform:translateY(0)}
-.period-inline-status.success{background:rgba(15,138,95,.1);border-color:rgba(15,138,95,.2);color:var(--success)}
-.period-inline-status.warning{background:rgba(201,120,23,.1);border-color:rgba(201,120,23,.18);color:var(--warning)}
-body.dark-mode .period-inline-status{background:var(--surface-soft)}
-body.dark-mode .period-inline-status.success{background:rgba(15,138,95,.14);border-color:rgba(15,138,95,.22)}
-body.dark-mode .period-inline-status.warning{background:rgba(201,120,23,.16);border-color:rgba(201,120,23,.22)}
 .report-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
 .billing-report-summary{grid-template-columns:repeat(4,minmax(0,1fr))}
 .report-stat{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:20px;border:1px solid var(--card-border)}
@@ -292,12 +310,24 @@ textarea.form-input{resize:vertical;min-height:108px}
 .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text2)}
 .modal h2{font-size:20px;font-weight:700;margin-bottom:20px}
 /* TOAST */
-.toast-container{position:fixed;top:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+.toast-container{position:fixed;top:92px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:8px}
 .toast{padding:14px 20px;border-radius:var(--radius-sm);color:#fff;font-size:14px;font-weight:500;animation:slideIn .3s;box-shadow:var(--shadow-lg)}
 .toast-success{background:var(--success)}
 .toast-error{background:var(--danger)}
 .toast-warning{background:var(--warning)}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.export-progress{position:fixed;right:20px;bottom:22px;z-index:1005;min-width:300px;max-width:360px;padding:14px 16px;border-radius:16px;background:rgba(17,24,39,.96);border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow-lg);color:#F9FAFB;display:none}
+.export-progress.show{display:block}
+.export-progress-label{font-size:12px;font-weight:700;color:#CBD5E1;line-height:1.4}
+.export-progress-title{font-size:15px;font-weight:700;color:#fff;margin-top:4px}
+.export-progress-meta{font-size:12px;color:#9CA3AF;margin-top:6px}
+.export-progress-bar{height:8px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden;margin-top:10px}
+.export-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#FF7A1A,#FFB36B);border-radius:999px;transition:width .2s ease}
+.action-progress{position:fixed;left:272px;bottom:22px;z-index:1004;min-width:280px;max-width:340px;padding:14px 16px;border-radius:16px;background:rgba(17,24,39,.96);border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow-lg);color:#F9FAFB;display:none}
+.action-progress.show{display:block}
+.action-progress-title{font-size:15px;font-weight:700;color:#fff;line-height:1.35}
+.action-progress-meta{font-size:12px;color:#9CA3AF;margin-top:6px}
+.btn.is-busy,.btn:disabled{opacity:.72;pointer-events:none;cursor:not-allowed}
 /* FLOATING SAVE */
 .save-float{position:fixed;bottom:24px;right:24px;z-index:400}
 .save-float .btn{box-shadow:var(--shadow-lg);font-size:15px;padding:14px 28px}
@@ -412,6 +442,7 @@ body.mobile-app .overlay{display:none!important}
 body.mobile-app .main{margin-left:0;min-height:100svh;padding-bottom:94px}
 body.mobile-app .page-header{position:sticky;top:0;z-index:140;padding:14px 16px;min-height:auto;gap:12px;align-items:stretch;background:rgba(255,255,255,.92)}
 body.dark-mode.mobile-app .page-header{background:rgba(15,20,26,.94)}
+body.mobile-app .page-header.page-header-period{display:flex}
 body.mobile-app .page-header-copy h1{font-size:28px;line-height:1.05}
 body.mobile-app .page-content{padding:16px 16px 110px;max-width:100%}
 body.mobile-app .page-content-medium,
@@ -440,6 +471,9 @@ body.mobile-app .period-toolbar{width:100%;margin-left:0;gap:10px;align-items:st
 body.mobile-app .period-picker{min-width:0;flex:1 1 auto}
 body.mobile-app .period-actions{width:100%;justify-content:space-between}
 body.mobile-app .period-toolbar > .btn{width:100%;justify-content:center}
+body.mobile-app .page-header-focus,
+body.mobile-app .page-header-actions{width:100%}
+body.mobile-app .page-header-actions{justify-content:stretch}
 body.mobile-app .billing-room-header{grid-template-columns:1fr;gap:12px}
 body.mobile-app .billing-room-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
 body.mobile-app .billing-room-total{align-items:flex-start;text-align:left}
@@ -449,6 +483,8 @@ body.mobile-app .overview-resident-wrap{max-height:none}
 body.mobile-app .theme-toggle{top:auto;bottom:104px;right:16px;width:48px;height:48px;border-radius:999px;z-index:220}
 body.mobile-app .toast-container{top:12px;right:12px;left:12px}
 body.mobile-app .toast{width:100%}
+body.mobile-app .export-progress{left:12px;right:12px;bottom:92px;min-width:0;max-width:none}
+body.mobile-app .action-progress{left:12px;right:12px;bottom:92px;min-width:0;max-width:none}
 body.mobile-app .login-page{padding:20px}
 body.mobile-app .login-box{width:100%;max-width:420px;border-radius:24px;padding:32px 24px}
 body.mobile-app .mobile-bottom-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;position:fixed;left:12px;right:12px;bottom:12px;z-index:210;padding:10px;background:rgba(11,15,20,.92);border:1px solid rgba(255,255,255,.06);border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.24);backdrop-filter:blur(18px)}
@@ -463,6 +499,396 @@ body.mobile-app .mobile-more-title{font-size:12px;font-weight:800;color:#9AA4B2;
 body.mobile-app .mobile-more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 body.mobile-app .mobile-more-btn{border:1px solid rgba(255,255,255,.08);background:#151B22;color:#F8FAFC;padding:14px 12px;border-radius:18px;font:inherit;font-size:13px;font-weight:700;text-align:left;cursor:pointer}
 body.mobile-app .mobile-more-btn.active{border-color:rgba(255,154,77,.42);color:#FFB67B}
+
+.roomgame-shell{display:flex;flex-direction:column;gap:18px}
+.roomgame-banner{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 20px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+.roomgame-banner-copy{display:flex;flex-direction:column;gap:8px}
+.roomgame-banner-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.roomgame-banner-title{font-size:28px;font-weight:900;letter-spacing:.02em;color:var(--text)}
+.roomgame-banner-note{max-width:720px;color:var(--text2);font-size:14px;line-height:1.55}
+.roomgame-banner-stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.roomgame-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface-soft);font-size:12px;font-weight:800;color:var(--text2)}
+.roomgame-chip strong{color:var(--text)}
+.roomgame-frame{border-radius:14px;overflow:auto;background:var(--card);border:1px solid var(--line);box-shadow:0 24px 48px rgba(15,23,42,.08)}
+.roomgame-stage{position:relative;min-width:980px;min-height:520px;padding:28px;background:
+linear-gradient(180deg,#8ec5ff 0%,#cfe9ff 36%,#7dbc63 36%,#7dbc63 44%,#88603c 44%,#88603c 54%,#66717d 54%,#66717d 100%)}
+.roomgame-stage::before{content:'';position:absolute;inset:0;background:
+repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 4px,transparent 4px 20px),
+repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 4px,transparent 4px 20px);pointer-events:none;opacity:.32}
+.roomgame-sun{position:absolute;top:30px;right:64px;width:48px;height:48px;border-radius:4px;background:#ffe47a;box-shadow:0 0 0 8px rgba(255,228,122,.18)}
+.roomgame-cloud{position:absolute;height:20px;border-radius:0;background:rgba(255,255,255,.94);box-shadow:20px 0 0 0 rgba(255,255,255,.96),40px 0 0 0 rgba(255,255,255,.9),20px -12px 0 0 rgba(255,255,255,.9)}
+.roomgame-cloud.cloud-a{top:54px;left:90px;width:54px;animation:roomgame-cloud-a 22s linear infinite}
+.roomgame-cloud.cloud-b{top:98px;left:420px;width:48px;opacity:.88;animation:roomgame-cloud-b 28s linear infinite}
+.roomgame-tree{position:absolute;bottom:222px;width:24px;height:112px;background:#6b4f33;box-shadow:inset -6px 0 0 rgba(0,0,0,.12)}
+.roomgame-tree::before{content:'';position:absolute;left:-24px;top:-34px;width:72px;height:72px;background:
+linear-gradient(180deg,#2fb55c 0 33%,#28994f 33% 66%,#228444 66% 100%);
+box-shadow:-16px 18px 0 0 #2aa250,16px 18px 0 0 #228444}
+.roomgame-tree.tree-a{left:72px}
+.roomgame-tree.tree-b{right:132px;height:126px}
+.roomgame-building{position:absolute;left:34px;right:34px;bottom:134px;height:222px}
+.roomgame-roof-strip{position:absolute;left:0;right:0;top:0;height:58px;background:
+repeating-linear-gradient(90deg,#7ea08d 0 22px,#729684 22px 44px);
+clip-path:polygon(2% 100%,0 34%,100% 0,98% 100%);border:4px solid #374151;box-shadow:inset 0 -8px 0 rgba(255,255,255,.08)}
+.roomgame-roof-strip::after{content:'';position:absolute;left:0;right:0;bottom:-10px;height:12px;background:#506b5f;border-top:4px solid #374151}
+.roomgame-room-grid{position:absolute;left:8px;right:8px;top:58px;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:8px}
+.roomgame-unit{position:relative;height:148px;background:#eef2e8;border:4px solid #374151;box-shadow:inset 0 -16px 0 #d3d8cc;overflow:visible;border-radius:0}
+.roomgame-unit.empty{background:#dde4d8}
+.roomgame-unit.occupied{background:#f1f4ea}
+.roomgame-unit::before{content:'';position:absolute;left:8px;right:8px;top:10px;height:10px;background:#313e46;box-shadow:0 16px 0 0 rgba(49,62,70,.08)}
+.roomgame-unit::after{content:'';position:absolute;left:18px;right:18px;top:28px;height:18px;background:
+linear-gradient(180deg,#99d2ff 0%,#6ba3da 100%);
+border:3px solid #374151;box-shadow:42px 0 0 0 #99d2ff,42px 0 0 3px #374151}
+.roomgame-door{position:absolute;left:50%;transform:translateX(-50%);bottom:14px;width:36px;height:62px;background:#76604a;border:4px solid #374151}
+.roomgame-unit.occupied .roomgame-door{background:#2d8654}
+.roomgame-unit.empty .roomgame-door{background:#6b7280}
+.roomgame-knob{position:absolute;right:6px;top:26px;width:4px;height:4px;background:#ffd166}
+.roomgame-ac{position:absolute;right:8px;top:56px;width:26px;height:16px;background:#d1d5db;border:3px solid #374151}
+.roomgame-sign{position:absolute;left:8px;bottom:12px;display:inline-flex;align-items:center;padding:4px 6px;border-radius:0;background:#101828;color:#fff;font-size:10px;font-weight:900;letter-spacing:.08em}
+.roomgame-rent{position:absolute;left:10px;bottom:44px;color:#475467;font-size:10px;font-weight:800}
+.roomgame-status{position:absolute;right:6px;bottom:10px;padding:4px 6px;border-radius:0;font-size:10px;font-weight:900;border:2px solid #374151}
+.roomgame-status.on{background:#f97316;color:#fff}
+.roomgame-status.off{background:#d1d5db;color:#334155}
+.roomgame-coin{position:absolute;top:-18px;right:8px;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:4px;background:#f59e0b;border:3px solid #7c4a03;color:#3f2200;font-size:14px;font-weight:900;animation:roomgame-coin 1.6s ease-in-out infinite}
+.roomgame-coin.delay{animation-delay:.8s}
+.roomgame-fence{position:absolute;left:0;right:0;bottom:92px;height:74px;background:
+repeating-linear-gradient(90deg,#f8fafc 0 8px,transparent 8px 24px),
+linear-gradient(180deg,transparent 0 10px,#f8fafc 10px 16px,transparent 16px 28px,#f8fafc 28px 34px,transparent 34px 100%);
+opacity:.96}
+.roomgame-road{position:absolute;left:0;right:0;bottom:0;height:112px;background:
+repeating-linear-gradient(90deg,#5f6062 0 22px,#676b6f 22px 44px),
+linear-gradient(180deg,#676e76 0%,#4a5057 100%);border-top:4px solid rgba(17,24,39,.4)}
+.roomgame-road::before{content:'';position:absolute;left:0;right:0;top:18px;height:6px;background:repeating-linear-gradient(90deg,transparent 0 54px,#f5d056 54px 86px)}
+.roomgame-road::after{content:'';position:absolute;left:0;right:0;bottom:14px;height:24px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 22px,transparent 22px 44px)}
+.roomgame-npc{position:absolute;bottom:52px;left:-8%;animation:roomgame-walk var(--duration,14s) linear infinite;animation-delay:var(--delay,0s);z-index:4}
+.roomgame-npc.reverse{left:auto;right:-8%;animation-name:roomgame-walk-reverse}
+.roomgame-sprite{position:relative;width:34px;height:52px}
+.roomgame-sprite .head{position:absolute;left:9px;top:0;width:16px;height:16px;background:#f8c49a;border:2px solid #1f2937}
+.roomgame-sprite .body{position:absolute;left:7px;top:16px;width:20px;height:18px;background:var(--shirt,#ef4444);border:2px solid #1f2937}
+.roomgame-sprite .leg{position:absolute;top:34px;width:7px;height:16px;background:#111827;border:2px solid #1f2937;transform-origin:top center;animation:roomgame-leg .45s ease-in-out infinite}
+.roomgame-sprite .leg.a{left:6px}
+.roomgame-sprite .leg.b{right:6px;animation-delay:.22s}
+.roomgame-sprite .arm{position:absolute;top:18px;width:6px;height:14px;background:#f8c49a;border:2px solid #1f2937;transform-origin:top center;animation:roomgame-leg .45s ease-in-out infinite}
+.roomgame-sprite .arm.a{left:0;animation-delay:.22s}
+.roomgame-sprite .arm.b{right:0}
+.roomgame-sprite .bag{position:absolute;left:0;top:18px;width:10px;height:12px;background:#2563eb;border:2px solid #1f2937}
+.roomgame-sprite .shadow{position:absolute;left:6px;right:6px;bottom:-4px;height:6px;background:rgba(15,23,42,.24)}
+.roomgame-stage-board{position:absolute;left:36px;top:30px;padding:12px 14px;border-radius:0;background:rgba(15,23,42,.9);border:3px solid rgba(255,255,255,.08);color:#f8fafc}
+.roomgame-stage-board strong{display:block;font-size:18px;letter-spacing:.08em}
+.roomgame-stage-board span{display:block;font-size:11px;color:#cbd5e1;margin-top:4px}
+.roomgame-footer{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.roomgame-footer-card{padding:14px 16px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
+.roomgame-footer-label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-weight:800}
+.roomgame-footer-value{margin-top:8px;font-size:24px;font-weight:900;color:var(--text)}
+.roomgame-footer-note{margin-top:6px;font-size:13px;color:var(--text2)}
+body.dark-mode .roomgame-stage{background:linear-gradient(180deg,#10233d 0%,#21436d 40%,#355b4a 40%,#355b4a 46%,#232a32 46%,#232a32 100%)}
+body.dark-mode .roomgame-banner,
+body.dark-mode .roomgame-frame,
+body.dark-mode .roomgame-footer-card{box-shadow:none}
+body.dark-mode .roomgame-unit{background:#dfe5da}
+body.dark-mode .roomgame-unit.empty{background:#cfd5c9}
+body.dark-mode .roomgame-road{background:
+repeating-linear-gradient(90deg,#343a40 0 22px,#2b3036 22px 44px),
+linear-gradient(180deg,#2d333b 0%,#20262d 100%)}
+@keyframes nav-feature-pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 4px rgba(255,154,77,.16)}50%{transform:scale(1.08);box-shadow:0 0 0 8px rgba(255,154,77,.12)}}
+@keyframes roomgame-cloud-a{0%{transform:translateX(0)}100%{transform:translateX(120px)}}
+@keyframes roomgame-cloud-b{0%{transform:translateX(0)}100%{transform:translateX(-140px)}}
+@keyframes roomgame-coin{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes roomgame-walk{0%{transform:translateX(0)}100%{transform:translateX(1180px)}}
+@keyframes roomgame-walk-reverse{0%{transform:translateX(0)}100%{transform:translateX(-1180px)}}
+@keyframes roomgame-leg{0%,100%{transform:rotate(12deg)}50%{transform:rotate(-12deg)}}
+@media (max-width: 980px){
+  .roomgame-banner{flex-direction:column}
+  .roomgame-banner-stats{justify-content:flex-start}
+  .roomgame-footer{grid-template-columns:1fr}
+}
+.nav-feature-launch{margin:0 12px 10px;padding:12px 14px;border-radius:18px;border:1px solid rgba(255,172,94,.26);background:
+linear-gradient(135deg,rgba(255,129,31,.22) 0%,rgba(255,205,112,.14) 56%,rgba(255,120,31,.18) 100%),
+linear-gradient(180deg,#171d25 0%,#0f141a 100%)}
+.nav-feature-copy{display:flex;align-items:center}
+.nav-feature-title{font-size:16px;font-weight:900;letter-spacing:.08em}
+.nav-feature-kicker,.nav-feature-note{display:none}
+.nav-feature-badge{width:40px;height:40px;border-radius:12px;background:#ffb14a;color:#2b1600}
+
+.roomgame-shell{gap:0}
+.roomgame-banner,.roomgame-footer{display:none}
+.roomgame-frame{border-radius:22px}
+.roomgame-stage{min-width:1280px;min-height:760px;padding:24px 24px 0;background:
+linear-gradient(180deg,#8bc7ff 0%,#d9f1ff 30%,#88c95a 30%,#88c95a 44%,#805d39 44%,#805d39 56%,#5d646c 56%,#5d646c 100%)}
+.roomgame-stage.day{background:linear-gradient(180deg,#8bc7ff 0%,#d9f1ff 30%,#88c95a 30%,#88c95a 44%,#805d39 44%,#805d39 56%,#5d646c 56%,#5d646c 100%)}
+.roomgame-stage.morning{background:linear-gradient(180deg,#ffd8a8 0%,#ffeeda 28%,#97d57a 28%,#97d57a 44%,#8b6640 44%,#8b6640 56%,#646b73 56%,#646b73 100%)}
+.roomgame-stage.dusk{background:linear-gradient(180deg,#ffb37a 0%,#ffddb3 26%,#77b36c 26%,#77b36c 44%,#76543a 44%,#76543a 56%,#575d67 56%,#575d67 100%)}
+.roomgame-stage.night{background:linear-gradient(180deg,#071325 0%,#153055 24%,#2e583a 24%,#2e583a 44%,#4e3a2a 44%,#4e3a2a 56%,#2d3238 56%,#2d3238 100%)}
+.roomgame-stage::before{background:
+repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 4px,transparent 4px 22px),
+repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 4px,transparent 4px 22px)}
+.roomgame-stage.night::before{opacity:.18}
+.roomgame-scene-hud{position:absolute;top:18px;left:18px;right:18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;z-index:6}
+.roomgame-scene-left,.roomgame-scene-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.roomgame-scene-right{justify-content:flex-end}
+.roomgame-mini-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:rgba(10,16,24,.78);border:1px solid rgba(255,255,255,.08);color:#f8fafc;font-size:12px;font-weight:800;backdrop-filter:blur(8px)}
+.roomgame-mini-chip strong{color:#ffbf7a}
+.roomgame-sound-btn{appearance:none;border:none;cursor:pointer}
+.roomgame-sound-btn.active{background:rgba(255,168,88,.18);border-color:rgba(255,168,88,.34);color:#ffcf93}
+.roomgame-starfield{position:absolute;inset:0;pointer-events:none;opacity:0}
+.roomgame-stage.night .roomgame-starfield{opacity:1}
+.roomgame-star{position:absolute;width:4px;height:4px;background:#fff3b2;box-shadow:0 0 8px rgba(255,243,178,.55);animation:roomgame-twinkle 2.8s ease-in-out infinite}
+.roomgame-weather-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.roomgame-stage.cloudy .roomgame-cloud{opacity:1}
+.roomgame-stage.clear .roomgame-cloud{opacity:.55}
+.roomgame-stage.drizzle .roomgame-weather-layer::before{content:'';position:absolute;inset:-20% 0;background:repeating-linear-gradient(100deg,transparent 0 22px,rgba(210,230,255,.36) 22px 24px,transparent 24px 46px);animation:roomgame-rain 1.2s linear infinite}
+.roomgame-stage.windy .roomgame-cloud{animation-duration:12s}
+.roomgame-sun{width:56px;height:56px;border-radius:6px;background:#ffe07c}
+.roomgame-stage.night .roomgame-sun{background:#dbe8ff;box-shadow:0 0 0 8px rgba(219,232,255,.14)}
+.roomgame-building{left:28px;right:28px;bottom:138px;height:276px}
+.roomgame-roof-strip{height:78px;background:repeating-linear-gradient(90deg,#83a594 0 24px,#6e9080 24px 48px)}
+.roomgame-roof-strip::after{bottom:-12px;height:16px}
+.roomgame-room-grid{top:82px;gap:10px}
+.roomgame-unit{height:178px;box-shadow:inset 0 -18px 0 #d3d8cc}
+.roomgame-unit::before{height:12px}
+.roomgame-unit::after{left:14px;right:54px;top:34px;height:20px;box-shadow:54px 0 0 0 #99d2ff,54px 0 0 3px #374151}
+.roomgame-door{bottom:14px;width:38px;height:74px}
+.roomgame-rent{bottom:54px}
+.roomgame-status{bottom:12px}
+.roomgame-name{position:absolute;left:8px;right:8px;top:64px;font-size:10px;line-height:1.15;font-weight:900;color:#2f3944;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.roomgame-plant{position:absolute;bottom:14px;width:12px;height:12px;background:#2f9e44;box-shadow:0 -10px 0 #34c759,10px 0 0 #2f9e44}
+.roomgame-plant.left{left:6px}
+.roomgame-plant.right{right:50px}
+.roomgame-lantern{position:absolute;top:12px;right:8px;width:10px;height:16px;background:#ffc857;border:2px solid #374151;opacity:.35}
+.roomgame-stage.night .roomgame-lantern,.roomgame-stage.dusk .roomgame-lantern{opacity:1;box-shadow:0 0 12px rgba(255,200,87,.5)}
+.roomgame-signboard{position:absolute;left:50%;transform:translateX(-50%);top:-22px;padding:8px 18px;background:#1b2430;border:4px solid #e7edf4;color:#f8fafc;font-size:20px;font-weight:900;letter-spacing:.08em;z-index:4}
+.roomgame-stage-board{display:none}
+.roomgame-tree{position:absolute;bottom:222px;width:24px;height:112px;background:#6b4f33;box-shadow:inset -6px 0 0 rgba(0,0,0,.12)}
+.roomgame-tree::before{content:'';position:absolute;left:-24px;top:-34px;width:72px;height:72px;background:linear-gradient(180deg,#2fb55c 0 33%,#28994f 33% 66%,#228444 66% 100%);box-shadow:-16px 18px 0 0 #2aa250,16px 18px 0 0 #228444}
+.roomgame-tree.tree-a{left:72px}
+.roomgame-tree.tree-b{right:132px;height:126px}
+.roomgame-fence{bottom:96px;height:88px}
+.roomgame-road{height:136px}
+.roomgame-road::before{top:22px;height:8px}
+.roomgame-road::after{bottom:18px;height:28px}
+.roomgame-npc{bottom:62px}
+.roomgame-vendor{position:absolute;bottom:62px;left:-18%;animation:roomgame-walk var(--duration,22s) linear infinite;animation-delay:var(--delay,-4s);z-index:5}
+.roomgame-vendor .roomgame-cart{position:absolute;left:-16px;top:26px;width:42px;height:24px;background:#b45309;border:3px solid #1f2937;box-shadow:22px 0 0 #d97706}
+.roomgame-vendor .roomgame-cart::before,.roomgame-vendor .roomgame-cart::after{content:'';position:absolute;bottom:-10px;width:10px;height:10px;border-radius:50%;background:#111827;border:2px solid #e5e7eb}
+.roomgame-vendor .roomgame-cart::before{left:2px}
+.roomgame-vendor .roomgame-cart::after{right:2px}
+.roomgame-animal{position:absolute;bottom:64px;left:-12%;width:28px;height:18px;animation:roomgame-walk var(--duration,18s) linear infinite;animation-delay:var(--delay,-3s);z-index:4}
+.roomgame-animal.reverse{left:auto;right:-12%;animation-name:roomgame-walk-reverse}
+.roomgame-animal .body{position:absolute;left:4px;top:4px;width:16px;height:10px;background:var(--fur,#d97706);border:2px solid #1f2937}
+.roomgame-animal .head{position:absolute;left:18px;top:2px;width:8px;height:8px;background:var(--fur,#d97706);border:2px solid #1f2937}
+.roomgame-animal .ear{position:absolute;top:-4px;width:4px;height:4px;background:var(--fur,#d97706);border:2px solid #1f2937}
+.roomgame-animal .ear.a{left:18px}.roomgame-animal .ear.b{left:24px}
+.roomgame-animal .tail{position:absolute;left:-2px;top:4px;width:8px;height:4px;background:var(--fur,#d97706);border:2px solid #1f2937}
+.roomgame-animal .leg{position:absolute;top:14px;width:4px;height:6px;background:#111827}
+.roomgame-animal .leg.a{left:8px}.roomgame-animal .leg.b{left:16px}
+.roomgame-animal.cat{--fur:#111827}
+.roomgame-animal.dog{--fur:#c56d2d}
+body.dark-mode .roomgame-stage.night{background:linear-gradient(180deg,#050d19 0%,#102344 24%,#27482e 24%,#27482e 44%,#463326 44%,#463326 56%,#22272d 56%,#22272d 100%)}
+.nav-feature-title,
+.roomgame-stage,
+.roomgame-mini-chip,
+.roomgame-signboard,
+.roomgame-sign,
+.roomgame-status,
+.roomgame-rent,
+.roomgame-name{font-family:'Inter','Manrope','Segoe UI',sans-serif}
+.roomgame-stage{font-synthesis-weight:none}
+.roomgame-scene-hud{top:16px;left:16px;right:16px}
+.roomgame-mini-chip{font-size:12px;letter-spacing:.01em}
+.roomgame-mini-chip strong{font-weight:900}
+.roomgame-signboard{font-size:22px;letter-spacing:.04em;text-shadow:2px 2px 0 rgba(0,0,0,.25)}
+.roomgame-stage.storm{background:linear-gradient(180deg,#46546a 0%,#71849b 20%,#52714c 20%,#52714c 44%,#6f543f 44%,#6f543f 56%,#4b5159 56%,#4b5159 100%)}
+.roomgame-stage.storm .roomgame-cloud{opacity:1;filter:brightness(.74)}
+.roomgame-stage.storm .roomgame-weather-layer::before{content:'';position:absolute;inset:-20% 0;background:repeating-linear-gradient(100deg,transparent 0 18px,rgba(210,230,255,.42) 18px 21px,transparent 21px 38px);animation:roomgame-rain .8s linear infinite}
+.roomgame-stage.storm .roomgame-weather-layer::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.18);opacity:0;animation:roomgame-lightning 6s linear infinite}
+.roomgame-cloud{transform:translateZ(0)}
+.roomgame-weather-layer{z-index:2}
+.roomgame-sun{z-index:2}
+.roomgame-signboard{z-index:5}
+.roomgame-building{z-index:3}
+.roomgame-fence,.roomgame-road{z-index:3}
+.roomgame-stage::after{content:'';position:absolute;left:0;right:0;bottom:0;height:138px;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.08) 100%);pointer-events:none}
+.roomgame-laundry-line{position:absolute;left:104px;right:170px;bottom:316px;height:8px;border-top:4px solid #243445;z-index:4}
+.roomgame-laundry-line::before{content:'';position:absolute;left:10%;top:2px;width:16px;height:18px;background:#ff8a5b;box-shadow:44px 6px 0 #4fd1c5,98px 2px 0 #60a5fa,156px 8px 0 #fbbf24,212px 4px 0 #f87171,278px 6px 0 #34d399,332px 2px 0 #f59e0b,386px 7px 0 #60a5fa,440px 3px 0 #f472b6,496px 6px 0 #22c55e}
+.roomgame-lamp{position:absolute;bottom:132px;width:10px;height:146px;background:#495463;border:3px solid #222f3a;z-index:4}
+.roomgame-lamp::before{content:'';position:absolute;left:-6px;top:-14px;width:22px;height:22px;background:#ffc857;border:3px solid #263241;box-shadow:0 0 0 6px rgba(255,200,87,.12)}
+.roomgame-stage.day .roomgame-lamp::before,.roomgame-stage.morning .roomgame-lamp::before{box-shadow:none;opacity:.7}
+.roomgame-lamp.a{left:118px}
+.roomgame-lamp.b{left:612px}
+.roomgame-lamp.c{right:118px}
+.roomgame-road-mark{position:absolute;bottom:58px;width:74px;height:8px;background:#f5d056;z-index:4}
+.roomgame-road-mark.a{left:120px}.roomgame-road-mark.b{left:292px}.roomgame-road-mark.c{left:464px}.roomgame-road-mark.d{left:636px}.roomgame-road-mark.e{left:808px}.roomgame-road-mark.f{left:980px}
+.roomgame-puddle{position:absolute;bottom:74px;width:58px;height:16px;background:rgba(148,197,255,.35);border:2px solid rgba(36,52,69,.45);border-radius:999px;z-index:4}
+.roomgame-puddle.a{left:246px}.roomgame-puddle.b{right:264px}
+.roomgame-crate{position:absolute;bottom:136px;width:30px;height:24px;background:#a16207;border:3px solid #4b2e08;z-index:4}
+.roomgame-crate::before{content:'';position:absolute;left:3px;right:3px;top:8px;height:4px;background:#d6a545}
+.roomgame-crate.a{left:212px}.roomgame-crate.b{right:220px}
+.roomgame-bike{position:absolute;right:158px;bottom:92px;width:92px;height:42px;z-index:4}
+.roomgame-bike::before,.roomgame-bike::after{content:'';position:absolute;bottom:0;width:24px;height:24px;border-radius:50%;border:4px solid #111827;background:#dbe7f3}
+.roomgame-bike::before{left:0}.roomgame-bike::after{right:0}
+.roomgame-bike .frame{position:absolute;left:16px;right:18px;bottom:12px;height:6px;background:#ef4444;transform:skew(-18deg)}
+.roomgame-bike .seat{position:absolute;left:34px;bottom:28px;width:20px;height:6px;background:#111827}
+.roomgame-bike .handle{position:absolute;right:18px;bottom:28px;width:18px;height:6px;background:#111827;transform:rotate(-22deg)}
+.roomgame-bird{position:absolute;top:96px;width:18px;height:10px;border-top:3px solid rgba(16,24,40,.65);border-left:3px solid transparent;border-right:3px solid transparent;z-index:2;animation:roomgame-bird-fly var(--duration,14s) linear infinite}
+.roomgame-bird.a{left:-4%;animation-delay:-2s}.roomgame-bird.b{left:-10%;top:124px;animation-duration:18s;animation-delay:-7s}.roomgame-bird.c{left:-6%;top:76px;animation-duration:21s;animation-delay:-11s}
+.roomgame-vendor .roomgame-sprite::after{content:'';position:absolute;left:10px;top:8px;width:14px;height:6px;background:#b91c1c}
+.roomgame-sprite .hat{position:absolute;left:7px;top:-4px;width:20px;height:8px;background:#7c3aed;border:2px solid #1f2937}
+.roomgame-sprite .apron{position:absolute;left:10px;top:18px;width:14px;height:16px;background:#f8fafc;border-left:2px solid #1f2937;border-right:2px solid #1f2937}
+.roomgame-name{font-size:11px;letter-spacing:0}
+.roomgame-rent,.roomgame-status,.roomgame-sign{font-size:10px}
+.roomgame-mountain{position:absolute;bottom:330px;width:0;height:0;border-left:160px solid transparent;border-right:160px solid transparent;border-bottom:180px solid rgba(64,104,111,.4);z-index:1;filter:drop-shadow(0 10px 0 rgba(0,0,0,.05))}
+.roomgame-mountain::before{content:'';position:absolute;left:-30px;top:36px;width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:42px solid rgba(255,255,255,.65)}
+.roomgame-mountain.a{left:40px}
+.roomgame-mountain.b{left:270px;border-left-width:190px;border-right-width:190px;border-bottom-width:210px}
+.roomgame-mountain.c{right:110px;border-left-width:150px;border-right-width:150px;border-bottom-width:165px}
+.roomgame-palm{position:absolute;bottom:248px;width:18px;height:132px;background:#715334;border:3px solid #3a2a19;z-index:2}
+.roomgame-palm::before{content:'';position:absolute;left:-42px;top:-18px;width:104px;height:56px;background:conic-gradient(from 180deg at 50% 100%,#1f8f47 0 18%,transparent 18% 32%,#2dad5c 32% 50%,transparent 50% 64%,#1f8f47 64% 82%,transparent 82% 100%)}
+.roomgame-palm.a{left:34px}
+.roomgame-palm.b{right:46px;height:146px}
+.roomgame-bush{position:absolute;bottom:148px;width:84px;height:36px;background:#2a9d4b;border:3px solid #1f5c32;border-radius:999px;z-index:4;box-shadow:28px -10px 0 #33b054,56px 0 0 #248f44}
+.roomgame-bush.a{left:96px}
+.roomgame-bush.b{left:356px}
+.roomgame-bush.c{right:256px}
+.roomgame-bench{position:absolute;left:86px;bottom:126px;width:92px;height:18px;background:#8b5a2b;border:3px solid #4b2e08;z-index:4}
+.roomgame-bench::before,.roomgame-bench::after{content:'';position:absolute;bottom:-16px;width:6px;height:16px;background:#4b2e08}
+.roomgame-bench::before{left:12px}.roomgame-bench::after{right:12px}
+.roomgame-flowerbed{position:absolute;bottom:132px;width:88px;height:18px;background:#5b3a1f;border:3px solid #33200f;z-index:4}
+.roomgame-flowerbed::before{content:'';position:absolute;left:6px;top:-8px;width:8px;height:8px;background:#ff6b6b;box-shadow:14px 4px 0 #fbbf24,28px -2px 0 #60a5fa,42px 2px 0 #f472b6,56px -1px 0 #34d399,70px 3px 0 #f97316}
+.roomgame-flowerbed.a{right:84px}
+.roomgame-power-pole{position:absolute;bottom:138px;width:12px;height:212px;background:#5f4630;border:3px solid #352517;z-index:4}
+.roomgame-power-pole::before{content:'';position:absolute;left:-18px;top:24px;width:48px;height:8px;background:#443120;border:3px solid #2e2218}
+.roomgame-power-pole.a{left:184px}
+.roomgame-power-pole.b{right:202px}
+.roomgame-power-line{position:absolute;left:194px;right:210px;bottom:330px;height:2px;border-top:3px solid rgba(28,37,48,.7);z-index:3}
+.roomgame-power-line::after{content:'';position:absolute;left:0;right:0;top:8px;border-top:3px solid rgba(28,37,48,.58)}
+.roomgame-shadow-strip{position:absolute;left:0;right:0;bottom:136px;height:54px;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.08) 100%);z-index:3}
+.roomgame-firefly{position:absolute;width:6px;height:6px;border-radius:50%;background:#ffe57a;box-shadow:0 0 12px rgba(255,229,122,.72);opacity:0;z-index:5;animation:roomgame-firefly 3.2s ease-in-out infinite}
+.roomgame-stage.night .roomgame-firefly,.roomgame-stage.dusk .roomgame-firefly{opacity:1}
+.roomgame-firefly.a{left:18%;bottom:188px;animation-delay:-.8s}
+.roomgame-firefly.b{left:46%;bottom:242px;animation-delay:-1.6s}
+.roomgame-firefly.c{right:22%;bottom:206px;animation-delay:-2.3s}
+.roomgame-firefly.d{right:36%;bottom:262px;animation-delay:-.2s}
+@keyframes roomgame-twinkle{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes roomgame-rain{0%{transform:translateY(0)}100%{transform:translateY(28px)}}
+@keyframes roomgame-lightning{0%,88%,100%{opacity:0}89%,91%{opacity:.4}92%{opacity:0}93%,95%{opacity:.22}96%{opacity:0}}
+@keyframes roomgame-bird-fly{0%{transform:translateX(0) translateY(0)}50%{transform:translateX(620px) translateY(-12px)}100%{transform:translateX(1280px) translateY(0)}}
+@keyframes roomgame-firefly{0%,100%{transform:translateY(0);opacity:.2}50%{transform:translateY(-12px);opacity:1}}
+
+/* NHATROVUIVE v2 - 8bit city / open world */
+.roomgame-frame{border-radius:26px;background:#0a1424;border:1px solid rgba(160,196,255,.14);box-shadow:0 30px 80px rgba(3,8,20,.4)}
+.roomgame-stage{min-width:1360px;min-height:860px;padding:22px 22px 0;overflow:hidden;background:linear-gradient(180deg,#77d3ef 0%,#79d5ee 36%,#a5d7e5 36%,#a5d7e5 44%,#56749a 44%,#56749a 58%,#223249 58%,#223249 100%)}
+.roomgame-stage.day{background:linear-gradient(180deg,#77d3ef 0%,#80d8f0 22%,#d8f7ff 22%,#d8f7ff 42%,#80b2d0 42%,#80b2d0 56%,#23334d 56%,#23334d 100%)}
+.roomgame-stage.morning{background:linear-gradient(180deg,#ffcf97 0%,#ffdcae 16%,#9be4f6 16%,#dff9ff 40%,#85b2d2 40%,#85b2d2 56%,#243248 56%,#243248 100%)}
+.roomgame-stage.dusk{background:linear-gradient(180deg,#ffa46e 0%,#ffd1a6 14%,#9bc8e8 14%,#b8d0ea 38%,#6e88ae 38%,#6e88ae 54%,#233046 54%,#233046 100%)}
+.roomgame-stage.night{background:linear-gradient(180deg,#0b1630 0%,#1a3e6f 24%,#4f7aa5 24%,#4f7aa5 40%,#334b6b 40%,#334b6b 54%,#121d30 54%,#121d30 100%)}
+.roomgame-stage.storm{background:linear-gradient(180deg,#5d728f 0%,#8294ae 18%,#9ab8d3 18%,#a7bfd6 36%,#657b98 36%,#657b98 54%,#1d2a3e 54%,#1d2a3e 100%)}
+.roomgame-stage::before{background:
+  repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 4px,transparent 4px 22px),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 4px,transparent 4px 22px);
+  opacity:.32}
+.roomgame-atmo{position:absolute;inset:0;background:
+  radial-gradient(circle at 50% 14%,rgba(255,255,255,.38),transparent 24%),
+  radial-gradient(circle at 22% 20%,rgba(255,255,255,.14),transparent 20%),
+  radial-gradient(circle at 82% 18%,rgba(255,255,255,.1),transparent 18%);
+  pointer-events:none;z-index:1}
+.roomgame-scene-hud{top:20px;left:20px;right:20px;z-index:10}
+.roomgame-mini-chip{border-radius:14px;background:rgba(8,14,24,.74);border:1px solid rgba(154,199,255,.16);color:#e8f5ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.roomgame-mini-chip strong{color:#8fe2ff}
+.roomgame-cloud{background:#f8fdff;box-shadow:24px 0 0 0 #f8fdff,48px 0 0 0 #f8fdff,18px -14px 0 0 #ffffff,42px -10px 0 0 #f8fdff}
+.roomgame-cloud.roomgame-cloud-xl{top:76px;left:58px;width:84px;height:28px;animation:roomgame-cloud-a 26s linear infinite}
+.roomgame-cloud.roomgame-cloud-lg{top:118px;right:260px;width:64px;height:24px;animation:roomgame-cloud-b 34s linear infinite}
+.roomgame-cloud.roomgame-cloud-sm{top:150px;left:760px;width:46px;height:18px;animation:roomgame-cloud-a 31s linear infinite}
+.roomgame-sun{top:34px;right:84px;width:72px;height:72px;border-radius:10px;background:#fff0a3;box-shadow:0 0 0 10px rgba(255,240,163,.16)}
+.roomgame-stage.night .roomgame-sun{background:#dfe9ff;box-shadow:0 0 0 10px rgba(223,233,255,.12)}
+.roomgame-cityline{position:absolute;left:0;right:0;pointer-events:none}
+.roomgame-cityline.back{bottom:336px;height:220px;z-index:2;opacity:.72}
+.roomgame-cityline.mid{bottom:284px;height:340px;z-index:3;opacity:.92}
+.roomgame-cityline.front{bottom:246px;height:360px;z-index:4}
+.roomgame-city-building{position:absolute;bottom:0;border:4px solid rgba(22,35,56,.9);background:var(--building-color);box-shadow:inset 0 -10px 0 rgba(0,0,0,.12)}
+.roomgame-city-building::before{content:'';position:absolute;left:8px;right:8px;top:12px;bottom:14px;background:
+  repeating-linear-gradient(0deg,transparent 0 12px,rgba(18,31,48,.16) 12px 15px),
+  repeating-linear-gradient(90deg,var(--building-accent) 0 8px,transparent 8px 18px);
+  opacity:.86}
+.roomgame-city-building::after{content:'';position:absolute;left:10px;right:10px;top:-8px;height:8px;background:rgba(240,248,255,.25)}
+.roomgame-city-building.front{box-shadow:inset 0 -12px 0 rgba(0,0,0,.18),0 0 0 1px rgba(255,255,255,.05)}
+.roomgame-city-building.front::before{background:
+  repeating-linear-gradient(0deg,transparent 0 11px,rgba(12,22,38,.24) 11px 14px),
+  repeating-linear-gradient(90deg,var(--building-accent) 0 8px,transparent 8px 18px)}
+.roomgame-city-building.front:nth-child(2n){transform:translateY(12px)}
+.roomgame-city-building.front:nth-child(3n)::after{height:12px;top:-12px;background:#ff8d7b}
+.roomgame-tech-rail{position:absolute;left:0;right:0;height:10px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 16px,transparent 16px 34px);border-top:3px solid rgba(220,236,255,.12);border-bottom:3px solid rgba(17,26,40,.28);z-index:5}
+.roomgame-tech-rail.top{bottom:244px}
+.roomgame-tech-rail.mid{bottom:226px;opacity:.45}
+.roomgame-motel-shell{position:absolute;left:42px;right:42px;bottom:142px;height:286px;z-index:7}
+.roomgame-building{left:0;right:0;bottom:0;height:100%;z-index:auto}
+.roomgame-roof-strip{height:86px;background:
+  linear-gradient(180deg,#2d547f 0%,#203954 100%);
+  clip-path:polygon(2% 100%,0 38%,100% 0,98% 100%);
+  border:4px solid #122033;box-shadow:inset 0 -10px 0 rgba(143,226,255,.12)}
+.roomgame-roof-strip::after{bottom:-14px;height:18px;background:#16293f;border-top:4px solid #0f1a29}
+.roomgame-neon-line{position:absolute;left:18px;right:18px;top:74px;height:8px;background:linear-gradient(90deg,#79ddff 0%,#99f0ff 34%,#ff9d7d 66%,#7de7ff 100%);box-shadow:0 0 18px rgba(126,230,255,.4)}
+.roomgame-signboard{top:-32px;padding:12px 26px;border:4px solid #dff6ff;background:linear-gradient(180deg,#16314d 0%,#12243a 100%);color:#ecfbff;font-size:24px;letter-spacing:.06em;text-shadow:0 0 8px rgba(126,230,255,.28)}
+.roomgame-service-bay{position:absolute;left:24px;right:24px;top:92px;height:24px;background:linear-gradient(90deg,rgba(126,230,255,.14) 0%,rgba(126,230,255,.05) 50%,rgba(255,160,126,.12) 100%)}
+.roomgame-room-grid{top:102px;left:12px;right:12px;gap:12px}
+.roomgame-unit{height:172px;background:linear-gradient(180deg,#f0f6ff 0%,#dbe8f6 100%);border:4px solid #1a2c45;box-shadow:inset 0 -18px 0 #c7d4e3}
+.roomgame-unit.empty{background:linear-gradient(180deg,#d7e2ef 0%,#c0cfde 100%)}
+.roomgame-unit::before{left:10px;right:10px;top:10px;height:14px;background:#13253a;box-shadow:0 18px 0 0 rgba(19,37,58,.08)}
+.roomgame-unit::after{left:12px;right:60px;top:36px;height:22px;background:linear-gradient(180deg,#bfe8ff 0%,#86b7e0 100%);border:3px solid #2b425d;box-shadow:60px 0 0 0 #bfe8ff,60px 0 0 3px #2b425d}
+.roomgame-door{width:42px;height:78px;bottom:12px;background:linear-gradient(180deg,#283c57 0%,#1b2a40 100%);border:4px solid #16283e}
+.roomgame-unit.occupied .roomgame-door{background:linear-gradient(180deg,#f5856f 0%,#cf5f52 100%)}
+.roomgame-unit.empty .roomgame-door{background:linear-gradient(180deg,#6c7c91 0%,#506073 100%)}
+.roomgame-ac{top:64px;width:30px;height:18px;background:#eef6ff;border:3px solid #33475f}
+.roomgame-sign{left:8px;bottom:12px;background:#101d30;color:#e8f5ff}
+.roomgame-rent{left:10px;bottom:50px;color:#39526f}
+.roomgame-name{top:66px;color:#22344a}
+.roomgame-status{right:6px;bottom:10px;background:#dbe7f3;color:#203146;border-color:#203146}
+.roomgame-status.on{background:#7ad8ff;color:#072338;border-color:#14324d}
+.roomgame-coin{top:-16px;right:10px;background:#7ce6ff;border-color:#17485d;color:#0d3040;box-shadow:0 0 14px rgba(124,230,255,.35)}
+.roomgame-fence{bottom:100px;height:96px;background:
+  repeating-linear-gradient(90deg,#eaf6ff 0 8px,transparent 8px 26px),
+  linear-gradient(180deg,transparent 0 14px,#eaf6ff 14px 20px,transparent 20px 38px,#eaf6ff 38px 46px,transparent 46px 100%);
+  opacity:.92;z-index:8}
+.roomgame-road{height:150px;background:
+  repeating-linear-gradient(90deg,#293443 0 24px,#334152 24px 48px),
+  linear-gradient(180deg,#2a3648 0%,#1e2837 100%);
+  border-top:4px solid rgba(16,23,33,.7);z-index:6}
+.roomgame-road::before{top:24px;height:10px;background:repeating-linear-gradient(90deg,transparent 0 68px,#f8d35b 68px 108px)}
+.roomgame-road::after{bottom:18px;height:34px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 24px,transparent 24px 48px)}
+.roomgame-crosswalk{position:absolute;left:50%;transform:translateX(-50%);bottom:54px;width:230px;height:18px;background:repeating-linear-gradient(90deg,#e8f5ff 0 16px,transparent 16px 28px);z-index:7;opacity:.86}
+.roomgame-road-mark{bottom:94px;height:10px}
+.roomgame-bike{right:120px;bottom:110px;transform:scale(1.08);z-index:9}
+.roomgame-kiosk{position:absolute;left:110px;bottom:128px;width:120px;height:88px;background:linear-gradient(180deg,#233955 0%,#182a42 100%);border:4px solid #102031;z-index:9}
+.roomgame-kiosk-awning{position:absolute;left:-6px;right:-6px;top:-14px;height:18px;background:repeating-linear-gradient(90deg,#ff8d7b 0 14px,#ffd5c8 14px 28px);border:4px solid #16283e}
+.roomgame-kiosk-counter{position:absolute;left:8px;right:8px;bottom:8px;height:22px;background:#7ce6ff;border:3px solid #163850}
+.roomgame-terminal{position:absolute;right:210px;bottom:132px;width:44px;height:76px;background:linear-gradient(180deg,#273d5f 0%,#1b2a42 100%);border:4px solid #0f2033;z-index:8}
+.roomgame-terminal::before{content:'';position:absolute;left:7px;right:7px;top:10px;height:22px;background:#8de8ff;border:3px solid #17374d}
+.roomgame-terminal::after{content:'';position:absolute;left:12px;right:12px;bottom:10px;height:16px;background:#ff9d7d}
+.roomgame-vendor{bottom:82px;left:-16%;z-index:10}
+.roomgame-npc{bottom:82px;z-index:10}
+.roomgame-vendor .roomgame-cart{background:#1d3552;border-color:#0d2033;box-shadow:22px 0 0 #28476b}
+.roomgame-vendor .roomgame-cart::before,.roomgame-vendor .roomgame-cart::after{background:#0f1724}
+.roomgame-sprite{width:36px;height:56px}
+.roomgame-sprite .head{left:10px;top:0;width:16px;height:16px}
+.roomgame-sprite .body{left:8px;top:16px;width:20px;height:20px}
+.roomgame-sprite .leg{top:36px;height:16px}
+.roomgame-sprite .shadow{bottom:-6px}
+.roomgame-animal{bottom:88px;z-index:10}
+.roomgame-bird{z-index:5}
+.roomgame-power-pole{bottom:192px;height:238px}
+.roomgame-power-line{bottom:414px;left:198px;right:210px}
+.roomgame-bench{left:302px;bottom:142px}
+.roomgame-flowerbed.a{right:112px;bottom:142px}
+.roomgame-crate.a{left:254px;bottom:148px}.roomgame-crate.b{right:276px;bottom:148px}
+.roomgame-puddle{bottom:96px}
+.roomgame-shadow-strip{bottom:144px;height:64px}
+.roomgame-firefly{z-index:9}
+.roomgame-drone{position:absolute;top:206px;width:30px;height:14px;background:#dcecff;border:3px solid #24384d;z-index:5;animation:roomgame-drone var(--duration,18s) linear infinite}
+.roomgame-drone::before,.roomgame-drone::after{content:'';position:absolute;top:-6px;width:10px;height:6px;background:#7ce6ff;border:2px solid #24384d}
+.roomgame-drone::before{left:-4px}.roomgame-drone::after{right:-4px}
+.roomgame-drone.a{left:-6%;--duration:19s}
+.roomgame-drone.b{left:-12%;top:238px;--duration:24s;animation-delay:-8s}
+@keyframes roomgame-drone{0%{transform:translateX(0)}50%{transform:translateX(760px) translateY(-8px)}100%{transform:translateX(1440px)}}
+
+
 body.mobile-app .save-float{bottom:96px;right:16px}
 /* UPLOAD */
 .upload-zone{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;color:var(--text2)}
@@ -482,6 +908,16 @@ body.mobile-app .save-float{bottom:96px;right:16px}
 <body>
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
+<div class="export-progress" id="exportProgress" aria-live="polite">
+  <div class="export-progress-label">Đang xử lý xuất file</div>
+  <div class="export-progress-title" id="exportProgressTitle">Chuẩn bị dữ liệu...</div>
+  <div class="export-progress-meta" id="exportProgressMeta">Vui lòng chờ trong giây lát.</div>
+  <div class="export-progress-bar"><div class="export-progress-fill" id="exportProgressFill"></div></div>
+</div>
+<div class="action-progress" id="actionProgress" aria-live="polite">
+  <div class="action-progress-title" id="actionProgressTitle">Đang lưu dữ liệu...</div>
+  <div class="action-progress-meta" id="actionProgressMeta">Vui lòng chờ hoàn tất để tránh bấm lặp nhiều lần.</div>
+</div>
 
 <!-- LOGIN PAGE -->
 <div class="login-page" id="loginPage">
@@ -517,6 +953,12 @@ body.mobile-app .save-float{bottom:96px;right:16px}
         <h2>Nhà trọ Đặng Được</h2>
       </div>
     </div>
+    <button class="nav-feature-launch" data-page="roomMap" type="button" onclick="navigate('roomMap')">
+      <div class="nav-feature-copy">
+        <span class="nav-feature-title">NHATROVUIVE</span>
+      </div>
+      <span class="nav-feature-badge">⛏</span>
+    </button>
     <div class="nav-menu">
       <div class="nav-cluster active-cluster">
         <div class="nav-item nav-item-major active" data-page="dashboard" onclick="navigate('dashboard')">
@@ -640,19 +1082,20 @@ body.mobile-app .save-float{bottom:96px;right:16px}
   <main class="main">
     <!-- ===== DASHBOARD ===== -->
     <div class="page active" id="page-dashboard">
-      <div class="page-header">
+      <div class="page-header page-header-period">
         <div class="page-header-copy">
           <div class="page-kicker">Nhà trọ Đặng Được</div>
           <h1>Tổng quan</h1>
         </div>
-        <div class="period-toolbar">
+        <div class="page-header-focus">
           <div class="period-picker" id="dashboardPeriodPicker">
             <input type="hidden" id="dashboardDate">
             <button class="period-trigger" type="button" id="dashboardPeriodButton" onclick="togglePeriodPicker('dashboard', event)"></button>
             <div class="period-dropdown" id="dashboardPeriodDropdown"></div>
           </div>
-          <button class="btn btn-outline" type="button" onclick="refreshDatabase()">⟳ Refresh DB</button>
-          <button class="btn btn-attention" type="button" onclick="exportManagementWorkbook()">⬇ Xuất Excel</button>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-outline" id="refreshDbBtnTop" type="button" onclick="refreshDatabase()">⟳ Refresh DB</button>
         </div>
       </div>
       <div class="page-content">
@@ -673,24 +1116,34 @@ body.mobile-app .save-float{bottom:96px;right:16px}
       </div>
     </div>
 
+    <!-- ===== ROOM MAP ===== -->
+    <div class="page" id="page-roomMap">
+      <div class="page-header">
+        <div class="page-header-copy">
+          <div class="page-kicker">Phòng</div>
+          <h1>Sơ đồ phòng trọ</h1>
+        </div>
+      </div>
+      <div class="page-content">
+        <div id="roomMapContent"></div>
+      </div>
+    </div>
+
     <!-- ===== BILLING ===== -->
     <div class="page" id="page-billing">
-      <div class="page-header">
+      <div class="page-header page-header-period">
         <div class="page-header-copy">
           <div class="page-kicker">Vận hành tháng</div>
           <h1>Tính tiền tháng</h1>
         </div>
-        <div class="period-toolbar">
+        <div class="page-header-focus">
           <div class="period-picker" id="billingPeriodPicker">
             <input type="hidden" id="billingDate">
             <button class="period-trigger" type="button" id="billingPeriodButton" onclick="togglePeriodPicker('billing', event)"></button>
             <div class="period-dropdown" id="billingPeriodDropdown"></div>
           </div>
-          <div class="period-actions">
-            <button class="btn btn-outline btn-sm period-mini-btn" type="button" onclick="addTrackedMonth()">+ Thêm</button>
-            <button class="btn btn-outline btn-sm period-mini-btn period-mini-btn-danger" type="button" onclick="deleteTrackedMonth()">− Xóa</button>
-            <span class="period-inline-status" id="billingPeriodStatus" aria-live="polite"></span>
-          </div>
+        </div>
+        <div class="page-header-actions">
         </div>
       </div>
       <div class="page-content">
@@ -702,23 +1155,20 @@ body.mobile-app .save-float{bottom:96px;right:16px}
 
     <!-- ===== WATER ENTRY ===== -->
     <div class="page" id="page-waterEntry">
-      <div class="page-header">
+      <div class="page-header page-header-period">
         <div class="page-header-copy">
           <div class="page-kicker">Vận hành tháng</div>
           <h1>Nhập số nước</h1>
         </div>
-        <div class="period-toolbar">
+        <div class="page-header-focus">
           <div class="period-picker" id="waterPeriodPicker">
             <input type="hidden" id="waterDate">
             <button class="period-trigger" type="button" id="waterPeriodButton" onclick="togglePeriodPicker('water', event)"></button>
             <div class="period-dropdown" id="waterPeriodDropdown"></div>
           </div>
-          <div class="period-actions">
-            <button class="btn btn-outline btn-sm period-mini-btn" type="button" onclick="addTrackedMonth()">+ Thêm</button>
-            <button class="btn btn-outline btn-sm period-mini-btn period-mini-btn-danger" type="button" onclick="deleteTrackedMonth()">− Xóa</button>
-            <span class="period-inline-status" id="waterPeriodStatus" aria-live="polite"></span>
-          </div>
-          <button class="btn btn-primary" onclick="saveAllWaterReadings()">💾 Lưu tất cả số nước</button>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-primary" id="waterSaveAllBtn" onclick="saveAllWaterReadings()">💾 Lưu tất cả số nước</button>
         </div>
       </div>
       <div class="page-content">
@@ -762,7 +1212,6 @@ body.mobile-app .save-float{bottom:96px;right:16px}
           </div>
           <div class="grid-2">
             <div class="form-group"><label>Tiền đặt cọc (VNĐ)</label><input type="number" class="form-input" id="ntDeposit" oninput="updateProratedCalc()"></div>
-            <div class="form-group"><label>Giá phòng/tháng (VNĐ)</label><input type="number" class="form-input" id="ntRoomPrice" disabled style="display:none"></div>
           </div>
           <div class="grid-2">
             <div class="form-group"><label>Số nước nóng ban đầu</label><input type="number" class="form-input" id="ntHotWater" value="0"></div>
@@ -773,7 +1222,7 @@ body.mobile-app .save-float{bottom:96px;right:16px}
             <p id="proratedDetails">Chọn phòng và ngày vào để tính...</p>
             <p style="font-size:24px;font-weight:700;color:var(--gold);margin-top:8px" id="proratedTotal"></p>
           </div>
-          <button class="btn btn-success" style="width:100%;justify-content:center;margin-top:16px;padding:14px" onclick="confirmNewTenant()">✅ Xác nhận nhận phòng</button>
+          <button class="btn btn-success" id="confirmNewTenantBtn" style="width:100%;justify-content:center;margin-top:16px;padding:14px" onclick="confirmNewTenant()">✅ Xác nhận nhận phòng</button>
         </div>
       </div>
     </div>
@@ -817,7 +1266,7 @@ body.mobile-app .save-float{bottom:96px;right:16px}
               <p style="font-size:14px;margin-bottom:8px" id="coResultLabel"></p>
               <p class="amount" id="coResultAmount"></p>
             </div>
-            <button class="btn btn-danger" style="width:100%;justify-content:center;margin-top:16px;padding:14px" onclick="confirmCheckout()">🚪 Xác nhận tất toán</button>
+            <button class="btn btn-danger" id="confirmCheckoutBtn" style="width:100%;justify-content:center;margin-top:16px;padding:14px" onclick="confirmCheckout()">🚪 Xác nhận tất toán</button>
           </div>
         </div>
       </div>
@@ -923,20 +1372,11 @@ body.mobile-app .save-float{bottom:96px;right:16px}
           </div>
         </div>
         <div class="card" style="max-width:700px">
-          <h3 style="margin-bottom:16px">📧 Email nhắc nhở (tối đa 5)</h3>
-          <div id="emailInputs"></div>
-          <button class="btn btn-outline btn-sm" onclick="addEmailInput()" style="margin-top:8px">+ Thêm email</button>
-        </div>
-        <div class="card" style="max-width:700px">
-          <h3 style="margin-bottom:16px">🔑 Web3Forms</h3>
-          <div class="form-group"><label>API Key</label><input type="text" class="form-input" id="setWeb3Key" value="" placeholder="Dùng GitHub Secrets, không lưu key ở frontend"></div>
-        </div>
-        <div class="card" style="max-width:700px">
           <h3 style="margin-bottom:16px">📊 Xuất dữ liệu</h3>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Xuất file Excel bản gọn để quản lý: tổng quan theo tháng, bảng tiền tháng dạng hàng phẳng, bảng người ở hiện tại và các snapshot backup.</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Xuất file Excel bản gọn để quản lý: tổng quan theo tháng, bảng tiền tháng, bảng người ở hiện tại và các snapshot backup.</div>
           <button class="btn btn-attention" type="button" onclick="exportManagementWorkbook()">📊 Xuất file Excel quản lý</button>
         </div>
-        <button class="btn btn-primary" style="padding:14px 32px;margin-top:8px" onclick="saveSettings()">💾 Lưu cài đặt</button>
+        <button class="btn btn-primary" id="saveSettingsBtn" style="padding:14px 32px;margin-top:8px" onclick="saveSettings()">💾 Lưu cài đặt</button>
       </div>
     </div>
   </main>
@@ -945,6 +1385,7 @@ body.mobile-app .save-float{bottom:96px;right:16px}
     <div class="mobile-more-title">Truy cập nhanh</div>
     <div class="mobile-more-grid">
       <button class="mobile-more-btn" data-mobile-page="rooms" type="button" onclick="navigateMobileTo('rooms')">Phòng</button>
+      <button class="mobile-more-btn" data-mobile-page="roomMap" type="button" onclick="navigateMobileTo('roomMap')">Sơ đồ trọ</button>
       <button class="mobile-more-btn" data-mobile-page="newTenant" type="button" onclick="navigateMobileTo('newTenant')">Khách mới</button>
       <button class="mobile-more-btn" data-mobile-page="checkout" type="button" onclick="navigateMobileTo('checkout')">Trả phòng</button>
       <button class="mobile-more-btn" data-mobile-page="documents" type="button" onclick="navigateMobileTo('documents')">Giấy tờ</button>
@@ -1001,7 +1442,7 @@ body.mobile-app .save-float{bottom:96px;right:16px}
 </div>
 
 <!-- BILL TEMPLATE (hidden, for html2canvas) -->
-<div id="billTemplateContainer"></div>
+<div id="billTemplateContainer" style="position:fixed;left:-20000px;top:0;width:0;height:0;overflow:hidden;pointer-events:none;opacity:0"></div>
 <script>
 // ============================================================
 // CONFIG — Fill in your Supabase credentials
@@ -1014,8 +1455,12 @@ const BUSINESS_START_DATE = `${BUSINESS_START_MONTH}-01`;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const TRACKED_MONTHS_KEY = 'nhatro_tracked_months_v1';
 const DASHBOARD_MONTH_KEY = 'nhatro_dashboard_month_v1';
+const BILLING_MONTH_KEY = 'nhatro_billing_month_v1';
+const WATER_MONTH_KEY = 'nhatro_water_month_v1';
 const RESIDENT_LIVE_SHEET_KEY = 'nhatro_resident_live_sheet_v1';
-const WEB3FORM_KEY_STORAGE = 'nhatro_web3form_key_v1';
+const UI_STATE_KEY = 'nhatro_ui_state_v1';
+const NEW_TENANT_DRAFT_KEY = 'nhatro_new_tenant_draft_v1';
+const CHECKOUT_DRAFT_KEY = 'nhatro_checkout_draft_v1';
 const RESIDENT_LIVE_DEFAULT_ROWS = 20;
 const MOBILE_BREAKPOINT = 900;
 
@@ -1087,6 +1532,135 @@ function updateMobileNavState() {
   document.querySelectorAll('.mobile-more-btn[data-mobile-page]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mobilePage === activePage);
   });
+}
+
+function readUiState() {
+  return safeJsonParse(sessionStorage.getItem(UI_STATE_KEY), {}) || {};
+}
+
+function writeUiState(nextState = {}) {
+  sessionStorage.setItem(UI_STATE_KEY, JSON.stringify(nextState || {}));
+}
+
+function patchUiState(patch = {}) {
+  writeUiState({ ...readUiState(), ...patch });
+}
+
+function getRoomModalSection() {
+  return document.querySelector('.room-tab-btn.active')?.dataset?.sec || 'room';
+}
+
+function persistRoomModalState(isOpen, extra = {}) {
+  const current = readUiState();
+  current.roomModal = {
+    open: !!isOpen,
+    roomId: extra.roomId ?? current.roomModal?.roomId ?? roomModalCtx?.roomId ?? null,
+    section: extra.section ?? getRoomModalSection()
+  };
+  writeUiState(current);
+}
+
+function persistNewTenantDraft() {
+  const payload = {
+    roomId: document.getElementById('newTenantRoom')?.value || '',
+    name: document.getElementById('ntName')?.value || '',
+    phone: document.getElementById('ntPhone')?.value || '',
+    moveIn: document.getElementById('ntMoveIn')?.value || '',
+    people: document.getElementById('ntPeople')?.value || '1',
+    deposit: document.getElementById('ntDeposit')?.value || '',
+    hotWater: document.getElementById('ntHotWater')?.value || '0',
+    coldWater: document.getElementById('ntColdWater')?.value || '0'
+  };
+  localStorage.setItem(NEW_TENANT_DRAFT_KEY, JSON.stringify(payload));
+}
+
+function bindNewTenantDraftHandlers() {
+  ['newTenantRoom', 'ntName', 'ntPhone', 'ntMoveIn', 'ntPeople', 'ntDeposit', 'ntHotWater', 'ntColdWater'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.draftBound === '1') return;
+    el.dataset.draftBound = '1';
+    el.addEventListener('input', persistNewTenantDraft);
+    el.addEventListener('change', persistNewTenantDraft);
+  });
+}
+
+function clearNewTenantDraft() {
+  localStorage.removeItem(NEW_TENANT_DRAFT_KEY);
+}
+
+function persistCheckoutDraft() {
+  const payload = {
+    roomId: document.getElementById('checkoutRoom')?.value || '',
+    date: document.getElementById('coDate')?.value || '',
+    hotCurrent: document.getElementById('coHotCurrent')?.value || '',
+    coldCurrent: document.getElementById('coColdCurrent')?.value || '',
+    elec: document.getElementById('coElec')?.value || '',
+    damage: document.getElementById('coDamage')?.value || '',
+    damageNote: document.getElementById('coDamageNote')?.value || ''
+  };
+  localStorage.setItem(CHECKOUT_DRAFT_KEY, JSON.stringify(payload));
+}
+
+function bindCheckoutDraftHandlers() {
+  ['checkoutRoom', 'coDate', 'coHotCurrent', 'coColdCurrent', 'coElec', 'coDamage', 'coDamageNote'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.draftBound === '1') return;
+    el.dataset.draftBound = '1';
+    el.addEventListener('input', persistCheckoutDraft);
+    el.addEventListener('change', persistCheckoutDraft);
+  });
+}
+
+function clearCheckoutDraft() {
+  localStorage.removeItem(CHECKOUT_DRAFT_KEY);
+}
+
+function setActionProgress(title, meta = 'Vui lòng chờ hoàn tất để tránh bấm lặp nhiều lần.') {
+  const box = document.getElementById('actionProgress');
+  const titleEl = document.getElementById('actionProgressTitle');
+  const metaEl = document.getElementById('actionProgressMeta');
+  if (!box || !titleEl || !metaEl) return;
+  titleEl.textContent = title || 'Đang lưu dữ liệu...';
+  metaEl.textContent = meta || 'Vui lòng chờ hoàn tất để tránh bấm lặp nhiều lần.';
+  box.classList.add('show');
+}
+
+function clearActionProgress(delay = 0) {
+  const box = document.getElementById('actionProgress');
+  if (!box) return;
+  const close = () => box.classList.remove('show');
+  if (delay > 0) setTimeout(close, delay);
+  else close();
+}
+
+async function withBusyState(key, options = {}, task) {
+  window.__busyActions = window.__busyActions || {};
+  if (window.__busyActions[key]) return;
+  const selectors = Array.isArray(options.selectors) ? options.selectors : [];
+  const buttons = selectors
+    .map(selector => document.querySelector(selector))
+    .filter(Boolean);
+  const originals = buttons.map(btn => ({ btn, text: btn.innerHTML }));
+  window.__busyActions[key] = true;
+  originals.forEach(({ btn }) => {
+    btn.disabled = true;
+    btn.classList.add('is-busy');
+  });
+  if (options.busyText) {
+    originals.forEach(({ btn }) => { btn.innerHTML = options.busyText; });
+  }
+  setActionProgress(options.title, options.meta);
+  try {
+    return await task();
+  } finally {
+    delete window.__busyActions[key];
+    originals.forEach(({ btn, text }) => {
+      btn.disabled = false;
+      btn.classList.remove('is-busy');
+      btn.innerHTML = text;
+    });
+    clearActionProgress(options.keepVisibleMs || 700);
+  }
 }
 let hasUnsavedChanges = false;
 let unsavedReason = '';
@@ -1172,7 +1746,12 @@ async function showApp() {
   initBillingMonths();
   initPeriodPickers();
   updatePeriodLabels();
-  await renderDashboard();
+  const uiState = readUiState();
+  const initialPage = uiState.activePage && document.getElementById(`page-${uiState.activePage}`) ? uiState.activePage : 'dashboard';
+  await navigate(initialPage, { skipPersist: true, skipCloseRoomModal: true });
+  if (uiState.roomModal?.open && initialPage === 'rooms' && uiState.roomModal.roomId) {
+    await openRoomDetail(uiState.roomModal.roomId, uiState.roomModal.section || 'room');
+  }
 }
 
 // ============================================================
@@ -1212,42 +1791,22 @@ async function loadAllData(force = false) {
 
 async function refreshDatabase() {
   const activePageId = document.querySelector('.page.active')?.id?.replace('page-', '') || 'dashboard';
+  const uiState = readUiState();
   try {
-    invalidateDataCache();
-    await loadAllData(true);
-    switch (activePageId) {
-      case 'dashboard':
-        await renderDashboard(true);
-        break;
-      case 'rooms':
-        renderRooms();
-        break;
-      case 'billing':
-        await loadBillingMonth();
-        break;
-      case 'waterEntry':
-        await loadWaterEntry();
-        break;
-      case 'newTenant':
-        await loadNewTenantForm();
-        break;
-      case 'checkout':
-        await loadCheckoutForm();
-        break;
-      case 'documents':
-        await loadDocuments();
-        break;
-      case 'archived':
-        await loadArchived();
-        break;
-      case 'settings':
-        await loadSettings();
-        break;
-      default:
-        await renderDashboard();
-        break;
-    }
-    toast('Đã refresh dữ liệu từ database.');
+    await withBusyState('refresh-db', {
+      title: 'Đang refresh dữ liệu',
+      meta: 'Đang tải lại dữ liệu mới nhất từ database.',
+      selectors: ['#refreshDbBtnTop'],
+      busyText: '⟳ Đang refresh...'
+    }, async () => {
+      invalidateDataCache();
+      await loadAllData(true);
+      await navigate(activePageId, { skipPersist: true, skipCloseRoomModal: true, skipClosePickers: true });
+      if (uiState.roomModal?.open && activePageId === 'rooms' && uiState.roomModal.roomId) {
+        await openRoomDetail(uiState.roomModal.roomId, uiState.roomModal.section || 'room');
+      }
+      toast('Đã refresh dữ liệu từ database.');
+    });
   } catch (error) {
     toast('Refresh database lỗi: ' + (error?.message || 'Không rõ nguyên nhân'), 'error');
   }
@@ -1270,30 +1829,41 @@ function getPeopleCountForRoom(roomId) {
 // ============================================================
 // NAVIGATION
 // ============================================================
-function navigate(page) {
-  closeAllPeriodPickers();
+async function navigate(page, options = {}) {
+  if (!options.skipClosePickers) closeAllPeriodPickers();
   closeMobileMoreSheet();
+  if (page !== 'roomMap') {
+    if (roomMapAudioEnabled) toggleRoomMapAudio();
+  }
+  if (!options.skipCloseRoomModal) {
+    document.querySelectorAll('.modal-overlay.show').forEach(modal => modal.classList.remove('show'));
+    persistRoomModalState(false, { roomId: null, section: 'room' });
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-feature-launch').forEach(n => n.classList.remove('active'));
   document.querySelectorAll('.nav-cluster').forEach(n => n.classList.remove('active-cluster'));
   document.getElementById('page-' + page).classList.add('active');
   const activeNav = document.querySelector(`.nav-item[data-page="${page}"]`);
-  activeNav.classList.add('active');
-  activeNav.closest('.nav-cluster')?.classList.add('active-cluster');
+  activeNav?.classList.add('active');
+  document.querySelector(`.nav-feature-launch[data-page="${page}"]`)?.classList.add('active');
+  activeNav?.closest('.nav-cluster')?.classList.add('active-cluster');
   // Close sidebar on mobile
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebarOverlay').classList.remove('show');
+  if (!options.skipPersist) patchUiState({ activePage: page });
   // Load page data
   switch(page) {
-    case 'dashboard': renderDashboard(); break;
+    case 'dashboard': await renderDashboard(); break;
     case 'rooms': renderRooms(); break;
-    case 'billing': loadBillingMonth(); break;
-    case 'waterEntry': loadWaterEntry(); break;
-    case 'newTenant': loadNewTenantForm(); break;
-    case 'checkout': loadCheckoutForm(); break;
-    case 'documents': loadDocuments(); break;
-    case 'archived': loadArchived(); break;
-    case 'settings': loadSettings(); break;
+    case 'roomMap': await loadRoomMapPage(); break;
+    case 'billing': await loadBillingMonth(); break;
+    case 'waterEntry': await loadWaterEntry(); break;
+    case 'newTenant': await loadNewTenantForm(); break;
+    case 'checkout': await loadCheckoutForm(); break;
+    case 'documents': await loadDocuments(); break;
+    case 'archived': await loadArchived(); break;
+    case 'settings': await loadSettings(); break;
   }
   updateMobileNavState();
 }
@@ -1500,6 +2070,8 @@ function setOperationalMonth(monthValue) {
     const input = document.getElementById(`${kind}Date`);
     if (input) input.value = monthValue;
   });
+  localStorage.setItem(BILLING_MONTH_KEY, monthValue);
+  localStorage.setItem(WATER_MONTH_KEY, monthValue);
   renderPeriodPicker('billing');
   renderPeriodPicker('water');
 }
@@ -1528,7 +2100,7 @@ function selectPeriod(kind, monthValue, ev) {
   const input = document.getElementById(`${kind}Date`);
   if (!input) return;
   if ((kind === 'billing' || kind === 'water') && monthValue > getDefaultMonthValue()) {
-    setPeriodInlineStatus('Chưa tới kỳ này, chưa thể nhập liệu.', 'warning');
+    toast('Chưa tới kỳ này, chưa thể nhập liệu.', 'warning');
     closeAllPeriodPickers();
     return;
   }
@@ -1544,8 +2116,12 @@ function selectPeriod(kind, monthValue, ev) {
     localStorage.setItem(DASHBOARD_MONTH_KEY, monthValue);
     renderDashboard();
   } else if (kind === 'billing') {
+    localStorage.setItem(BILLING_MONTH_KEY, monthValue);
+    localStorage.setItem(WATER_MONTH_KEY, monthValue);
     loadBillingMonth();
   } else {
+    localStorage.setItem(BILLING_MONTH_KEY, monthValue);
+    localStorage.setItem(WATER_MONTH_KEY, monthValue);
     loadWaterEntry();
   }
 }
@@ -1600,6 +2176,35 @@ function toast(msg, type = 'success') {
   setTimeout(() => t.remove(), 4000);
 }
 
+function setExportProgress(title, current = 0, total = 1, meta = '') {
+  const box = document.getElementById('exportProgress');
+  const titleEl = document.getElementById('exportProgressTitle');
+  const metaEl = document.getElementById('exportProgressMeta');
+  const fillEl = document.getElementById('exportProgressFill');
+  if (!box || !titleEl || !metaEl || !fillEl) return;
+  const safeTotal = Math.max(1, total || 1);
+  const safeCurrent = Math.max(0, Math.min(current || 0, safeTotal));
+  titleEl.textContent = title || 'Đang xử lý xuất file...';
+  metaEl.textContent = meta || (safeTotal > 1 ? `Đang xử lý ${safeCurrent}/${safeTotal}` : 'Vui lòng chờ trong giây lát.');
+  fillEl.style.width = `${Math.max(8, Math.round((safeCurrent / safeTotal) * 100))}%`;
+  box.classList.add('show');
+}
+
+function clearExportProgress(delay = 0) {
+  const box = document.getElementById('exportProgress');
+  const fillEl = document.getElementById('exportProgressFill');
+  if (!box || !fillEl) return;
+  const close = () => {
+    box.classList.remove('show');
+    fillEl.style.width = '0%';
+  };
+  if (delay > 0) {
+    setTimeout(close, delay);
+  } else {
+    close();
+  }
+}
+
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 async function closeModal(id) {
   if (id === 'roomModal' && hasUnsavedChanges) {
@@ -1614,6 +2219,7 @@ async function closeModal(id) {
   if (id === 'roomModal') {
     hasUnsavedChanges = false;
     unsavedReason = '';
+    persistRoomModalState(false, { roomId: null, section: 'room' });
   }
 }
 
@@ -2447,7 +3053,7 @@ function buildOverviewResidentsTableHtml(rows = []) {
       </div>
       <div class="overview-resident-actions">
         <button class="btn btn-outline" type="button" onclick="addDashboardResidentRow()">+ Thêm người</button>
-        <button class="btn btn-primary" type="button" onclick="saveDashboardResidents()">💾 Lưu bảng người ở</button>
+        <button class="btn btn-primary" id="saveResidentsBtn" type="button" onclick="saveDashboardResidents()">💾 Lưu bảng người ở</button>
       </div>
     </div>
   `;
@@ -2825,7 +3431,7 @@ async function renderDashboard(skipReload = false) {
             <div class="overview-section-note">Mã khách điện, mã khách nước và giá phòng lấy từ dữ liệu cố định. Bạn chỉ cần chỉnh snapshot người ở, số điện cũ/mới và ghi chú nếu cần.</div>
           </div>
           <div class="overview-actions">
-            <button class="btn btn-outline" type="button" onclick="saveDashboardFinanceSheet()">💾 Lưu snapshot tháng</button>
+            <button class="btn btn-outline" id="saveFinanceSheetBtn" type="button" onclick="saveDashboardFinanceSheet()">💾 Lưu snapshot tháng</button>
             <button class="btn btn-attention" type="button" onclick="exportManagementWorkbook()">⬇ Xuất Excel</button>
           </div>
         </div>
@@ -2895,30 +3501,36 @@ async function saveDashboardFinanceSheet() {
     toast('Chưa có bảng tiền tháng để lưu.', 'warning');
     return;
   }
+  await withBusyState('save-dashboard-finance', {
+    title: 'Đang lưu snapshot tháng',
+    meta: `Đang ghi dữ liệu bảng tiền tháng của ${getPeriodMonthTitle(month).replace('THÁNG', 'Tháng')}.`,
+    selectors: ['#saveFinanceSheetBtn'],
+    busyText: '💾 Đang lưu...'
+  }, async () => {
+    const sheetUpdates = rows.map(row => {
+      const roomId = row.dataset.roomId;
+      return sb.from('monthly_room_sheet_data').upsert({
+        room_id: roomId,
+        billing_month: month,
+        full_name: row.querySelector('.ov-finance-name')?.value?.trim() || null,
+        cccd_number: row.querySelector('.ov-finance-cccd')?.value?.trim() || null,
+        phone: row.querySelector('.ov-finance-phone')?.value?.trim() || null,
+        electricity_previous: parseNullableInt(row.querySelector('.ov-finance-elec-prev')?.value),
+        electricity_current: parseNullableInt(row.querySelector('.ov-finance-elec-cur')?.value),
+        sheet_note: row.querySelector('.ov-finance-note')?.value?.trim() || null
+      }, { onConflict: 'room_id,billing_month' });
+    });
 
-  const sheetUpdates = rows.map(row => {
-    const roomId = row.dataset.roomId;
-    return sb.from('monthly_room_sheet_data').upsert({
-      room_id: roomId,
-      billing_month: month,
-      full_name: row.querySelector('.ov-finance-name')?.value?.trim() || null,
-      cccd_number: row.querySelector('.ov-finance-cccd')?.value?.trim() || null,
-      phone: row.querySelector('.ov-finance-phone')?.value?.trim() || null,
-      electricity_previous: parseNullableInt(row.querySelector('.ov-finance-elec-prev')?.value),
-      electricity_current: parseNullableInt(row.querySelector('.ov-finance-elec-cur')?.value),
-      sheet_note: row.querySelector('.ov-finance-note')?.value?.trim() || null
-    }, { onConflict: 'room_id,billing_month' });
+    const results = await Promise.all(sheetUpdates);
+    const failed = results.find(result => result.error);
+    if (failed?.error) {
+      toast('Lỗi lưu bảng tiền tháng: ' + failed.error.message, 'error');
+      return;
+    }
+
+    toast('Đã lưu snapshot bảng tháng.');
+    await renderDashboard();
   });
-
-  const results = await Promise.all(sheetUpdates);
-  const failed = results.find(result => result.error);
-  if (failed?.error) {
-    toast('Lỗi lưu bảng tiền tháng: ' + failed.error.message, 'error');
-    return;
-  }
-
-  toast('Đã lưu snapshot bảng tháng.');
-  await renderDashboard();
 }
 
 async function saveDashboardResidents() {
@@ -2927,51 +3539,59 @@ async function saveDashboardResidents() {
     toast('Chưa có bảng người ở để lưu.', 'warning');
     return;
   }
+  await withBusyState('save-dashboard-residents', {
+    title: 'Đang lưu bảng người ở',
+    meta: 'Đang cập nhật bảng hiện tại và tạo một bản backup snapshot.',
+    selectors: ['#saveResidentsBtn'],
+    busyText: '💾 Đang lưu...'
+  }, async () => {
+    const residentRows = rows.map((row, index) => ({
+      stt: index + 1,
+      full_name: row.querySelector('.ov-resident-name')?.value?.trim() || '',
+      date_of_birth: row.querySelector('.ov-resident-dob')?.value || null,
+      gender: row.querySelector('.ov-resident-gender')?.value || null,
+      permanent_address: row.querySelector('.ov-resident-permanent')?.value?.trim() || null,
+      place_of_origin: row.querySelector('.ov-resident-origin')?.value?.trim() || null,
+      hometown: row.querySelector('.ov-resident-origin')?.value?.trim() || null,
+      ethnicity: row.querySelector('.ov-resident-ethnicity')?.value?.trim() || null,
+      nationality: row.querySelector('.ov-resident-nationality')?.value?.trim() || null,
+      cccd_number: row.querySelector('.ov-resident-cccd')?.value?.trim() || null,
+      temp_registration_date: row.querySelector('.ov-resident-register-date')?.value || null,
+      temp_registration_term: row.querySelector('.ov-resident-register-term')?.value?.trim() || null,
+      temp_residence_address: row.querySelector('.ov-resident-temp-address')?.value?.trim() || null,
+      room_number: row.querySelector('.ov-resident-room')?.value?.trim() || '',
+      note: row.querySelector('.ov-resident-note')?.value?.trim() || null
+    }));
 
-  const residentRows = rows.map((row, index) => ({
-    stt: index + 1,
-    full_name: row.querySelector('.ov-resident-name')?.value?.trim() || '',
-    date_of_birth: row.querySelector('.ov-resident-dob')?.value || null,
-    gender: row.querySelector('.ov-resident-gender')?.value || null,
-    permanent_address: row.querySelector('.ov-resident-permanent')?.value?.trim() || null,
-    place_of_origin: row.querySelector('.ov-resident-origin')?.value?.trim() || null,
-    hometown: row.querySelector('.ov-resident-origin')?.value?.trim() || null,
-    ethnicity: row.querySelector('.ov-resident-ethnicity')?.value?.trim() || null,
-    nationality: row.querySelector('.ov-resident-nationality')?.value?.trim() || null,
-    cccd_number: row.querySelector('.ov-resident-cccd')?.value?.trim() || null,
-    temp_registration_date: row.querySelector('.ov-resident-register-date')?.value || null,
-    temp_registration_term: row.querySelector('.ov-resident-register-term')?.value?.trim() || null,
-    temp_residence_address: row.querySelector('.ov-resident-temp-address')?.value?.trim() || null,
-    room_number: row.querySelector('.ov-resident-room')?.value?.trim() || '',
-    note: row.querySelector('.ov-resident-note')?.value?.trim() || null
-  }));
+    localStorage.setItem(RESIDENT_LIVE_SHEET_KEY, JSON.stringify(residentRows));
 
-  localStorage.setItem(RESIDENT_LIVE_SHEET_KEY, JSON.stringify(residentRows));
-
-  const settingsPayload = {
-    resident_live_sheet: residentRows,
-    resident_live_sheet_updated_at: new Date().toISOString()
-  };
-  const { error } = await sb.from('settings').update(settingsPayload).eq('id', appData.settings.id);
-  if (error) {
-    console.warn('saveDashboardResidents settings fallback:', error.message);
-  } else {
-    appData.settings = {
-      ...appData.settings,
-      ...settingsPayload
+    const settingsPayload = {
+      resident_live_sheet: residentRows,
+      resident_live_sheet_updated_at: new Date().toISOString()
     };
-  }
+    const { error } = await sb.from('settings').update(settingsPayload).eq('id', appData.settings.id);
+    if (error) {
+      console.warn('saveDashboardResidents settings fallback:', error.message);
+    } else {
+      appData.settings = {
+        ...appData.settings,
+        ...settingsPayload
+      };
+    }
 
-  await createResidentSnapshot('luu_bang_nguoi_o', residentRows);
-  toast(error ? 'Đã lưu bảng người ở trên máy này. Muốn đồng bộ DB, chạy hotfix SQL mới.' : 'Đã lưu bảng người ở hiện tại.');
-  await renderDashboard();
+    await createResidentSnapshot('luu_bang_nguoi_o', residentRows);
+    toast(error ? 'Đã lưu bảng người ở trên máy này. Muốn đồng bộ DB, chạy hotfix SQL mới.' : 'Đã lưu bảng người ở hiện tại.');
+    await renderDashboard();
+  });
 }
 
 function buildFinanceExportSheet(monthBundles = [], totals = {}) {
-  const rows = [['NHÀ TRỌ ĐẶNG ĐƯỢC - BẢNG TIỀN THÁNG'], []];
+  const rows = [];
+  const merges = [];
+  const titleRows = [];
+  const headerRows = [];
+  const turnoverRowIndices = [];
   const headers = [
-    'Kỳ tháng',
-    'Trạng thái dòng',
     'Số phòng',
     'Họ tên',
     'CCCD',
@@ -2994,20 +3614,50 @@ function buildFinanceExportSheet(monthBundles = [], totals = {}) {
     'Tổng cộng tiền tháng',
     'Ghi chú'
   ];
-  rows.push(headers);
+
+  rows.push(['NHÀ TRỌ ĐẶNG ĐƯỢC - BẢNG TIỀN THÁNG']);
+  titleRows.push(0);
+  merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } });
+  rows.push([
+    'Tổng doanh thu',
+    fmtSheetMoney(totals.revenue || 0),
+    'Tổng chi phí',
+    fmtSheetMoney(totals.expense || 0),
+    'Tổng lợi nhuận',
+    fmtSheetMoney(totals.profit || 0),
+    'Tổng tiền cọc',
+    fmtSheetMoney(totals.totalHeldDeposit || 0)
+  ]);
+  rows.push([]);
 
   monthBundles.forEach(bundle => {
+    const titleRowIndex = rows.length;
+    rows.push([getPeriodMonthTitle(bundle.month).replace('THÁNG', 'Tháng')]);
+    titleRows.push(titleRowIndex);
+    merges.push({ s: { r: titleRowIndex, c: 0 }, e: { r: titleRowIndex, c: headers.length - 1 } });
+    rows.push([
+      'Doanh thu vận hành',
+      fmtSheetMoney(bundle.summary?.revenue || 0),
+      'Chi phí vận hành',
+      fmtSheetMoney(bundle.summary?.expense || 0),
+      'Lợi nhuận vận hành',
+      fmtSheetMoney(bundle.summary?.profit || 0),
+      'Chênh lệch STK',
+      fmtSheetMoney(bundle.turnover?.delta || 0)
+    ]);
+    const headerIndex = rows.length;
+    rows.push(headers);
+    headerRows.push(headerIndex);
+    const dataStartRow = rows.length;
     bundle.rows.forEach(row => {
       rows.push([
-        getPeriodMonthTitle(bundle.month).replace('THÁNG', 'Tháng'),
-        row.has_turnover ? 'CÓ BIẾN ĐỘNG NGƯỜI Ở' : '',
-        row.room_number,
+        row.has_turnover ? `* ${row.room_number}` : row.room_number,
         row.full_name || '',
         row.cccd_number || '',
         row.phone || '',
         Number(row.room_price || 0),
         row.electricity_customer_code || '',
-        row.water_customer_code || getGlobalWaterCustomerCode(),
+        '',
         row.electricity_previous ?? '',
         row.electricity_current ?? '',
         Number(row.electricity_amount || 0),
@@ -3023,18 +3673,64 @@ function buildFinanceExportSheet(monthBundles = [], totals = {}) {
         Number(row.display_total_amount || 0),
         buildCombinedSheetNote(row)
       ]);
+      if (row.has_turnover) turnoverRowIndices.push(rows.length - 1);
     });
+    if (bundle.rows.length) {
+      merges.push({
+        s: { r: dataStartRow, c: 6 },
+        e: { r: dataStartRow + bundle.rows.length - 1, c: 6 }
+      });
+      rows[dataStartRow][6] = bundle.rows[0].water_customer_code || getGlobalWaterCustomerCode();
+    }
+    rows.push([
+      'Tổng doanh thu tháng',
+      fmtSheetMoney(bundle.summary?.revenue || 0),
+      'Tổng chi phí tháng',
+      fmtSheetMoney(bundle.summary?.expense || 0),
+      'Tổng lợi nhuận tháng',
+      fmtSheetMoney(bundle.summary?.profit || 0),
+      '',
+      ''
+    ]);
+    rows.push([]);
   });
 
   const sheet = XLSX.utils.aoa_to_sheet(rows);
   sheet['!cols'] = [
-    { wch: 16 }, { wch: 22 }, { wch: 10 }, { wch: 22 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 16 },
+    { wch: 10 }, { wch: 22 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 16 },
     { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 12 },
     { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 14 }, { wch: 12 },
-    { wch: 12 }, { wch: 16 }, { wch: 42 }
+    { wch: 12 }, { wch: 16 }, { wch: 40 }
   ];
-  sheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }];
-  sheet['!autofilter'] = { ref: `A3:W${rows.length}` };
+  sheet['!merges'] = merges;
+  turnoverRowIndices.forEach(rowIndex => {
+    for (let col = 0; col < headers.length; col += 1) {
+      const ref = XLSX.utils.encode_cell({ r: rowIndex, c: col });
+      if (!sheet[ref]) continue;
+      sheet[ref].s = {
+        fill: { fgColor: { rgb: 'FFF3CD' } },
+        font: { bold: col === 0 || col === headers.length - 1 }
+      };
+    }
+  });
+  headerRows.forEach(rowIndex => {
+    for (let col = 0; col < headers.length; col += 1) {
+      const ref = XLSX.utils.encode_cell({ r: rowIndex, c: col });
+      if (!sheet[ref]) continue;
+      sheet[ref].s = {
+        fill: { fgColor: { rgb: 'FDE7D7' } },
+        font: { bold: true }
+      };
+    }
+  });
+  titleRows.forEach(rowIndex => {
+    const ref = XLSX.utils.encode_cell({ r: rowIndex, c: 0 });
+    if (!sheet[ref]) return;
+    sheet[ref].s = {
+      fill: { fgColor: { rgb: 'D8E7F6' } },
+      font: { bold: true }
+    };
+  });
   return sheet;
 }
 
@@ -3086,28 +3782,51 @@ function buildMonthlyFinanceExportSheet(bundle) {
 }
 
 function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ TRỌ NHÀ TRỌ ĐẶNG ĐƯỢC') {
+  const normalizedRows = normalizeResidentSheetRows(rows)
+    .slice()
+    .sort((a, b) => {
+      const aRoom = Number.parseInt(a.room_number, 10);
+      const bRoom = Number.parseInt(b.room_number, 10);
+      const safeARoom = Number.isFinite(aRoom) ? aRoom : 9999;
+      const safeBRoom = Number.isFinite(bRoom) ? bRoom : 9999;
+      if (safeARoom !== safeBRoom) return safeARoom - safeBRoom;
+      return String(a.full_name || '').localeCompare(String(b.full_name || ''), 'vi');
+    });
+  const headers = [
+    'STT',
+    'HỌ VÀ TÊN NGƯỜI TẠM TRÚ',
+    'NGÀY SINH',
+    'GIỚI TÍNH',
+    'NƠI THƯỜNG TRÚ',
+    'NGUYÊN QUÁN',
+    'DÂN TỘC',
+    'QUỐC TỊCH',
+    'CCCD',
+    'ĐĂNG KÝ NGÀY',
+    'THỜI HẠN TẠM TRÚ',
+    'NƠI TẠM TRÚ',
+    'NOTE'
+  ];
   const aoa = [
     [title],
     [],
-    [
-      'STT',
-      'HỌ VÀ TÊN NGƯỜI TẠM TRÚ',
-      'NGÀY SINH',
-      'GIỚI TÍNH',
-      'NƠI THƯỜNG TRÚ',
-      'NGUYÊN QUÁN',
-      'DÂN TỘC',
-      'QUỐC TỊCH',
-      'CCCD',
-      'ĐĂNG KÝ NGÀY',
-      'THỜI HẠN TẠM TRÚ',
-      'NƠI TẠM TRÚ',
-      'PHÒNG',
-      'NOTE'
-    ]
+    headers
   ];
+  const merges = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 12 } }];
+  const headerRowIndex = 2;
+  const roomTitleRows = [];
 
-  rows.forEach(row => {
+  let currentRoomKey = null;
+  normalizedRows.forEach(row => {
+    const roomKey = (row.room_number == null || row.room_number === '') ? 'CHUA_XEP' : String(row.room_number);
+    if (roomKey !== currentRoomKey) {
+      currentRoomKey = roomKey;
+      const titleRowIndex = aoa.length;
+      const roomLabel = roomKey === 'CHUA_XEP' ? 'CHƯA XẾP PHÒNG' : `PHÒNG ${formatRoomTwoDigits(roomKey)}`;
+      aoa.push([roomLabel]);
+      merges.push({ s: { r: titleRowIndex, c: 0 }, e: { r: titleRowIndex, c: 12 } });
+      roomTitleRows.push(titleRowIndex);
+    }
     aoa.push([
       row.stt || '',
       row.full_name || '',
@@ -3121,7 +3840,6 @@ function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ
       asInputDate(row.temp_registration_date),
       row.temp_registration_term || '',
       row.temp_residence_address || '',
-      formatRoomTwoDigits(row.room_number),
       row.note || ''
     ]);
   });
@@ -3130,9 +3848,27 @@ function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ
   sheet['!cols'] = [
     { wch: 8 }, { wch: 24 }, { wch: 14 }, { wch: 12 }, { wch: 28 }, { wch: 22 },
     { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 18 }, { wch: 28 },
-    { wch: 10 }, { wch: 22 }
+    { wch: 22 }
   ];
-  sheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 13 } }];
+  sheet['!merges'] = merges;
+  for (let col = 0; col < headers.length; col += 1) {
+    const ref = XLSX.utils.encode_cell({ r: headerRowIndex, c: col });
+    if (sheet[ref]) {
+      sheet[ref].s = {
+        fill: { fgColor: { rgb: 'D8E7F6' } },
+        font: { bold: true }
+      };
+    }
+  }
+  roomTitleRows.forEach(rowIndex => {
+    const ref = XLSX.utils.encode_cell({ r: rowIndex, c: 0 });
+    if (sheet[ref]) {
+      sheet[ref].s = {
+        fill: { fgColor: { rgb: 'FDE7D7' } },
+        font: { bold: true }
+      };
+    }
+  });
   return sheet;
 }
 
@@ -3186,7 +3922,7 @@ async function exportOverviewWorkbook() {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, buildOverviewSummaryExportSheet(monthBundles, totals), 'Tong_quan');
   XLSX.utils.book_append_sheet(workbook, buildFinanceExportSheet(monthBundles, totals), 'Bang_tien_thang');
-  XLSX.utils.book_append_sheet(workbook, buildResidentsExportSheet(residentRows, 'BẢNG NGƯỜI Ở HIỆN TẠI - NHÀ TRỌ ĐẶNG ĐƯỢC'), 'Nguoi_dang_o');
+  XLSX.utils.book_append_sheet(workbook, buildResidentsExportSheet(residentRows, 'BẢNG THÔNG TIN NGƯỜI Ở TRỌ - NHÀ TRỌ ĐẶNG ĐƯỢC'), 'Nguoi_dang_o');
   (residentSnapshots || []).forEach((snapshot, index) => {
     const rows = Array.isArray(snapshot.snapshot_data) ? snapshot.snapshot_data : [];
     const snapshotName = toExcelSheetName(`SNAP_${index + 1}_${formatSnapshotMoment(snapshot.snapshot_taken_at).replace(/[\/:\s]/g, '_')}`, `SNAP_${index + 1}`);
@@ -3246,6 +3982,317 @@ function renderRooms() {
   document.getElementById('roomsGrid').innerHTML = html;
 }
 
+let roomMapAudioCtx = null;
+let roomMapAudioTimer = null;
+let roomMapAudioEnabled = false;
+let roomMapMelodyStep = 0;
+function getRoomMapSceneState() {
+  const now = new Date();
+  const hour = now.getHours();
+  const weatherModes = ['clear', 'cloudy', 'drizzle', 'windy', 'storm'];
+  const weatherIndex = (now.getDate() + now.getMonth() + Math.floor(hour / 3)) % weatherModes.length;
+  const weather = weatherModes[weatherIndex];
+  let phase = 'day';
+  let phaseLabel = 'Ban ngày';
+  if (hour >= 5 && hour < 9) {
+    phase = 'morning';
+    phaseLabel = 'Buổi sáng';
+  } else if (hour >= 9 && hour < 17) {
+    phase = 'day';
+    phaseLabel = 'Ban ngày';
+  } else if (hour >= 17 && hour < 19) {
+    phase = 'dusk';
+    phaseLabel = 'Chiều tối';
+  } else {
+    phase = 'night';
+    phaseLabel = 'Ban đêm';
+  }
+  const weatherLabels = {
+    clear: 'Trời quang',
+    cloudy: 'Nhiều mây',
+    drizzle: 'Mưa nhẹ',
+    windy: 'Gió lộng',
+    storm: 'Dông lớn'
+  };
+  return {
+    phase,
+    phaseLabel,
+    weather,
+    weatherLabel: weatherLabels[weather] || 'Bình thường',
+    clockLabel: now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+  };
+}
+
+function buildRoomMapStars() {
+  return Array.from({ length: 26 }, (_, index) => {
+    const left = (index * 61) % 100;
+    const top = 6 + ((index * 29) % 26);
+    const delay = (index % 5) * 0.4;
+    return `<span class="roomgame-star" style="left:${left}%;top:${top}%;animation-delay:${delay}s"></span>`;
+  }).join('');
+}
+
+function buildRoomMapSkylineLayer(layer = 'back') {
+  const layers = {
+    back: [
+      { left: 2, width: 66, height: 150, color: '#86a3cc' },
+      { left: 10, width: 42, height: 210, color: '#6f8eb9' },
+      { left: 16, width: 78, height: 126, color: '#90acd2' },
+      { left: 26, width: 52, height: 182, color: '#7895bf' },
+      { left: 33, width: 86, height: 136, color: '#88a5cd' },
+      { left: 45, width: 54, height: 220, color: '#7190bc' },
+      { left: 54, width: 74, height: 164, color: '#8da8cf' },
+      { left: 67, width: 42, height: 198, color: '#6f8eb9' },
+      { left: 74, width: 82, height: 144, color: '#91add3' },
+      { left: 86, width: 58, height: 176, color: '#7e9bc3' }
+    ],
+    mid: [
+      { left: 0, width: 94, height: 224, color: '#46648f' },
+      { left: 12, width: 56, height: 308, color: '#33517d' },
+      { left: 22, width: 70, height: 256, color: '#4d6b98' },
+      { left: 33, width: 48, height: 286, color: '#3e5d89' },
+      { left: 41, width: 82, height: 198, color: '#56739f' },
+      { left: 53, width: 64, height: 300, color: '#3c5a85' },
+      { left: 64, width: 88, height: 214, color: '#56729c' },
+      { left: 77, width: 58, height: 272, color: '#3e5a82' },
+      { left: 86, width: 76, height: 236, color: '#4f6a92' }
+    ],
+    front: [
+      { left: 1, width: 72, height: 286, color: '#273f6a', accent: '#f08a7e' },
+      { left: 13, width: 48, height: 194, color: '#2f4770', accent: '#7db7ff' },
+      { left: 21, width: 62, height: 326, color: '#223a63', accent: '#f5b37a' },
+      { left: 31, width: 46, height: 238, color: '#304a75', accent: '#7db7ff' },
+      { left: 39, width: 88, height: 174, color: '#39527d', accent: '#f08a7e' },
+      { left: 51, width: 52, height: 304, color: '#263e68', accent: '#f5b37a' },
+      { left: 61, width: 80, height: 214, color: '#344d79', accent: '#7db7ff' },
+      { left: 73, width: 60, height: 278, color: '#274169', accent: '#f08a7e' },
+      { left: 82, width: 68, height: 250, color: '#20355b', accent: '#7db7ff' }
+    ]
+  };
+  const items = layers[layer] || layers.back;
+  return items.map((item, index) => `
+    <span class="roomgame-city-building ${layer}" style="left:${item.left}%;width:${item.width}px;height:${item.height}px;--building-color:${item.color};--building-accent:${item.accent || '#dce8ff'};--window-delay:${(index % 4) * .4}s"></span>
+  `).join('');
+}
+
+function beepRoomMap(freq, duration = 0.16, type = 'square', volume = 0.022) {
+  if (!roomMapAudioCtx) return;
+  const start = roomMapAudioCtx.currentTime;
+  const osc = roomMapAudioCtx.createOscillator();
+  const gain = roomMapAudioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, start);
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.exponentialRampToValueAtTime(volume, start + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+  osc.connect(gain);
+  gain.connect(roomMapAudioCtx.destination);
+  osc.start(start);
+  osc.stop(start + duration + 0.03);
+}
+
+async function toggleRoomMapAudio() {
+  const btn = document.getElementById('roomMapSoundBtn');
+  try {
+    if (!roomMapAudioCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) {
+        toast('Trình duyệt này không hỗ trợ âm thanh Web Audio.', 'warning');
+        return;
+      }
+      roomMapAudioCtx = new AudioCtx();
+    }
+    if (roomMapAudioCtx.state === 'suspended') await roomMapAudioCtx.resume();
+    if (roomMapAudioEnabled) {
+      roomMapAudioEnabled = false;
+      if (roomMapAudioTimer) clearInterval(roomMapAudioTimer);
+      roomMapAudioTimer = null;
+      btn?.classList.remove('active');
+      if (btn) btn.textContent = '🔈 Bật nhạc';
+      return;
+    }
+    roomMapAudioEnabled = true;
+    roomMapMelodyStep = 0;
+    const melody = [523.25, 659.25, 783.99, 659.25, 587.33, 783.99, 698.46, 523.25, 440.0, 392.0];
+    beepRoomMap(melody[0], 0.18, 'square', 0.018);
+    roomMapAudioTimer = setInterval(() => {
+      if (!roomMapAudioEnabled) return;
+      const freq = melody[roomMapMelodyStep % melody.length];
+      const type = roomMapMelodyStep % 4 === 0 ? 'triangle' : (roomMapMelodyStep % 3 === 0 ? 'sawtooth' : 'square');
+      beepRoomMap(freq, 0.18, type, 0.018);
+      if (roomMapMelodyStep % 5 === 2) beepRoomMap(freq / 2, 0.24, 'sine', 0.01);
+      roomMapMelodyStep += 1;
+    }, 240);
+    btn?.classList.add('active');
+    if (btn) btn.textContent = '🔊 Tắt nhạc';
+  } catch (error) {
+    toast('Không bật được âm thanh: ' + (error?.message || 'Không rõ lỗi'), 'error');
+  }
+}
+
+async function loadRoomMapPage() {
+  await loadAllData();
+  const el = document.getElementById('roomMapContent');
+  if (!el) return;
+
+  const scene = getRoomMapSceneState();
+  const rooms = [...(appData.rooms || [])].sort((a, b) => Number(a.room_number) - Number(b.room_number));
+  const occupiedRooms = rooms.filter(room => !!getTenantForRoom(room.id));
+  const totalPeople = rooms.reduce((sum, room) => sum + getPeopleCountForRoom(room.id), 0);
+  const activeRevenue = occupiedRooms.reduce((sum, room) => {
+    const tenant = getTenantForRoom(room.id);
+    return sum + (tenant?.room_price_override || room.room_price || 0);
+  }, 0);
+
+  const roomsHtml = rooms.map((room, index) => {
+    const tenant = getTenantForRoom(room.id);
+    const occupied = !!tenant;
+    const people = getPeopleCountForRoom(room.id);
+    const rent = tenant?.room_price_override || room.room_price || 0;
+    const name = tenant?.full_name || 'Phòng trống';
+    return `
+      <div class="roomgame-unit ${occupied ? 'occupied' : 'empty'}" style="--unit-index:${index}">
+        <div class="roomgame-door"><span class="roomgame-knob"></span></div>
+        <div class="roomgame-ac"></div>
+        <div class="roomgame-lantern"></div>
+        <div class="roomgame-sign">P${room.room_number}</div>
+        <div class="roomgame-rent">${fmt(rent).replace('đ', '')}</div>
+        <div class="roomgame-name">${esc(name)}</div>
+        <div class="roomgame-status ${occupied ? 'on' : 'off'}">${occupied ? `${people} người` : 'Trống'}</div>
+        <div class="roomgame-plant left"></div>
+        <div class="roomgame-plant right"></div>
+        ${occupied ? `<div class="roomgame-coin ${index % 2 ? 'delay' : ''}">₫</div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="roomgame-shell">
+      <div class="roomgame-frame">
+        <div class="roomgame-stage ${scene.phase} ${scene.weather}">
+          <div class="roomgame-scene-hud">
+            <div class="roomgame-scene-left">
+              <div class="roomgame-mini-chip"><strong>NHATROVUIVE</strong></div>
+              <div class="roomgame-mini-chip">${scene.phaseLabel} · ${scene.clockLabel}</div>
+              <div class="roomgame-mini-chip">${scene.weatherLabel}</div>
+            </div>
+            <div class="roomgame-scene-right">
+              <div class="roomgame-mini-chip"><strong>${occupiedRooms.length}/9</strong> phòng chạy</div>
+              <div class="roomgame-mini-chip"><strong>${totalPeople}</strong> người</div>
+              <div class="roomgame-mini-chip"><strong>${fmt(activeRevenue)}</strong></div>
+              <button class="roomgame-mini-chip roomgame-sound-btn ${roomMapAudioEnabled ? 'active' : ''}" id="roomMapSoundBtn" type="button" onclick="toggleRoomMapAudio()">${roomMapAudioEnabled ? '🔊 Tắt nhạc' : '🔈 Bật nhạc'}</button>
+            </div>
+          </div>
+
+          <div class="roomgame-atmo"></div>
+          <div class="roomgame-starfield">${buildRoomMapStars()}</div>
+          <div class="roomgame-weather-layer"></div>
+          <div class="roomgame-sun"></div>
+          <div class="roomgame-cloud roomgame-cloud-xl cloud-a"></div>
+          <div class="roomgame-cloud roomgame-cloud-lg cloud-b"></div>
+          <div class="roomgame-cloud roomgame-cloud-sm cloud-c"></div>
+          <div class="roomgame-bird a"></div>
+          <div class="roomgame-bird b"></div>
+          <div class="roomgame-bird c"></div>
+
+          <div class="roomgame-cityline back">${buildRoomMapSkylineLayer('back')}</div>
+          <div class="roomgame-cityline mid">${buildRoomMapSkylineLayer('mid')}</div>
+          <div class="roomgame-cityline front">${buildRoomMapSkylineLayer('front')}</div>
+
+          <div class="roomgame-tech-rail top"></div>
+          <div class="roomgame-tech-rail mid"></div>
+          <div class="roomgame-power-pole a"></div>
+          <div class="roomgame-power-pole b"></div>
+          <div class="roomgame-power-line"></div>
+
+          <div class="roomgame-motel-shell">
+            <div class="roomgame-signboard">NHÀ TRỌ ĐẶNG ĐƯỢC</div>
+            <div class="roomgame-roof-strip"></div>
+            <div class="roomgame-neon-line"></div>
+            <div class="roomgame-room-grid">${roomsHtml}</div>
+            <div class="roomgame-service-bay"></div>
+          </div>
+
+          <div class="roomgame-kiosk">
+            <div class="roomgame-kiosk-awning"></div>
+            <div class="roomgame-kiosk-counter"></div>
+          </div>
+          <div class="roomgame-bike"><span class="frame"></span><span class="seat"></span><span class="handle"></span></div>
+          <div class="roomgame-crate a"></div>
+          <div class="roomgame-crate b"></div>
+          <div class="roomgame-bench"></div>
+          <div class="roomgame-flowerbed a"></div>
+          <div class="roomgame-terminal"></div>
+          <div class="roomgame-shadow-strip"></div>
+          <div class="roomgame-fence"></div>
+          <div class="roomgame-road"></div>
+          <div class="roomgame-crosswalk"></div>
+          <div class="roomgame-road-mark a"></div>
+          <div class="roomgame-road-mark b"></div>
+          <div class="roomgame-road-mark c"></div>
+          <div class="roomgame-road-mark d"></div>
+          <div class="roomgame-road-mark e"></div>
+          <div class="roomgame-road-mark f"></div>
+          <div class="roomgame-puddle a"></div>
+          <div class="roomgame-puddle b"></div>
+          <div class="roomgame-drone a"></div>
+          <div class="roomgame-drone b"></div>
+
+          <div class="roomgame-vendor" style="--duration:24s;--delay:-5s">
+            <div class="roomgame-cart"></div>
+            <div class="roomgame-sprite" style="--shirt:#f59e0b">
+              <span class="hat"></span><span class="head"></span><span class="body"></span><span class="apron"></span><span class="arm a"></span><span class="arm b"></span><span class="leg a"></span><span class="leg b"></span><span class="shadow"></span>
+            </div>
+          </div>
+          <div class="roomgame-npc" style="--duration:14s;--delay:-2s">
+            <div class="roomgame-sprite" style="--shirt:#f97316">
+              <span class="head"></span><span class="body"></span><span class="arm a"></span><span class="arm b"></span><span class="leg a"></span><span class="leg b"></span><span class="bag"></span><span class="shadow"></span>
+            </div>
+          </div>
+          <div class="roomgame-npc reverse" style="--duration:17s;--delay:-7s">
+            <div class="roomgame-sprite" style="--shirt:#22c55e">
+              <span class="head"></span><span class="body"></span><span class="arm a"></span><span class="arm b"></span><span class="leg a"></span><span class="leg b"></span><span class="shadow"></span>
+            </div>
+          </div>
+          <div class="roomgame-npc" style="--duration:20s;--delay:-11s;bottom:58px">
+            <div class="roomgame-sprite" style="--shirt:#2563eb">
+              <span class="head"></span><span class="body"></span><span class="arm a"></span><span class="arm b"></span><span class="leg a"></span><span class="leg b"></span><span class="bag"></span><span class="shadow"></span>
+            </div>
+          </div>
+          <div class="roomgame-npc reverse" style="--duration:26s;--delay:-4s;bottom:54px">
+            <div class="roomgame-sprite" style="--shirt:#ec4899">
+              <span class="head"></span><span class="body"></span><span class="arm a"></span><span class="arm b"></span><span class="leg a"></span><span class="leg b"></span><span class="shadow"></span>
+            </div>
+          </div>
+          <div class="roomgame-npc" style="--duration:23s;--delay:-14s;bottom:68px">
+            <div class="roomgame-sprite" style="--shirt:#14b8a6">
+              <span class="head"></span><span class="body"></span><span class="arm a"></span><span class="arm b"></span><span class="leg a"></span><span class="leg b"></span><span class="bag"></span><span class="shadow"></span>
+            </div>
+          </div>
+          <div class="roomgame-npc reverse" style="--duration:30s;--delay:-10s;bottom:66px">
+            <div class="roomgame-sprite" style="--shirt:#a855f7">
+              <span class="head"></span><span class="body"></span><span class="arm a"></span><span class="arm b"></span><span class="leg a"></span><span class="leg b"></span><span class="shadow"></span>
+            </div>
+          </div>
+          <div class="roomgame-animal dog" style="--duration:15s;--delay:-3s">
+            <span class="tail"></span><span class="body"></span><span class="head"></span><span class="ear a"></span><span class="ear b"></span><span class="leg a"></span><span class="leg b"></span>
+          </div>
+          <div class="roomgame-animal cat reverse" style="--duration:19s;--delay:-9s;bottom:74px">
+            <span class="tail"></span><span class="body"></span><span class="head"></span><span class="ear a"></span><span class="ear b"></span><span class="leg a"></span><span class="leg b"></span>
+          </div>
+          <div class="roomgame-animal dog reverse" style="--duration:22s;--delay:-15s;bottom:78px">
+            <span class="tail"></span><span class="body"></span><span class="head"></span><span class="ear a"></span><span class="ear b"></span><span class="leg a"></span><span class="leg b"></span>
+          </div>
+          <div class="roomgame-firefly a"></div>
+          <div class="roomgame-firefly b"></div>
+          <div class="roomgame-firefly c"></div>
+          <div class="roomgame-firefly d"></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 let roomModalCtx = { roomId: null, tenantId: null };
 
 function switchRoomSection(sec) {
@@ -3255,6 +4302,7 @@ function switchRoomSection(sec) {
   const box = document.getElementById(`room-sec-${sec}`);
   if (btn) btn.classList.add('active');
   if (box) box.style.display = 'block';
+  persistRoomModalState(true, { section: sec });
 }
 
 function occupantCardHtml(o = {}, idx = 0) {
@@ -3305,7 +4353,7 @@ async function openStorageFile(path) {
   if (u) window.open(u, '_blank');
 }
 
-async function openRoomDetail(roomId) {
+async function openRoomDetail(roomId, initialSection = 'room') {
   roomModalCtx = { roomId, tenantId: null };
   const room = appData.rooms.find(r => r.id === roomId);
   const tenant = getTenantForRoom(roomId);
@@ -3325,6 +4373,9 @@ async function openRoomDetail(roomId) {
     cccd_front_preview: o.cccd_front_url ? await resolveFileUrl(o.cccd_front_url) : '',
     cccd_back_preview: o.cccd_back_url ? await resolveFileUrl(o.cccd_back_url) : ''
   })));
+  const baseline = tenant?.id ? await getTenantWaterBaseline(tenant.id) : null;
+  const baselineHot = baseline?.hot_water_previous ?? tenant?.last_hot_water_reading ?? 0;
+  const baselineCold = baseline?.cold_water_previous ?? tenant?.last_cold_water_reading ?? 0;
 
   let cccdFrontSigned = '';
   let cccdBackSigned = '';
@@ -3396,6 +4447,7 @@ async function openRoomDetail(roomId) {
       ${tenant ? `
       <div class="card" style="padding:12px">
         <h3 style="margin-bottom:8px">Chủ hộ (bắt buộc đầy đủ thông tin)</h3>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Các ô dưới đây được phép sửa trực tiếp để chỉnh sai thông tin nhận phòng ban đầu.</div>
         <div class="grid-2">
           <div class="form-group"><label>Họ tên chủ hộ</label><input class="form-input" id="tnName" value="${tenant.full_name||''}" onchange="markUnsaved()"></div>
           <div class="form-group"><label>SĐT</label><input class="form-input" id="tnPhone" value="${tenant.phone||''}" onchange="markUnsaved()"></div>
@@ -3407,6 +4459,10 @@ async function openRoomDetail(roomId) {
         <div class="grid-2">
           <div class="form-group"><label>Ngày vào</label><input type="date" class="form-input" id="tnMoveIn" value="${tenant.move_in_date||''}" onchange="markUnsaved()"></div>
           <div class="form-group"><label>Tiền cọc</label><input type="number" class="form-input" id="tnDeposit" value="${tenant.deposit_amount||0}" onchange="markUnsaved()"></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Số nước nóng khởi điểm</label><input type="number" class="form-input" id="tnHotBaseline" value="${baselineHot}" onchange="markUnsaved()"></div>
+          <div class="form-group"><label>Số nước lạnh khởi điểm</label><input type="number" class="form-input" id="tnColdBaseline" value="${baselineCold}" onchange="markUnsaved()"></div>
         </div>
         <div class="grid-2">
           <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input" id="tnCCCDFront" accept="image/*" onchange="markUnsaved()">${cccdFrontSigned ? `<a href="${cccdFrontSigned}" target="_blank"><img src="${cccdFrontSigned}" style="width:86px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
@@ -3454,7 +4510,8 @@ async function openRoomDetail(roomId) {
     </div>
 
     <div class="room-modal-footer">
-      <button class="btn btn-danger" type="button" onclick="archiveTenant('${tenant?.id||''}','${roomId}')" ${tenant ? '' : 'disabled'}>🗑️ Xóa khách khỏi phòng</button>
+      <button class="btn btn-danger" type="button" onclick="archiveTenant('${tenant?.id||''}','${roomId}')" ${tenant ? '' : 'disabled'}>📦 Khách rời trọ</button>
+      <button class="btn btn-danger" id="roomHardDeleteBtn" type="button" style="background:#7F1D1D;border-color:#B91C1C" onclick="hardDeleteTenant('${tenant?.id||''}','${roomId}')" ${tenant ? '' : 'disabled'}>⛔ Hủy nhập sai</button>
       <button class="btn btn-primary" id="roomSaveAllBtn" type="button" onclick="saveRoomProfile()" style="font-size:16px;padding:12px 24px">💾 Lưu toàn bộ thông tin hộ</button>
     </div>
   `;
@@ -3464,6 +4521,9 @@ async function openRoomDetail(roomId) {
   initDocUploadSections();
   initPhotoUploadSections();
   hasUnsavedChanges = false;
+  switchRoomSection(initialSection);
+  patchUiState({ activePage: 'rooms' });
+  persistRoomModalState(true, { roomId, section: initialSection });
 }
 
 async function saveRoomProfile(fromClose = false) {
@@ -3471,6 +4531,19 @@ async function saveRoomProfile(fromClose = false) {
   const tenantId = roomModalCtx.tenantId;
   const room = appData.rooms.find(r => r.id === roomId);
   const tenant = getTenantForRoom(roomId);
+  return withBusyState('save-room-profile', {
+    title: `Đang lưu thông tin Phòng ${room?.room_number || ''}`.trim(),
+    meta: 'Đang cập nhật phòng, chủ hộ và người ở cùng.',
+    selectors: ['#roomSaveAllBtn'],
+    busyText: '💾 Đang lưu...',
+    keepVisibleMs: 800
+  }, async () => {
+  const hotBaseline = parseFloat(document.getElementById('tnHotBaseline')?.value) || 0;
+  const coldBaseline = parseFloat(document.getElementById('tnColdBaseline')?.value) || 0;
+  if (hotBaseline < 0 || coldBaseline < 0) {
+    toast('Số nước khởi điểm không được âm.', 'warning');
+    return false;
+  }
 
   // Room
   const roomPayload = {
@@ -3487,6 +4560,8 @@ async function saveRoomProfile(fromClose = false) {
       phone: document.getElementById('tnPhone')?.value || null,
       move_in_date: document.getElementById('tnMoveIn')?.value || tenant.move_in_date,
       deposit_amount: parseInt(document.getElementById('tnDeposit')?.value) || 0,
+      last_hot_water_reading: hotBaseline,
+      last_cold_water_reading: coldBaseline,
       notes: document.getElementById('tnNotes')?.value || null,
       cccd_number: document.getElementById('tnCccdNumber')?.value || null,
       hometown: document.getElementById('tnHometown')?.value || null,
@@ -3500,6 +4575,11 @@ async function saveRoomProfile(fromClose = false) {
 
     const tu = await sb.from('tenants').update(updates).eq('id', tenantId);
     if (tu.error) { toast('Lỗi lưu chủ hộ: ' + tu.error.message + ' (chạy migration_v2_2.sql)', 'error'); return false; }
+    await upsertTenantWaterBaseline(tenantId, roomId, updates.move_in_date, hotBaseline, coldBaseline);
+    await sb.from('move_in_records').delete().eq('tenant_id', tenantId);
+    if (!isBeforeBusinessStart(updates.move_in_date)) {
+      await recordMoveInForDashboard(room, { ...tenant, ...updates, id: tenantId }, updates.move_in_date, updates.deposit_amount, hotBaseline, coldBaseline);
+    }
   }
 
   // Occupants upsert/delete
@@ -3544,6 +4624,7 @@ async function saveRoomProfile(fromClose = false) {
     await openRoomDetail(roomId);
   }
   return true;
+  });
 }
 
 
@@ -3666,9 +4747,61 @@ async function deletePhotoGroup(name) {
   switchRoomSection('notes');
 }
 
+async function hardDeleteTenant(tenantId, roomId) {
+  if (!tenantId || !roomId) return;
+  const tenant = appData.tenants.find(t => t.id === tenantId);
+  const room = appData.rooms.find(r => r.id === roomId);
+  if (!tenant || !room) return;
+  const warning1 = confirm(`HỦY NHẬP SAI sẽ XÓA THẲNG khách "${tenant.full_name}" khỏi database.\n\nDữ liệu tenant, số nước, bill tháng và dữ liệu phát sinh liên quan sẽ bị xóa vĩnh viễn.\n\nBạn có chắc không?`);
+  if (!warning1) return;
+  const warning2 = confirm(`XÁC NHẬN LẦN 2:\n\nXóa vĩnh viễn khách "${tenant.full_name}" khỏi Phòng ${room.room_number} và reset phòng về trạng thái trống?`);
+  if (!warning2) return;
+
+  try {
+    await withBusyState(`hard-delete-tenant-${tenantId}`, {
+      title: `Đang hủy nhập sai Phòng ${room.room_number}`,
+      meta: 'Đang xóa tenant, bill rác, số nước và dọn snapshot tháng liên quan.',
+      selectors: ['#roomHardDeleteBtn'],
+      busyText: '⛔ Đang xóa...',
+      keepVisibleMs: 1100
+    }, async () => {
+      const deleteTasks = [
+        sb.from('monthly_bills').delete().eq('tenant_id', tenantId),
+        sb.from('water_readings').delete().eq('tenant_id', tenantId),
+        sb.from('move_in_records').delete().eq('tenant_id', tenantId),
+        sb.from('checkout_records').delete().eq('tenant_id', tenantId),
+        sb.from('tenant_documents').delete().eq('tenant_id', tenantId),
+        sb.from('room_occupants').delete().eq('room_id', roomId),
+        sb.from('archived_tenants').delete().eq('original_tenant_id', tenantId)
+      ];
+      const results = await Promise.all(deleteTasks);
+      const failedDelete = results.find(item => item?.error);
+      if (failedDelete?.error) {
+        throw new Error('Không xóa được dữ liệu liên quan: ' + failedDelete.error.message);
+      }
+
+      await cleanupMonthlySheetForTenantRemoval(room, tenant);
+
+      const tenantDelete = await sb.from('tenants').delete().eq('id', tenantId);
+      if (tenantDelete.error) {
+        throw new Error('Không xóa được tenant: ' + tenantDelete.error.message);
+      }
+
+      hasUnsavedChanges = false;
+      unsavedReason = '';
+      closeModal('roomModal');
+      await loadAllData(true);
+      renderRooms();
+      toast(`Đã hủy nhập sai khách ${tenant.full_name} và reset Phòng ${room.room_number}.`);
+    });
+  } catch (error) {
+    toast(error?.message || 'Hủy nhập sai thất bại.', 'error');
+  }
+}
+
 async function archiveTenant(tenantId, roomId) {
   if (!tenantId) return;
-if (!confirm('Xác nhận xóa khách khỏi phòng? Dữ liệu sẽ được lưu vào mục Khách cũ.')) return;
+if (!confirm('Xác nhận khách rời trọ? Dữ liệu sẽ được lưu vào mục Khách cũ.')) return;
   const tenant = appData.tenants.find(t => t.id === tenantId);
   const room = appData.rooms.find(r => r.id === roomId);
   const { data: bills } = await sb.from('monthly_bills').select('*').eq('tenant_id', tenantId);
@@ -3689,6 +4822,8 @@ if (!confirm('Xác nhận xóa khách khỏi phòng? Dữ liệu sẽ được l
     documents: docs || []
   });
   await sb.from('tenants').update({ is_active: false }).eq('id', tenantId);
+hasUnsavedChanges = false;
+unsavedReason = '';
 toast('Đã chuyển khách vào mục Khách cũ!');
   closeModal('roomModal');
   await loadAllData();
@@ -3838,85 +4973,24 @@ function saveTrackedMonths(months) {
   localStorage.setItem(TRACKED_MONTHS_KEY, JSON.stringify(cleaned));
 }
 
-const periodStatusTimers = {};
-
-function setPeriodInlineStatus(message = '', tone = 'success') {
-  ['billingPeriodStatus', 'waterPeriodStatus'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (periodStatusTimers[id]) clearTimeout(periodStatusTimers[id]);
-    if (!message) {
-      el.textContent = '';
-      el.className = 'period-inline-status';
-      return;
-    }
-    el.textContent = message;
-    el.className = `period-inline-status show ${tone}`;
-    periodStatusTimers[id] = setTimeout(() => {
-      el.textContent = '';
-      el.className = 'period-inline-status';
-    }, 1800);
-  });
-}
-
-async function addTrackedMonth() {
-  const months = getTrackedMonths();
-  const lastMonth = months[months.length - 1] || BUSINESS_START_MONTH;
-  const nextMonth = nextMonthValue(lastMonth);
-  if (nextMonth > getDefaultMonthValue()) {
-    setPeriodInlineStatus('Chưa sang tháng mới, chưa thể thêm kỳ tương lai.', 'warning');
-    return;
-  }
-  months.push(nextMonth);
-  saveTrackedMonths(months);
-  await loadAllData();
-  await materializeDashboardMonth(monthValueToCycleStart(nextMonth));
-  renderPeriodPicker('dashboard');
-  renderPeriodPicker('billing');
-  renderPeriodPicker('water');
-  setPeriodInlineStatus(`Đã thêm ${getPeriodMonthTitle(nextMonth).replace('THÁNG', 'Tháng')}`, 'success');
-  renderDashboard();
-}
-
-function deleteTrackedMonth() {
-  const months = getTrackedMonths();
-  const currentMonth = getDefaultMonthValue();
-  const futureMonths = months.filter(month => month > currentMonth);
-  if (!futureMonths.length) {
-    setPeriodInlineStatus('Không có tháng tương lai để xóa', 'warning');
-    return;
-  }
-  const removeMonth = futureMonths[futureMonths.length - 1];
-  const nextMonths = months.filter(month => month !== removeMonth);
-  saveTrackedMonths(nextMonths);
-  const dashboardInput = document.getElementById('dashboardDate');
-  if (dashboardInput && dashboardInput.value === removeMonth) {
-    dashboardInput.value = nextMonths[nextMonths.length - 1] || BUSINESS_START_MONTH;
-    localStorage.setItem(DASHBOARD_MONTH_KEY, dashboardInput.value);
-  }
-  renderPeriodPicker('billing');
-  renderPeriodPicker('water');
-  renderPeriodPicker('dashboard');
-  setPeriodInlineStatus(`Đã xóa ${getPeriodMonthTitle(removeMonth).replace('THÁNG', 'Tháng')}`, 'success');
-  renderDashboard();
-  loadBillingMonth();
-  loadWaterEntry();
-}
-
 function initBillingMonths() {
   const months = getTrackedMonths();
   const latest = months[months.length - 1] || BUSINESS_START_MONTH;
   const billingInput = document.getElementById('billingDate');
   const waterInput = document.getElementById('waterDate');
+  const storedBillingMonth = localStorage.getItem(BILLING_MONTH_KEY);
+  const storedWaterMonth = localStorage.getItem(WATER_MONTH_KEY);
   const storedDashboardMonth = localStorage.getItem(DASHBOARD_MONTH_KEY);
   const dashboardInput = document.getElementById('dashboardDate');
-  if (billingInput && (!billingInput.value || !months.includes(billingInput.value))) billingInput.value = latest;
-  if (waterInput && (!waterInput.value || !months.includes(waterInput.value))) waterInput.value = latest;
+  if (billingInput) billingInput.value = months.includes(storedBillingMonth) ? storedBillingMonth : latest;
+  if (waterInput) waterInput.value = months.includes(storedWaterMonth) ? storedWaterMonth : latest;
   if (dashboardInput) {
     const nextDashboardMonth = months.includes(storedDashboardMonth) ? storedDashboardMonth : latest;
     dashboardInput.value = nextDashboardMonth;
     localStorage.setItem(DASHBOARD_MONTH_KEY, nextDashboardMonth);
   }
+  if (billingInput) localStorage.setItem(BILLING_MONTH_KEY, billingInput.value);
+  if (waterInput) localStorage.setItem(WATER_MONTH_KEY, waterInput.value);
 }
 
 function getTrashFeeDefault() {
@@ -3967,27 +5041,37 @@ async function saveBillingCollectionStatus(month) {
   }
   if (!confirm(`Lưu trạng thái thu tiền cho kỳ ${getPeriodDisplayText(month)}?`)) return;
 
-  const tasks = inputs
-    .filter(input => input.dataset.billId)
-    .map(input => {
-      const nextStatus = input.checked ? 'paid' : 'billed';
-      return sb.from('monthly_bills').update({ status: nextStatus }).eq('id', input.dataset.billId);
+  try {
+    await withBusyState('save-billing-collection', {
+      title: 'Đang lưu trạng thái thu tiền',
+      meta: `Cập nhật trạng thái thu tiền cho kỳ ${getPeriodDisplayText(month)}.`,
+      selectors: ['#saveCollectionStatusBtn'],
+      busyText: '⏳ Đang lưu...'
+    }, async () => {
+      const tasks = inputs
+        .filter(input => input.dataset.billId)
+        .map(input => {
+          const nextStatus = input.checked ? 'paid' : 'billed';
+          return sb.from('monthly_bills').update({ status: nextStatus }).eq('id', input.dataset.billId);
+        });
+
+      if (!tasks.length) {
+        toast('Chưa có bill nào để cập nhật.', 'warning');
+        return;
+      }
+
+      const results = await Promise.all(tasks);
+      const failed = results.find(r => r.error);
+      if (failed?.error) {
+        throw new Error('Lỗi lưu trạng thái thu tiền: ' + failed.error.message);
+      }
+
+      toast('Đã lưu trạng thái thu tiền.');
+      await loadBillingMonth();
     });
-
-  if (!tasks.length) {
-    toast('Chưa có bill nào để cập nhật.', 'warning');
-    return;
+  } catch (error) {
+    toast(error?.message || 'Lưu trạng thái thu tiền thất bại.', 'error');
   }
-
-  const results = await Promise.all(tasks);
-  const failed = results.find(r => r.error);
-  if (failed?.error) {
-    toast('Lỗi lưu trạng thái thu tiền: ' + failed.error.message, 'error');
-    return;
-  }
-
-  toast('Đã lưu trạng thái thu tiền.');
-  await loadBillingMonth();
 }
 
 async function renderBillingEvnPreview(roomId, fileUrl = '') {
@@ -4009,6 +5093,8 @@ function previewBillingEvnSelection(roomId) {
   const input = document.getElementById(`bEvn-${roomId}`);
   const el = document.getElementById(`bEvnPreview-${roomId}`);
   const file = input?.files?.[0];
+  const clearFlag = document.getElementById(`bClearEvn-${roomId}`);
+  if (clearFlag) clearFlag.value = '0';
   if (!el || !file) return;
   const localUrl = URL.createObjectURL(file);
   el.innerHTML = `<img src="${localUrl}" alt="Bill EVN" style="width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid var(--border)">`;
@@ -4101,7 +5187,7 @@ function renderBillingSummary(month, bills = [], readings = [], previousReadingM
         </div>
         ${collectionContent}
         <div class="collection-actions">
-          <button class="btn btn-primary" type="button" onclick="saveBillingCollectionStatus('${month}')">💾 Lưu trạng thái thu tiền</button>
+          <button class="btn btn-primary" type="button" id="saveCollectionStatusBtn" onclick="saveBillingCollectionStatus('${month}')">💾 Lưu trạng thái thu tiền</button>
           <button class="btn btn-attention" type="button" onclick="exportAllBills()">📸 Xuất tất cả bill</button>
         </div>
       </div>
@@ -4192,10 +5278,16 @@ async function loadBillingMonth() {
           <input type="hidden" id="bHotCur-${room.id}" value="${hotCur}">
           <input type="hidden" id="bColdPrev-${room.id}" value="${coldPrev}">
           <input type="hidden" id="bColdCur-${room.id}" value="${coldCur}">
+          <input type="hidden" id="bClearEvn-${room.id}" value="0">
 
           <div class="billing-detail-grid">
             <div class="billing-detail-box">
               <h4>Nhập chi phí của kỳ này</h4>
+              <div style="margin-bottom:12px;padding:10px 12px;border-radius:12px;border:1px solid ${bill?.status === 'paid' ? 'rgba(16,185,129,.25)' : 'rgba(245,158,11,.28)'};background:${bill?.status === 'paid' ? 'rgba(16,185,129,.08)' : 'rgba(245,158,11,.08)'};font-size:12px;color:${bill?.status === 'paid' ? '#A7F3D0' : '#FDE68A'}">
+                ${bill?.status === 'paid'
+                  ? 'Bill này đang ở trạng thái ĐÃ THU. Nếu bạn lưu lại, hệ thống sẽ ghi đè bill hiện tại nhưng giữ trạng thái đã thu.'
+                  : 'Bill chưa PAID. Bạn có thể sửa trực tiếp các ô rồi bấm Lưu để ghi đè dữ liệu cũ của tháng này.'}
+              </div>
               <div class="grid-2">
                 <div class="form-group">
                   <label>Tiền điện (VNĐ)</label>
@@ -4259,7 +5351,8 @@ async function loadBillingMonth() {
           </div>
 
           <div class="billing-action-row">
-            <button class="btn btn-primary" onclick="saveBillRoom('${room.id}','${tenant.id}','${month}')">💾 Lưu bill</button>
+            <button class="btn btn-primary" id="billSave-${room.id}" onclick="saveBillRoom('${room.id}','${tenant.id}','${month}')">💾 Lưu bill</button>
+            <button class="btn btn-outline" type="button" onclick="resetBillForm('${room.id}','${month}')">↺ Làm mới bill</button>
             <button class="btn btn-success" onclick="exportBillImage('${room.id}','${tenant.id}','${month}')">📸 Xuất bill</button>
           </div>
         </div>
@@ -4327,12 +5420,37 @@ function calcBillRoom(roomId) {
   if (document.getElementById(`bHeaderTotal-${roomId}`)) document.getElementById(`bHeaderTotal-${roomId}`).textContent = fmt(total);
 }
 
+function resetBillForm(roomId, month) {
+  [
+    `bElec-${roomId}`,
+    `bExtra-${roomId}`,
+    `bDeduct-${roomId}`,
+    `bExtraNote-${roomId}`,
+    `bDeductNote-${roomId}`,
+    `bNote-${roomId}`
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const fileInput = document.getElementById(`bEvn-${roomId}`);
+  if (fileInput) fileInput.value = '';
+  const clearFlag = document.getElementById(`bClearEvn-${roomId}`);
+  if (clearFlag) clearFlag.value = '1';
+  const preview = document.getElementById(`bEvnPreview-${roomId}`);
+  if (preview) {
+    preview.innerHTML = '<div style="font-size:12px;color:var(--text2)">Form bill đã được làm mới. Chọn lại ảnh EVN nếu cần.</div>';
+  }
+  clearBillingDraft(roomId, month);
+  calcBillRoom(roomId);
+  toast(`Đã làm mới form bill Phòng ${appData.rooms.find(r => r.id === roomId)?.room_number || ''}. Nhập lại rồi bấm Lưu để ghi đè bill cũ.`);
+}
+
 async function saveBillRoom(roomId, tenantId, month) {
   const room = appData.rooms.find(r => r.id === roomId);
   const tenant = getTenantForRoom(roomId);
   const currentReading = findReadingForMonth(window._monthReadings || [], tenantId, month, roomId);
   if (!currentReading) {
-  toast('Chưa nhập số nước kỳ này ở mục Nhập số nước.', 'warning');
+    toast('Chưa nhập số nước kỳ này ở mục Nhập số nước.', 'warning');
     return;
   }
   const roomPrice = tenant.room_price_override || room.room_price || 0;
@@ -4364,42 +5482,56 @@ async function saveBillRoom(roomId, tenantId, month) {
     toast('Tiền điện, phụ phí và khấu trừ không được âm.', 'warning');
     return;
   }
-  const total = roomPrice + hotAmt + coldAmt + elec + wifiAmt + trash + extra - deduct;
+  await withBusyState(`save-bill-${roomId}`, {
+    title: `Đang lưu bill Phòng ${room.room_number}`,
+    meta: `Đang lưu dữ liệu bill kỳ ${getPeriodMonthTitle(month).replace('THÁNG', 'Tháng')}.`,
+    selectors: [`#billSave-${roomId}`],
+    busyText: '💾 Đang lưu...',
+    keepVisibleMs: 800
+  }, async () => {
+    const total = roomPrice + hotAmt + coldAmt + elec + wifiAmt + trash + extra - deduct;
+    const existingBillRes = await sb.from('monthly_bills').select('status,evn_bill_image_url').eq('tenant_id', tenantId).eq('billing_month', month).maybeSingle();
+    const existingBill = existingBillRes.data || null;
+    const clearEvn = document.getElementById(`bClearEvn-${roomId}`)?.value === '1';
 
-  let evnUrl = null;
-  const evnFile = document.getElementById(`bEvn-${roomId}`).files[0];
-  if (evnFile) {
-    evnUrl = await uploadFile('nhatro-docs', `evn/${roomId}_${month}_${Date.now()}.jpg`, evnFile);
-  }
+    let evnUrl = null;
+    const evnFile = document.getElementById(`bEvn-${roomId}`).files[0];
+    if (evnFile) {
+      evnUrl = await uploadFile('nhatro-docs', `evn/${roomId}_${month}_${Date.now()}.jpg`, evnFile);
+    }
 
-  const billData = {
-    tenant_id: tenantId, room_id: roomId, billing_month: month,
-    reading_date: month,
-    room_price: roomPrice,
-    hot_water_usage: hotUsage, hot_water_amount: hotAmt,
-    cold_water_usage: coldUsage, cold_water_amount: coldAmt,
-    electricity_amount: elec,
-    wifi_amount: wifiAmt,
-    extra_fee: extra,
-    extra_fee_note: document.getElementById(`bExtraNote-${roomId}`).value,
-    note_to_tenant: document.getElementById(`bNote-${roomId}`).value,
-    total_amount: total,
-    is_water_debt: isDebt,
-    status: 'billed',
-    trash_fee: trash,
-    deduction_amount: deduct,
-    deduction_note: document.getElementById(`bDeductNote-${roomId}`).value
-  };
-  if (evnUrl) billData.evn_bill_image_url = evnUrl;
+    const billData = {
+      tenant_id: tenantId, room_id: roomId, billing_month: month,
+      reading_date: month,
+      room_price: roomPrice,
+      hot_water_usage: hotUsage, hot_water_amount: hotAmt,
+      cold_water_usage: coldUsage, cold_water_amount: coldAmt,
+      electricity_amount: elec,
+      wifi_amount: wifiAmt,
+      extra_fee: extra,
+      extra_fee_note: document.getElementById(`bExtraNote-${roomId}`).value,
+      note_to_tenant: document.getElementById(`bNote-${roomId}`).value,
+      total_amount: total,
+      is_water_debt: isDebt,
+      status: existingBill?.status === 'paid' ? 'paid' : 'billed',
+      trash_fee: trash,
+      deduction_amount: deduct,
+      deduction_note: document.getElementById(`bDeductNote-${roomId}`).value
+    };
+    if (evnUrl) billData.evn_bill_image_url = evnUrl;
+    else if (clearEvn) billData.evn_bill_image_url = null;
 
-  const { error } = await sb.from('monthly_bills').upsert(billData, { onConflict: 'tenant_id,billing_month' });
-  if (error) { toast('Lỗi lưu bill: ' + error.message, 'error'); return; }
-  await syncMonthlySheetFromBill(roomId, month, tenant, billData);
+    const { error } = await sb.from('monthly_bills').upsert(billData, { onConflict: 'tenant_id,billing_month' });
+    if (error) { toast('Lỗi lưu bill: ' + error.message, 'error'); return; }
+    await syncMonthlySheetFromBill(roomId, month, tenant, billData);
+    const clearFlag = document.getElementById(`bClearEvn-${roomId}`);
+    if (clearFlag) clearFlag.value = '0';
 
-  clearBillingDraft(roomId, month);
-  toast('Đã lưu dữ liệu phòng ' + room.room_number + '!');
-  await loadAllData();
-  await loadBillingMonth();
+    clearBillingDraft(roomId, month);
+    toast('Đã lưu dữ liệu phòng ' + room.room_number + '!');
+    await loadAllData();
+    await loadBillingMonth();
+  });
 }
 
 async function markPaid(roomId, month) {
@@ -4413,7 +5545,7 @@ async function markPaid(roomId, month) {
 // ============================================================
 // BILL IMAGE GENERATION
 // ============================================================
-async function exportBillImage(roomId, tenantId, month) {
+async function renderBillImageAsset(roomId, tenantId, month) {
   const room = appData.rooms.find(r => r.id === roomId);
   const tenant = getTenantForRoom(roomId);
   const { data: bill } = await sb.from('monthly_bills').select('*').eq('tenant_id', tenantId).eq('billing_month', month).single();
@@ -4446,11 +5578,18 @@ async function exportBillImage(roomId, tenantId, month) {
   const waterDebtLabel = currentReading?.is_water_debt ? 'KHÔNG GHI NHẬN SỐ NƯỚC THÁNG NÀY' : '';
   const tenantNameUpper = String(tenant.full_name || '').toUpperCase();
   const bankHolderUpper = String(bankHolder || '').toUpperCase();
-  const bankSummary = `${bankName} - ${bankAccount}`;
 
   const container = document.getElementById('billTemplateContainer');
+  container.style.position = 'fixed';
+  container.style.left = '-20000px';
+  container.style.top = '0';
+  container.style.width = '0';
+  container.style.height = '0';
+  container.style.opacity = '0';
+  container.style.pointerEvents = 'none';
+  container.style.overflow = 'hidden';
   container.innerHTML = `
-    <div id="billCanvas" style="width:860px;background:#FFF4F0;padding:8px;font-family:Inter,Arial,sans-serif;color:#1A1A1A">
+    <div id="billCanvas" style="position:absolute;left:-20000px;top:0;width:860px;background:#FFF4F0;padding:8px;font-family:Inter,Arial,sans-serif;color:#1A1A1A">
       <div style="background:#FFFFFF;border:2px solid #FF8A4C;border-radius:14px;padding:12px 18px 18px;overflow:hidden">
         <div style="text-align:center;color:#FF6B1A;font-size:34px;font-weight:900;line-height:1.1;letter-spacing:.01em;margin-bottom:10px">${propertyTitle}</div>
 
@@ -4539,13 +5678,11 @@ async function exportBillImage(roomId, tenantId, month) {
             ` : `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:14px;color:#6B7280">Chưa có ảnh bill EVN</div>`}
           </div>
           <div style="padding:8px 8px 0;text-align:center">
-            <div style="font-size:16px;font-weight:900;color:#FF6B1A;line-height:1.2">${bankSummary}</div>
-            <div style="font-size:16px;font-weight:900;color:#FF6B1A;line-height:1.25;margin-top:4px">${bankHolderUpper}</div>
-            <div style="font-size:19px;font-weight:900;color:#FF6B1A;line-height:1.2;margin-top:8px">${bankName}</div>
-            <div style="font-size:15px;font-weight:800;color:#1F2937;line-height:1.25;margin-top:6px">${bankHolderUpper}</div>
-            <div style="font-size:15px;font-weight:700;color:#1F2937;line-height:1.25;margin-top:2px">${bankAccount}</div>
-            <div style="margin-top:10px;display:flex;align-items:center;justify-content:center;min-height:250px">
-              ${qrSigned ? `<img src="${qrSigned}" style="width:250px;height:250px;object-fit:contain" crossorigin="anonymous">` : `<div style="font-size:14px;color:#6B7280">Chưa có mã QR</div>`}
+            <div style="font-size:16px;font-weight:800;color:#FF6B1A;line-height:1.2">${esc(bankName)}</div>
+            <div style="font-size:18px;font-weight:900;color:#1F2937;line-height:1.2;margin-top:6px">${bankHolderUpper}</div>
+            <div style="font-size:16px;font-weight:800;color:#1F2937;line-height:1.25;margin-top:4px">${bankAccount}</div>
+            <div style="margin-top:12px;display:flex;align-items:center;justify-content:center;min-height:270px">
+              ${qrSigned ? `<img src="${qrSigned}" style="width:270px;height:270px;object-fit:contain" crossorigin="anonymous">` : `<div style="font-size:14px;color:#6B7280">Chưa có mã QR</div>`}
             </div>
           </div>
         </div>
@@ -4564,11 +5701,6 @@ async function exportBillImage(roomId, tenantId, month) {
         doc.body.style.background = '#F6F0E2';
       }
     });
-    const link = document.createElement('a');
-    link.download = `Bill_P${room.room_number}_${month}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-
     const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
     const exportPath = `exports/${tenantId}/${month}/bill_${Date.now()}.png`;
     if (blob) {
@@ -4576,22 +5708,73 @@ async function exportBillImage(roomId, tenantId, month) {
       const pth = await uploadFile('nhatro-docs', exportPath, f);
       await sb.from('monthly_bills').update({ status: 'billed', generated_bill_image_url: pth || null }).eq('tenant_id', tenantId).eq('billing_month', month);
     }
-    toast(`Đã xuất bill Phòng ${room.room_number}!`);
-    loadBillingMonth();
+    container.innerHTML = '';
+    return {
+      blob,
+      filename: `Bill_P${room.room_number}_${month}.png`,
+      roomNumber: room.room_number
+    };
   } catch(e) { toast('Lỗi xuất bill: ' + e.message, 'error'); }
   container.innerHTML = '';
+  return null;
+}
+
+function downloadBlobFile(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+async function exportBillImage(roomId, tenantId, month) {
+  const room = appData.rooms.find(r => r.id === roomId);
+  setExportProgress(`Đang xuất bill Phòng ${room?.room_number || '?'}`, 0, 1, 'Đang chuẩn bị ảnh bill...');
+  const asset = await renderBillImageAsset(roomId, tenantId, month);
+  if (!asset?.blob) {
+    clearExportProgress();
+    return;
+  }
+  setExportProgress(`Đang xuất bill Phòng ${asset.roomNumber}`, 1, 1, 'Đã tạo ảnh bill, đang tải file...');
+  downloadBlobFile(asset.blob, asset.filename);
+  toast(`Đã xuất bill Phòng ${asset.roomNumber}!`);
+  clearExportProgress(900);
+  await loadBillingMonth();
 }
 
 async function exportAllBills() {
   const month = getSelectedBillingCycleStart();
   if (!month) return toast('Chọn tháng kỳ tính trước', 'warning');
+  if (!window.JSZip) {
+    toast('Thiếu thư viện nén ZIP.', 'error');
+    return;
+  }
+  const zip = new JSZip();
+  let fileCount = 0;
+  const exportableRooms = appData.rooms.filter(room => getTenantForRoom(room.id));
+  setExportProgress(`Đang xuất bill kỳ ${getPeriodMonthTitle(month).replace('THÁNG', 'Tháng')}`, 0, exportableRooms.length || 1, 'Đang chuẩn bị các bill...');
   for (const room of appData.rooms) {
     const tenant = getTenantForRoom(room.id);
     if (!tenant) continue;
-    await exportBillImage(room.id, tenant.id, month);
-    await new Promise(r => setTimeout(r, 500));
+    const asset = await renderBillImageAsset(room.id, tenant.id, month);
+    if (!asset?.blob) continue;
+    zip.file(asset.filename, asset.blob);
+    fileCount += 1;
+    setExportProgress(`Đang gom bill kỳ ${getPeriodMonthTitle(month).replace('THÁNG', 'Tháng')}`, fileCount, exportableRooms.length || fileCount, `Đã xử lý ${fileCount}/${exportableRooms.length || fileCount} phòng`);
+    await new Promise(r => setTimeout(r, 220));
   }
-  toast('Đã xuất tất cả bill!');
+  if (!fileCount) {
+    clearExportProgress();
+    toast('Không có bill nào để xuất trong kỳ này.', 'warning');
+    return;
+  }
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  setExportProgress(`Đang hoàn tất file ZIP`, fileCount, fileCount, `Đã gom ${fileCount} bill, đang nén file...`);
+  downloadBlobFile(zipBlob, `bill_thang_${month.replace(/-/g, '_')}.zip`);
+  toast(`Đã xuất ${fileCount} bill vào file ZIP.`);
+  clearExportProgress(1200);
+  await loadBillingMonth();
 }
 
 
@@ -4648,6 +5831,142 @@ async function ensureTenantWaterBaseline(tenant, roomId, hotBase, coldBase) {
     return null;
   }
   return data || payload;
+}
+
+async function getTenantWaterBaseline(tenantId) {
+  if (!tenantId) return null;
+  const { data, error } = await sb.from('water_readings')
+    .select('*')
+    .eq('tenant_id', tenantId)
+    .eq('reading_source', 'move_in_baseline')
+    .order('reading_date', { ascending: true })
+    .limit(1);
+  if (error) {
+    console.warn('Không tải được baseline nước:', error.message);
+    return null;
+  }
+  return (data && data[0]) || null;
+}
+
+async function upsertTenantWaterBaseline(tenantId, roomId, moveInDate, hotBase, coldBase) {
+  if (!tenantId || !moveInDate) return null;
+  const baseHot = parseInt(hotBase) || 0;
+  const baseCold = parseInt(coldBase) || 0;
+  const payload = {
+    tenant_id: tenantId,
+    room_id: roomId,
+    billing_month: `${moveInDate.slice(0, 7)}-01`,
+    reading_date: moveInDate,
+    hot_water_previous: baseHot,
+    hot_water_current: baseHot,
+    cold_water_previous: baseCold,
+    cold_water_current: baseCold,
+    is_water_debt: false,
+    is_locked: true,
+    reading_source: 'move_in_baseline'
+  };
+  const existing = await getTenantWaterBaseline(tenantId);
+  if (existing?.reading_date && existing.reading_date !== moveInDate) {
+    await sb.from('water_readings').delete().eq('tenant_id', tenantId).eq('reading_source', 'move_in_baseline');
+  }
+  if (existing?.reading_date === moveInDate) {
+    const { data, error } = await sb.from('water_readings')
+      .update(payload)
+      .eq('tenant_id', tenantId)
+      .eq('reading_date', moveInDate)
+      .select()
+      .maybeSingle();
+    if (error) {
+      console.warn('Không cập nhật được baseline nước:', error.message);
+      return null;
+    }
+    return data || payload;
+  }
+  const { data, error } = await sb.from('water_readings')
+    .upsert(payload, { onConflict: 'tenant_id,reading_date' })
+    .select()
+    .maybeSingle();
+  if (error) {
+    console.warn('Không upsert được baseline nước:', error.message);
+    return null;
+  }
+  return data || payload;
+}
+
+async function cleanupMonthlySheetForTenantRemoval(room, tenant) {
+  if (!room?.id || !tenant?.id) return;
+  const { data: rows, error } = await sb.from('monthly_room_sheet_data').select('*').eq('room_id', room.id);
+  if (error || !(rows || []).length) return;
+  for (const row of rows) {
+    const sameTenantRow = row.tenant_id === tenant.id;
+    const sameMoveIn = !!row.move_in_tenant_name && row.move_in_tenant_name === tenant.full_name;
+    const sameMoveOut = !!row.move_out_tenant_name && row.move_out_tenant_name === tenant.full_name;
+    if (!sameTenantRow && !sameMoveIn && !sameMoveOut) continue;
+
+    const patch = {};
+    if (sameTenantRow) {
+      Object.assign(patch, {
+        tenant_id: null,
+        full_name: '',
+        cccd_number: '',
+        phone: '',
+        electricity_previous: null,
+        electricity_current: null,
+        electricity_amount: 0,
+        hot_water_previous: null,
+        hot_water_current: null,
+        hot_water_amount: 0,
+        cold_water_previous: null,
+        cold_water_current: null,
+        cold_water_amount: 0,
+        total_water_amount: 0,
+        wifi_amount: 0,
+        trash_fee: 0,
+        total_amount: 0,
+        sheet_note: null
+      });
+    }
+    if (sameMoveIn) {
+      Object.assign(patch, {
+        move_in_tenant_name: null,
+        move_in_date: null,
+        move_in_prorated_amount: 0,
+        deposit_received_amount: 0
+      });
+    }
+    if (sameMoveOut) {
+      Object.assign(patch, {
+        move_out_tenant_name: null,
+        move_out_date: null,
+        refund_room_amount: 0,
+        checkout_charge_amount: 0
+      });
+    }
+
+    const nextTenantId = Object.prototype.hasOwnProperty.call(patch, 'tenant_id') ? patch.tenant_id : row.tenant_id;
+    const nextFullName = Object.prototype.hasOwnProperty.call(patch, 'full_name') ? patch.full_name : row.full_name;
+    const nextMoveIn = Object.prototype.hasOwnProperty.call(patch, 'move_in_tenant_name') ? patch.move_in_tenant_name : row.move_in_tenant_name;
+    const nextMoveOut = Object.prototype.hasOwnProperty.call(patch, 'move_out_tenant_name') ? patch.move_out_tenant_name : row.move_out_tenant_name;
+    patch.has_turnover = !!(nextMoveIn || nextMoveOut);
+
+    const hasCoreData = !!(nextTenantId || nextFullName || (row.electricity_customer_code || row.water_customer_code));
+    const hasAnyAmounts = !!(
+      (Object.prototype.hasOwnProperty.call(patch, 'electricity_amount') ? patch.electricity_amount : row.electricity_amount) ||
+      (Object.prototype.hasOwnProperty.call(patch, 'hot_water_amount') ? patch.hot_water_amount : row.hot_water_amount) ||
+      (Object.prototype.hasOwnProperty.call(patch, 'cold_water_amount') ? patch.cold_water_amount : row.cold_water_amount) ||
+      (Object.prototype.hasOwnProperty.call(patch, 'total_amount') ? patch.total_amount : row.total_amount)
+    );
+
+    if (!patch.has_turnover && !hasAnyAmounts && !nextTenantId && !nextFullName) {
+      await sb.from('monthly_room_sheet_data').delete().eq('room_id', row.room_id).eq('billing_month', row.billing_month);
+      continue;
+    }
+    if (!hasCoreData && !patch.has_turnover && !hasAnyAmounts) {
+      await sb.from('monthly_room_sheet_data').delete().eq('room_id', row.room_id).eq('billing_month', row.billing_month);
+      continue;
+    }
+    await sb.from('monthly_room_sheet_data').update(patch).eq('room_id', row.room_id).eq('billing_month', row.billing_month);
+  }
 }
 
 function getWaterCarryoverNote(currentReading, previousReading) {
@@ -4754,7 +6073,7 @@ async function loadWaterEntry() {
       <td><input class="form-input" type="number" id="wrColdCur-${effectiveTenantId}" value="${coldCur}" placeholder="Nhập số hiện tại" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
       <td><div style="font-size:12px;color:var(--text2)">Lần gần nhất: <strong>${latestReference}</strong></div></td>
       <td><button class="btn btn-outline btn-sm" onclick="openZaloModalByTenant('${effectiveTenantId}')" ${isWritable ? '' : 'disabled'}>💬 Nhắn</button></td>
-<td style="display:flex;gap:6px"><button class="btn btn-sm ${debt?'btn-danger':'btn-outline'}" onclick="toggleWaterDebt('${room.id}','${effectiveTenantId}','${readingDate}')" ${isWritable ? '' : 'disabled'}>${debt?'Đang bật nợ nước':'Nợ nước'}</button><button class="btn btn-primary btn-sm" onclick="saveWaterRow('${room.id}','${effectiveTenantId}','${readingDate}')" ${isWritable ? '' : 'disabled'}>💾 Lưu</button></td>
+    <td style="display:flex;gap:6px"><button class="btn btn-sm ${debt?'btn-danger':'btn-outline'}" onclick="toggleWaterDebt('${room.id}','${effectiveTenantId}','${readingDate}')" ${isWritable ? '' : 'disabled'}>${debt?'Đang bật nợ nước':'Nợ nước'}</button><button class="btn btn-primary btn-sm" id="waterSave-${room.id}" onclick="saveWaterRow('${room.id}','${effectiveTenantId}','${readingDate}')" ${isWritable ? '' : 'disabled'}>💾 Lưu</button></td>
     </tr>`;
   }
   tbody.innerHTML = html;
@@ -4825,37 +6144,53 @@ async function saveWaterRow(roomId, tenantId, readingDate, skipRefresh = false) 
     reading_source: isDebt ? 'debt_lock' : 'actual'
   };
 
-  const { error } = await sb.from('water_readings').upsert(payload, { onConflict: 'tenant_id,reading_date' });
-  if (error) return toast('Lỗi lưu số nước: ' + error.message, 'error');
-  await syncMonthlySheetFromWater(roomId, payload.billing_month, tenant, payload);
-  if (!prev) {
-    await ensureTenantWaterBaseline(tenant, roomId, payload.hot_water_previous, payload.cold_water_previous);
-    await sb.from('tenants').update({ last_hot_water_reading: payload.hot_water_previous, last_cold_water_reading: payload.cold_water_previous }).eq('id', tenantId);
-  }
-  if (!skipRefresh) {
-    toast('Đã lưu số nước');
-    await loadWaterEntry();
-    await loadBillingMonth();
-  }
-  return true;
+  return withBusyState(`save-water-${roomId}`, {
+    title: `Đang lưu số nước Phòng ${appData.rooms.find(r => r.id === roomId)?.room_number || ''}`.trim(),
+    meta: `Đang cập nhật mốc nước của ${getPeriodMonthTitle(readingDate).replace('THÁNG', 'Tháng')}.`,
+    selectors: [`#waterSave-${roomId}`],
+    busyText: '💾 Đang lưu...',
+    keepVisibleMs: 700
+  }, async () => {
+    const { error } = await sb.from('water_readings').upsert(payload, { onConflict: 'tenant_id,reading_date' });
+    if (error) return toast('Lỗi lưu số nước: ' + error.message, 'error');
+    await syncMonthlySheetFromWater(roomId, payload.billing_month, tenant, payload);
+    if (!prev) {
+      await ensureTenantWaterBaseline(tenant, roomId, payload.hot_water_previous, payload.cold_water_previous);
+      await sb.from('tenants').update({ last_hot_water_reading: payload.hot_water_previous, last_cold_water_reading: payload.cold_water_previous }).eq('id', tenantId);
+    }
+    if (!skipRefresh) {
+      toast('Đã lưu số nước');
+      await loadWaterEntry();
+      await loadBillingMonth();
+    }
+    return true;
+  });
 }
 
 async function saveAllWaterReadings() {
   const readingDate = getSelectedWaterCycleStart();
   if (!readingDate) return;
   const rows = Array.from(document.querySelectorAll('#waterRows tr'));
-  for (const row of rows) {
-    const saveBtn = row.querySelector('button.btn-primary');
-    if (!saveBtn || saveBtn.disabled) continue;
-    const match = saveBtn.getAttribute('onclick')?.match(/saveWaterRow\('([^']+)','([^']+)','([^']+)'/);
-    if (!match) continue;
-    const [, roomId, tenantId] = match;
-    const ok = await saveWaterRow(roomId, tenantId, readingDate, true);
-    if (ok === false) return;
-  }
-  await loadWaterEntry();
-  await loadBillingMonth();
-  toast('Đã lưu toàn bộ số nước của kỳ này');
+  await withBusyState('save-water-all', {
+    title: 'Đang lưu toàn bộ số nước',
+    meta: `Đang lưu dữ liệu số nước của ${getPeriodMonthTitle(readingDate).replace('THÁNG', 'Tháng')}.`,
+    selectors: ['#waterSaveAllBtn'],
+    busyText: '💾 Đang lưu...',
+    keepVisibleMs: 800
+  }, async () => {
+    for (const row of rows) {
+      const saveBtn = row.querySelector('button[id^="waterSave-"]');
+      if (!saveBtn || saveBtn.disabled) continue;
+      const match = saveBtn.getAttribute('onclick')?.match(/saveWaterRow\('([^']+)','([^']+)','([^']+)'/);
+      if (!match) continue;
+      const [, roomId, tenantId] = match;
+      const ok = await saveWaterRow(roomId, tenantId, readingDate, true);
+      if (ok === false) return;
+    }
+    await loadWaterEntry();
+    await loadBillingMonth();
+    toast('Đã lưu toàn bộ số nước của kỳ này');
+  });
 }
 
 // ============================================================
@@ -4863,15 +6198,16 @@ async function saveAllWaterReadings() {
 // NEW TENANT
 // ============================================================
 async function loadNewTenantForm() {
+  const savedDraft = safeJsonParse(localStorage.getItem(NEW_TENANT_DRAFT_KEY), {}) || {};
   const draft = {
-    roomId: document.getElementById('newTenantRoom')?.value || '',
-    name: document.getElementById('ntName')?.value || '',
-    phone: document.getElementById('ntPhone')?.value || '',
-    moveIn: document.getElementById('ntMoveIn')?.value || '',
-    people: document.getElementById('ntPeople')?.value || '1',
-    deposit: document.getElementById('ntDeposit')?.value || '',
-    hotWater: document.getElementById('ntHotWater')?.value || '0',
-    coldWater: document.getElementById('ntColdWater')?.value || '0'
+    roomId: document.getElementById('newTenantRoom')?.value || savedDraft.roomId || '',
+    name: document.getElementById('ntName')?.value || savedDraft.name || '',
+    phone: document.getElementById('ntPhone')?.value || savedDraft.phone || '',
+    moveIn: document.getElementById('ntMoveIn')?.value || savedDraft.moveIn || '',
+    people: document.getElementById('ntPeople')?.value || savedDraft.people || '1',
+    deposit: document.getElementById('ntDeposit')?.value || savedDraft.deposit || '',
+    hotWater: document.getElementById('ntHotWater')?.value || savedDraft.hotWater || '0',
+    coldWater: document.getElementById('ntColdWater')?.value || savedDraft.coldWater || '0'
   };
   await loadAllData();
   const sel = document.getElementById('newTenantRoom');
@@ -4893,6 +6229,8 @@ async function loadNewTenantForm() {
   document.getElementById('ntDeposit').value = draft.deposit;
   document.getElementById('ntHotWater').value = draft.hotWater;
   document.getElementById('ntColdWater').value = draft.coldWater;
+  bindNewTenantDraftHandlers();
+  persistNewTenantDraft();
   updateProratedCalc();
 }
 
@@ -4962,50 +6300,59 @@ async function confirmNewTenant() {
   const initHotWater = parseFloat(document.getElementById('ntHotWater').value) || 0;
   const initColdWater = parseFloat(document.getElementById('ntColdWater').value) || 0;
   const depositAmount = parseInt(document.getElementById('ntDeposit').value) || 0;
-  const { data, error } = await sb.from('tenants').insert({
-    room_id: roomId,
-    full_name: name,
-    phone: document.getElementById('ntPhone').value,
-    move_in_date: moveInDate,
-    deposit_amount: depositAmount,
-    room_price_override: null,
-    last_hot_water_reading: initHotWater,
-    last_cold_water_reading: initColdWater,
-    is_active: true
-  }).select().single();
-  
-  if (error) {
-    if (error.code === '23505') {
-      toast('Phòng này vừa có khách active trong hệ thống. Tải lại danh sách phòng rồi thử lại.', 'warning');
-      await loadAllData();
-      await loadNewTenantForm();
+  await withBusyState('confirm-new-tenant', {
+    title: `Đang nhận khách vào Phòng ${room.room_number}`,
+    meta: 'Đang tạo hồ sơ khách, cọc và mốc nước nền ban đầu.',
+    selectors: ['#confirmNewTenantBtn'],
+    busyText: '✅ Đang xử lý...',
+    keepVisibleMs: 900
+  }, async () => {
+    const { data, error } = await sb.from('tenants').insert({
+      room_id: roomId,
+      full_name: name,
+      phone: document.getElementById('ntPhone').value,
+      move_in_date: moveInDate,
+      deposit_amount: depositAmount,
+      room_price_override: null,
+      last_hot_water_reading: initHotWater,
+      last_cold_water_reading: initColdWater,
+      is_active: true
+    }).select().single();
+    
+    if (error) {
+      if (error.code === '23505') {
+        toast('Phòng này vừa có khách active trong hệ thống. Tải lại danh sách phòng rồi thử lại.', 'warning');
+        await loadAllData();
+        await loadNewTenantForm();
+        return;
+      }
+      toast('Lỗi: ' + error.message, 'error');
       return;
     }
-    toast('Lỗi: ' + error.message, 'error');
-    return;
-  }
 
-  const people = Math.max(1, parseInt(document.getElementById('ntPeople')?.value) || 1);
-  if (people > 1) {
-    for (let i = 2; i <= people; i++) {
-      await sb.from('room_occupants').insert({ room_id: roomId, tenant_id: data.id, full_name: `Người ở cùng ${i}`, is_active: true });
+    const people = Math.max(1, parseInt(document.getElementById('ntPeople')?.value) || 1);
+    if (people > 1) {
+      for (let i = 2; i <= people; i++) {
+        await sb.from('room_occupants').insert({ room_id: roomId, tenant_id: data.id, full_name: `Người ở cùng ${i}`, is_active: true });
+      }
     }
-  }
 
-  if (data?.id && moveInDate) {
-    await ensureTenantWaterBaseline(data, roomId, initHotWater, initColdWater);
-    if (!isInitialSeed) {
-    await recordMoveInForDashboard(room, data, moveInDate, depositAmount, initHotWater, initColdWater);
+    if (data?.id && moveInDate) {
+      await ensureTenantWaterBaseline(data, roomId, initHotWater, initColdWater);
+      if (!isInitialSeed) {
+        await recordMoveInForDashboard(room, data, moveInDate, depositAmount, initHotWater, initColdWater);
+      }
     }
-  }
 
-  if (isInitialSeed) {
-    toast(`Đã khởi tạo Phòng ${room.room_number} cho ${name}. Chỉ ghi nhận cọc và mốc nước nền, doanh thu bắt đầu từ kỳ 1/2026.`);
-  } else {
-    toast(`Đã nhận phòng ${room.room_number} cho ${name}!`);
-  }
-  await loadAllData();
-  navigate('dashboard');
+    clearNewTenantDraft();
+    if (isInitialSeed) {
+      toast(`Đã khởi tạo Phòng ${room.room_number} cho ${name}. Chỉ ghi nhận cọc và mốc nước nền, doanh thu bắt đầu từ kỳ 1/2026.`);
+    } else {
+      toast(`Đã nhận phòng ${room.room_number} cho ${name}!`);
+    }
+    await loadAllData();
+    await navigate('dashboard');
+  });
 }
 
 // ============================================================
@@ -5013,7 +6360,9 @@ async function confirmNewTenant() {
 // ============================================================
 async function loadCheckoutForm() {
   await loadAllData();
+  const draft = safeJsonParse(localStorage.getItem(CHECKOUT_DRAFT_KEY), {}) || {};
   const sel = document.getElementById('checkoutRoom');
+  document.getElementById('checkoutForm').style.display = 'none';
   sel.innerHTML = '<option value="">-- Chọn phòng --</option>';
   appData.rooms.forEach(room => {
     const tenant = getTenantForRoom(room.id);
@@ -5021,11 +6370,16 @@ async function loadCheckoutForm() {
       sel.innerHTML += `<option value="${room.id}">Phòng ${room.room_number} — ${tenant.full_name}</option>`;
     }
   });
-  document.getElementById('checkoutForm').style.display = 'none';
+  if (draft.roomId && [...sel.options].some(opt => opt.value === draft.roomId)) {
+    sel.value = draft.roomId;
+    await loadCheckoutRoom();
+  }
+  bindCheckoutDraftHandlers();
 }
 
 async function loadCheckoutRoom() {
   const roomId = document.getElementById('checkoutRoom').value;
+  const draft = safeJsonParse(localStorage.getItem(CHECKOUT_DRAFT_KEY), {}) || {};
   if (!roomId) { document.getElementById('checkoutForm').style.display = 'none'; return; }
 
   const room = appData.rooms.find(r => r.id === roomId);
@@ -5041,16 +6395,18 @@ async function loadCheckoutRoom() {
     ? `Lần chốt số nước gần nhất: kỳ ${fmtDate(lastReading.reading_date)} → ${fmtDate(getNextCycleStart(lastReading.reading_date))} | Nóng ${lastReading.hot_water_previous} → ${lastReading.hot_water_current} | Lạnh ${lastReading.cold_water_previous} → ${lastReading.cold_water_current}`
     : `Chưa có bản chốt số nước. Đang dùng số cuối lưu trên hồ sơ: Nóng ${hotBase} | Lạnh ${coldBase}`;
   document.getElementById('coDate').min = tenant.move_in_date || BUSINESS_START_DATE;
-  document.getElementById('coDate').value = getTodayIsoLocal();
+  document.getElementById('coDate').value = draft.roomId === roomId && draft.date ? draft.date : getTodayIsoLocal();
   document.getElementById('coRefundDeposit').value = tenant.deposit_amount || 0;
   document.getElementById('coHotCurrent').dataset.prev = hotBase;
   document.getElementById('coColdCurrent').dataset.prev = coldBase;
-  document.getElementById('coHotCurrent').value = hotBase;
-  document.getElementById('coColdCurrent').value = coldBase;
+  document.getElementById('coHotCurrent').value = draft.roomId === roomId && draft.hotCurrent !== '' ? draft.hotCurrent : hotBase;
+  document.getElementById('coColdCurrent').value = draft.roomId === roomId && draft.coldCurrent !== '' ? draft.coldCurrent : coldBase;
   document.getElementById('coWater').value = 0;
-  document.getElementById('coElec').value = 0;
-  document.getElementById('coDamage').value = 0;
-  document.getElementById('coDamageNote').value = '';
+  document.getElementById('coElec').value = draft.roomId === roomId && draft.elec !== '' ? draft.elec : 0;
+  document.getElementById('coDamage').value = draft.roomId === roomId && draft.damage !== '' ? draft.damage : 0;
+  document.getElementById('coDamageNote').value = draft.roomId === roomId ? (draft.damageNote || '') : '';
+  bindCheckoutDraftHandlers();
+  persistCheckoutDraft();
   calcCheckout();
 }
 
@@ -5124,57 +6480,65 @@ async function confirmCheckout() {
     return;
   }
   const net = (refundRoom + deposit) - (water + elec + damage);
+  await withBusyState('confirm-checkout', {
+    title: `Đang tất toán Phòng ${room.room_number}`,
+    meta: 'Đang chốt điện nước, hoàn tiền và chuyển hồ sơ sang Khách cũ.',
+    selectors: ['#confirmCheckoutBtn'],
+    busyText: '🚪 Đang tất toán...',
+    keepVisibleMs: 900
+  }, async () => {
+    await sb.from('checkout_records').insert({
+      tenant_id: tenant.id,
+      room_id: roomId,
+      billing_month: `${coDate.slice(0, 7)}-01`,
+      tenant_name_snapshot: tenant.full_name,
+      checkout_date: coDate,
+      move_in_date: tenant.move_in_date,
+      days_unused: refundInfo.refundDays,
+      refund_room_amount: refundRoom,
+      refund_deposit_amount: deposit,
+      water_charge: water,
+      electricity_charge: elec,
+      damage_charge: damage,
+      damage_note: document.getElementById('coDamageNote').value,
+      net_amount: net,
+      notes: JSON.stringify({
+        hot_previous: hotPrev,
+        hot_current: hotCur,
+        hot_usage: Math.max(0, hotCur - hotPrev),
+        cold_previous: coldPrev,
+        cold_current: coldCur,
+        cold_usage: Math.max(0, coldCur - coldPrev)
+      })
+    });
 
-  await sb.from('checkout_records').insert({
-    tenant_id: tenant.id,
-    room_id: roomId,
-    billing_month: `${coDate.slice(0, 7)}-01`,
-    tenant_name_snapshot: tenant.full_name,
-    checkout_date: coDate,
-    move_in_date: tenant.move_in_date,
-    days_unused: refundInfo.refundDays,
-    refund_room_amount: refundRoom,
-    refund_deposit_amount: deposit,
-    water_charge: water,
-    electricity_charge: elec,
-    damage_charge: damage,
-    damage_note: document.getElementById('coDamageNote').value,
-    net_amount: net,
-    notes: JSON.stringify({
-      hot_previous: hotPrev,
-      hot_current: hotCur,
-      hot_usage: Math.max(0, hotCur - hotPrev),
-      cold_previous: coldPrev,
-      cold_current: coldCur,
-      cold_usage: Math.max(0, coldCur - coldPrev)
-    })
+    const { data: bills } = await sb.from('monthly_bills').select('*').eq('tenant_id', tenant.id);
+    const { data: docs } = await sb.from('tenant_documents').select('*').eq('tenant_id', tenant.id);
+
+    await sb.from('archived_tenants').insert({
+      original_tenant_id: tenant.id,
+      room_number: room.room_number,
+      full_name: tenant.full_name,
+      phone: tenant.phone,
+      move_in_date: tenant.move_in_date,
+      move_out_date: coDate,
+      deposit_amount: tenant.deposit_amount,
+      room_price: price,
+      cccd_front_url: tenant.cccd_front_url,
+      cccd_back_url: tenant.cccd_back_url,
+      notes: tenant.notes,
+      billing_history: bills || [],
+      documents: docs || []
+    });
+
+    await recordCheckoutForDashboard(room, tenant, coDate, refundRoom, deposit, water, elec, damage);
+
+    await sb.from('tenants').update({ is_active: false, last_hot_water_reading: parseFloat(document.getElementById('coHotCurrent').value)||tenant.last_hot_water_reading||0, last_cold_water_reading: parseFloat(document.getElementById('coColdCurrent').value)||tenant.last_cold_water_reading||0 }).eq('id', tenant.id);
+    clearCheckoutDraft();
+    toast(`Đã tất toán phòng ${room.room_number}!`);
+    await loadAllData();
+    await navigate('dashboard');
   });
-
-  const { data: bills } = await sb.from('monthly_bills').select('*').eq('tenant_id', tenant.id);
-  const { data: docs } = await sb.from('tenant_documents').select('*').eq('tenant_id', tenant.id);
-
-  await sb.from('archived_tenants').insert({
-    original_tenant_id: tenant.id,
-    room_number: room.room_number,
-    full_name: tenant.full_name,
-    phone: tenant.phone,
-        move_in_date: tenant.move_in_date,
-    move_out_date: coDate,
-    deposit_amount: tenant.deposit_amount,
-    room_price: price,
-    cccd_front_url: tenant.cccd_front_url,
-    cccd_back_url: tenant.cccd_back_url,
-    notes: tenant.notes,
-    billing_history: bills || [],
-    documents: docs || []
-  });
-
-  await recordCheckoutForDashboard(room, tenant, coDate, refundRoom, deposit, water, elec, damage);
-
-  await sb.from('tenants').update({ is_active: false, last_hot_water_reading: parseFloat(document.getElementById('coHotCurrent').value)||tenant.last_hot_water_reading||0, last_cold_water_reading: parseFloat(document.getElementById('coColdCurrent').value)||tenant.last_cold_water_reading||0 }).eq('id', tenant.id);
-  toast(`Đã tất toán phòng ${room.room_number}!`);
-  await loadAllData();
-  navigate('dashboard');
 }
 
 // ============================================================
@@ -5285,34 +6649,12 @@ async function loadSettings() {
   document.getElementById('setPriceWifi').value = s.wifi_price || 60000;
   document.getElementById('setPriceTrash').value = getTrashFeeDefault();
   document.getElementById('setWaterCustomerCodeGlobal').value = getGlobalWaterCustomerCode();
-  document.getElementById('setWeb3Key').value = (s.web3forms_api_key || localStorage.getItem(WEB3FORM_KEY_STORAGE) || '').trim();
   
   if (s.qr_image_url) {
     const qrSigned = await resolveFileUrl(s.qr_image_url);
     document.getElementById('qrPreview').innerHTML = qrSigned ? `<img src="${qrSigned}" style="max-width:160px;border-radius:8px">` : '';
   }
-  
-  // Email inputs
-  const emails = s.reminder_emails || [];
-  const container = document.getElementById('emailInputs');
-  container.innerHTML = '';
-  const count = Math.max(emails.length, 1);
-  for (let i = 0; i < count; i++) {
-    addEmailInput(emails[i] || '');
-  }
   renderSettingsRoomConfigRows();
-}
-
-function addEmailInput(val = '') {
-  const container = document.getElementById('emailInputs');
-  const count = container.children.length;
-  if (count >= 5) { toast('Tối đa 5 email!', 'warning'); return; }
-  const div = document.createElement('div');
-  div.className = 'form-group';
-  div.style.display = 'flex';
-  div.style.gap = '8px';
-  div.innerHTML = `<input type="email" class="form-input" value="${val}" placeholder="email@example.com"><button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">×</button>`;
-  container.appendChild(div);
 }
 
 function renderSettingsRoomConfigRows() {
@@ -5331,69 +6673,59 @@ function renderSettingsRoomConfigRows() {
 }
 
 async function saveSettings() {
-  const emails = [];
-  document.querySelectorAll('#emailInputs input').forEach(inp => {
-    if (inp.value.trim()) emails.push(inp.value.trim());
-  });
-  const web3Key = document.getElementById('setWeb3Key').value.trim();
-  
-  const updates = {
-    owner_name: document.getElementById('setOwnerName').value,
-    owner_phone: document.getElementById('setOwnerPhone').value,
-    bank_name: document.getElementById('setBankName').value,
-    bank_account_number: document.getElementById('setBankAccount').value,
-    bank_account_name: document.getElementById('setBankHolder').value,
-    water_hot_price: parseInt(document.getElementById('setPriceHot').value) || 20000,
-    water_cold_price: parseInt(document.getElementById('setPriceCold').value) || 15000,
-    wifi_price: parseInt(document.getElementById('setPriceWifi').value) || 60000,
-    water_customer_code_global: document.getElementById('setWaterCustomerCodeGlobal').value.trim() || null,
-    reminder_emails: emails
-  };
-  if (web3Key) localStorage.setItem(WEB3FORM_KEY_STORAGE, web3Key);
-  else localStorage.removeItem(WEB3FORM_KEY_STORAGE);
-  if (Object.prototype.hasOwnProperty.call(appData.settings || {}, 'web3forms_api_key')) {
-    updates.web3forms_api_key = web3Key || null;
-  }
-  const trashFeeDefault = parseInt(document.getElementById('setPriceTrash').value) || 0;
-  localStorage.setItem('nhatro_trash_fee_default', String(trashFeeDefault));
-  if (Object.prototype.hasOwnProperty.call(appData.settings || {}, 'trash_fee_default')) {
-    updates.trash_fee_default = trashFeeDefault;
-  }
-  
-  // Upload QR if selected
-  const qrFile = document.getElementById('setQRImage').files[0];
-  if (qrFile) {
-    const url = await uploadFile('nhatro-docs', `qr/qr_${Date.now()}.jpg`, qrFile);
-    if (url) updates.qr_image_url = url;
-  }
-  
-  const { error } = await sb.from('settings').update(updates).eq('id', appData.settings.id);
-  if (error) { toast('Lỗi: ' + error.message, 'error'); return; }
+  try {
+    await withBusyState('save-settings', {
+      title: 'Đang lưu cài đặt',
+      meta: 'Lưu thông tin chủ trọ, giá dịch vụ và cấu hình cố định theo phòng.',
+      selectors: ['#saveSettingsBtn'],
+      busyText: '⏳ Đang lưu...'
+    }, async () => {
+      const updates = {
+        owner_name: document.getElementById('setOwnerName').value,
+        owner_phone: document.getElementById('setOwnerPhone').value,
+        bank_name: document.getElementById('setBankName').value,
+        bank_account_number: document.getElementById('setBankAccount').value,
+        bank_account_name: document.getElementById('setBankHolder').value,
+        water_hot_price: parseInt(document.getElementById('setPriceHot').value) || 20000,
+        water_cold_price: parseInt(document.getElementById('setPriceCold').value) || 15000,
+        wifi_price: parseInt(document.getElementById('setPriceWifi').value) || 60000,
+        water_customer_code_global: document.getElementById('setWaterCustomerCodeGlobal').value.trim() || null
+      };
+      const trashFeeDefault = parseInt(document.getElementById('setPriceTrash').value) || 0;
+      localStorage.setItem('nhatro_trash_fee_default', String(trashFeeDefault));
+      if (Object.prototype.hasOwnProperty.call(appData.settings || {}, 'trash_fee_default')) {
+        updates.trash_fee_default = trashFeeDefault;
+      }
+      
+      const qrFile = document.getElementById('setQRImage').files[0];
+      if (qrFile) {
+        const url = await uploadFile('nhatro-docs', `qr/qr_${Date.now()}.jpg`, qrFile);
+        if (url) updates.qr_image_url = url;
+      }
+      
+      const { error } = await sb.from('settings').update(updates).eq('id', appData.settings.id);
+      if (error) throw new Error('Lỗi: ' + error.message);
 
-  const roomUpdates = await Promise.all(appData.rooms.map(room => {
-    const roomPrice = parseInt(document.getElementById(`setRoomPrice-${room.id}`)?.value, 10) || 0;
-    const electricityCode = (document.getElementById(`setRoomElec-${room.id}`)?.value || '').trim() || getDefaultElectricityCode(room.room_number);
-    return sb.from('rooms').update({
-      room_price: roomPrice,
-      electricity_customer_code: electricityCode
-    }).eq('id', room.id);
-  }));
-  const failedRoomUpdate = roomUpdates.find(result => result.error);
-  if (failedRoomUpdate?.error) {
-    toast('Lỗi lưu dữ liệu cố định theo phòng: ' + failedRoomUpdate.error.message, 'error');
-    return;
+      const roomUpdates = await Promise.all(appData.rooms.map(room => {
+        const roomPrice = parseInt(document.getElementById(`setRoomPrice-${room.id}`)?.value, 10) || 0;
+        const electricityCode = (document.getElementById(`setRoomElec-${room.id}`)?.value || '').trim() || getDefaultElectricityCode(room.room_number);
+        return sb.from('rooms').update({
+          room_price: roomPrice,
+          electricity_customer_code: electricityCode
+        }).eq('id', room.id);
+      }));
+      const failedRoomUpdate = roomUpdates.find(result => result.error);
+      if (failedRoomUpdate?.error) {
+        throw new Error('Lỗi lưu dữ liệu cố định theo phòng: ' + failedRoomUpdate.error.message);
+      }
+
+      toast('Đã lưu cài đặt!');
+      invalidateDataCache();
+      await loadAllData(true);
+    });
+  } catch (error) {
+    toast(error?.message || 'Lưu cài đặt thất bại.', 'error');
   }
-
-  toast('Đã lưu cài đặt!');
-  invalidateDataCache();
-  await loadAllData(true);
-}
-
-// ============================================================
-// GLOBAL SAVE (CSV EXPORT)
-// ============================================================
-async function exportCsvData() {
-  return exportManagementWorkbook();
 }
 
 // ============================================================
