@@ -2,7 +2,7 @@ name: Nhắc ghi số nước và tính tiền cuối tháng
 
 on:
   schedule:
-    - cron: '0 2 26-31 * *' # 09:00 sáng giờ Việt Nam
+    - cron: '0 3 26-31 * *' # 10:00 sáng giờ Việt Nam
   workflow_dispatch:
 
 jobs:
@@ -10,10 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TZ: Asia/Ho_Chi_Minh
-      WEB3FORMS_KEY: "8587548f-533c-48bd-b674-83a927c9f86b"
 
     steps:
-      - name: Kiểm tra có phải 3 ngày cuối tháng không
+      - name: Chỉ chạy vào 3 ngày cuối tháng
         id: guard
         shell: bash
         run: |
@@ -21,25 +20,42 @@ jobs:
           last_day=$(date -d "$(date +%Y-%m-01) +1 month -1 day" +%d)
           threshold=$((10#$last_day - 2))
 
-          echo "today=$today"
-          echo "last_day=$last_day"
-          echo "threshold=$threshold"
-
           if [ $((10#$today)) -ge $threshold ]; then
             echo "send=true" >> "$GITHUB_OUTPUT"
           else
             echo "send=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Gửi email nhắc ghi số nước và tính tiền
+      - name: Gửi mail nhắc ghi số nước và tính tiền
         if: github.event_name == 'workflow_dispatch' || steps.guard.outputs.send == 'true'
         shell: bash
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          REMINDER_TO: ${{ secrets.REMINDER_TO }}
         run: |
-          curl --fail --silent --show-error -X POST https://api.web3forms.com/submit \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"access_key\": \"$WEB3FORMS_KEY\",
-              \"subject\": \"🧾 3 ngày cuối tháng - Nhắc ghi số nước và tính tiền\",
-              \"from_name\": \"Nhà trọ Đặng Được\",
-              \"message\": \"Nhắc việc cuối tháng: liên hệ khách từng phòng để lấy số nước, nhập dữ liệu vào website, tính tiền tháng mới và đối soát lại bill trước khi bước sang tháng tiếp theo.\"
-            }"
+          python - <<'PY'
+          import os, smtplib
+          from email.mime.text import MIMEText
+
+          user = os.environ["SMTP_USER"]
+          password = os.environ["SMTP_PASS"]
+          to_email = os.environ["REMINDER_TO"]
+
+          subject = "Nhắc cuối tháng: ghi số nước và tính tiền"
+          body = """3 ngày cuối tháng:
+- Liên hệ khách lấy số nước
+- Nhập số nước vào website
+- Tính tiền tháng mới
+- Kiểm tra lại bill trước khi sang tháng mới
+"""
+
+          msg = MIMEText(body, "plain", "utf-8")
+          msg["Subject"] = subject
+          msg["From"] = user
+          msg["To"] = to_email
+
+          with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+              server.login(user, password)
+              server.send_message(msg)
+          PY
