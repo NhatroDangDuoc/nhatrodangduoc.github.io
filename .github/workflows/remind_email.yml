@@ -2,7 +2,7 @@ name: Nhắc báo thanh toán tiền trọ
 
 on:
   schedule:
-    - cron: '0 3 7,8,10 * *' # 10:00 sáng giờ Việt Nam
+    - cron: '0 3 7,8,10 * *'
   workflow_dispatch:
 
 jobs:
@@ -19,7 +19,8 @@ jobs:
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
           python - <<'PY'
-          import os, smtplib
+          import os
+          import smtplib
           from email.mime.text import MIMEText
 
           user = os.environ["SMTP_USER"]
@@ -28,15 +29,16 @@ jobs:
           recipients = [
               "nguyendangduoc1709@gmail.com",
               "ronz.zrob@gmail.com",
-              "thuongdangabc@gmail.com"
+              "thuongdangabc@gmail.com",
           ]
 
           subject = "Nhắc đầu tháng: báo thanh toán tiền trọ"
-          body = """Hôm nay cần:
-- Kiểm tra các phòng chưa thanh toán
-- Chủ động báo thanh toán tiền trọ
-- Đối soát bill và trạng thái đã thu trên website
-"""
+          body = (
+              "Hôm nay cần:\n"
+              "- Kiểm tra các phòng chưa thanh toán\n"
+              "- Chủ động báo thanh toán tiền trọ\n"
+              "- Đối soát bill và trạng thái đã thu trên website\n"
+          )
 
           with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
               server.login(user, password)
