@@ -1,21 +1,45 @@
-name: 🔔 ĐẾN HẠN GHI SỐ NƯỚC VÀ GỬI BÁO TIỀN PHÒNG 🔔
+name: Nhắc ghi số nước và tính tiền cuối tháng
+
 on:
   schedule:
-    # Chạy lúc 2:00 AM UTC (tương đương 9:00 AM giờ Việt Nam) vào các ngày 6, 7, 8 hàng tháng
-    - cron: '0 2 26,27,28,29 * *'
-  workflow_dispatch: # Cho phép bấm chạy thủ công để test
+    - cron: '0 2 26-31 * *' # 09:00 sáng giờ Việt Nam
+  workflow_dispatch:
 
 jobs:
   send_email:
     runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Ho_Chi_Minh
+      WEB3FORMS_KEY: "8587548f-533c-48bd-b674-83a927c9f86b"
+
     steps:
-      - name: Send Web3Forms Email
+      - name: Kiểm tra có phải 3 ngày cuối tháng không
+        id: guard
+        shell: bash
         run: |
-          curl -X POST https://api.web3forms.com/submit \
-          -H "Content-Type: application/json" \
-          -d '{
-            "access_key": "8587548f-533c-48bd-b674-83a927c9f86b",
-            "subject": "🔔 ĐẾN HẠN GHI SỐ NƯỚC VÀ GỬI BÁO TIỀN PHÒNG 🔔",
-            "from_name": "Nhà Trọ Đặng Được ",
-            "message": "NGÀY 26-29 HẰNG THÁNG phải liên hệ khách từng phòng lấy số nước, lên BILL tính tiền và gửi báo tiền phòng từ ngày 1 đầu tháng "
-          }'
+          today=$(date +%d)
+          last_day=$(date -d "$(date +%Y-%m-01) +1 month -1 day" +%d)
+          threshold=$((10#$last_day - 2))
+
+          echo "today=$today"
+          echo "last_day=$last_day"
+          echo "threshold=$threshold"
+
+          if [ $((10#$today)) -ge $threshold ]; then
+            echo "send=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "send=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Gửi email nhắc ghi số nước và tính tiền
+        if: github.event_name == 'workflow_dispatch' || steps.guard.outputs.send == 'true'
+        shell: bash
+        run: |
+          curl --fail --silent --show-error -X POST https://api.web3forms.com/submit \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"access_key\": \"$WEB3FORMS_KEY\",
+              \"subject\": \"🧾 3 ngày cuối tháng - Nhắc ghi số nước và tính tiền\",
+              \"from_name\": \"Nhà trọ Đặng Được\",
+              \"message\": \"Nhắc việc cuối tháng: liên hệ khách từng phòng để lấy số nước, nhập dữ liệu vào website, tính tiền tháng mới và đối soát lại bill trước khi bước sang tháng tiếp theo.\"
+            }"
