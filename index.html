@@ -1157,6 +1157,7 @@ body.mobile-app .save-float{bottom:96px;right:16px}
         <div class="nav-feature-copy">
           <div class="sidebar-brand-row">
             <h2>NHÀ TRỌ ĐẶNG ĐƯỢC</h2>
+            <span class="sidebar-brand-badge">8BIT</span>
           </div>
         </div>
         <span class="nav-feature-badge">⛏</span>
@@ -3877,7 +3878,7 @@ function buildDepositMetricDetailsHtml(totalHeldDeposit = 0) {
       <summary>Chi tiết</summary>
       <div class="overview-metric-details-body">
         <div><strong>Tổng tiền cọc đang giữ:</strong> ${fmt(totalHeldDeposit)}</div>
-        <div>Tiền cọc không cộng vào doanh thu hoặc lợi nhuận</div>
+        <div>Tiền cọc là line riêng, không cộng vào doanh thu hoặc lợi nhuận.</div>
       </div>
     </details>
   `;
@@ -4912,7 +4913,7 @@ async function renderDashboard(skipReload = false) {
             <span>Mở chi tiết</span>
           </summary>
           <div class="overview-collapsible-body">
-            <div class="overview-section-note" style="margin:2px 0 12px">Tiền cọc không cộng vào doanh thu hay lợi nhuận.</div>
+            <div class="overview-section-note" style="margin:2px 0 12px">Tiền cọc là line riêng, không cộng vào doanh thu hay lợi nhuận.</div>
             <div class="overview-split-grid">
               <div>
                 <div class="overview-block-title">Cọc đang giữ hiện tại</div>
@@ -7118,129 +7119,138 @@ async function exportDatabaseZip() {
     const roomMap = new Map((dataset.rooms || []).map(room => [room.id, room]));
     const moveOutByTenantId = buildTenantMoveOutDateMap(dataset);
     const allTenantRows = dataset.tenants || [];
+    const activeTenants = allTenantRows.filter(row => row?.is_active !== false);
     const totalTargets = yearScopes.length + allTenantRows.length + (dataset.archivedTenants || []).length + (dataset.generalDocuments || []).length + 1;
     setExportProgress('Đang gom database ZIP', 0, totalTargets || 1, 'Đang chuẩn bị thư mục hồ sơ...');
 
     let progressCount = 0;
-    progressCount += yearScopes.length;
-    setExportProgress('Đang gom database ZIP', progressCount, totalTargets || 1, `Đã tạo ${yearScopes.length} khung năm trong file ZIP`);
+    try {
+      progressCount += yearScopes.length;
+      setExportProgress('Đang gom database ZIP', progressCount, totalTargets || 1, `Đã tạo ${yearScopes.length} khung năm trong file ZIP`);
 
-    for (const tenant of allTenantRows) {
-      const room = roomMap.get(tenant.room_id) || {};
-      const occupantRows = (dataset.occupants || []).filter(row => row.tenant_id === tenant.id);
-      const docRows = (dataset.tenantDocuments || []).filter(row => row.tenant_id === tenant.id || (!row.tenant_id && row.room_id === tenant.room_id));
-      const photoRows = (dataset.roomPhotos || []).filter(row => row.tenant_id === tenant.id || (!row.tenant_id && row.room_id === tenant.room_id));
-      const moveOutDate = getTenantRangeEndDate(tenant, moveOutByTenantId);
-      const overlapYears = yearScopes
-        .filter(scope => tenant.move_in_date && String(tenant.move_in_date) <= String(scope.rangeEnd) && (!moveOutDate || String(moveOutDate) > String(scope.rangeEnd)))
-        .map(scope => scope.year);
-      for (const year of overlapYears) {
+      for (const tenant of allTenantRows) {
+        const room = roomMap.get(tenant.room_id) || {};
+        const occupantRows = (dataset.occupants || []).filter(row => row.tenant_id === tenant.id);
+        const docRows = (dataset.tenantDocuments || []).filter(row => row.tenant_id === tenant.id || (!row.tenant_id && row.room_id === tenant.room_id));
+        const photoRows = (dataset.roomPhotos || []).filter(row => row.tenant_id === tenant.id || (!row.tenant_id && row.room_id === tenant.room_id));
+        const moveOutDate = getTenantRangeEndDate(tenant, moveOutByTenantId);
+        const overlapYears = yearScopes
+          .filter(scope => tenant.move_in_date && String(tenant.move_in_date) <= String(scope.rangeEnd) && (!moveOutDate || String(moveOutDate) > String(scope.rangeEnd)))
+          .map(scope => scope.year);
+        for (const year of overlapYears) {
+          const target = yearFolders.get(year);
+          if (!target) continue;
+          const folder = target.activeRoot.folder(buildHouseholdFolderName('', tenant.full_name, room.room_number, tenant.move_in_date, target.rangeEnd));
+          exportedFileCount += await appendHouseholdArchiveFolder(folder, {
+            statusLabel: 'Khách đang ở',
+            room,
+            person: tenant,
+            occupants: occupantRows,
+            billRows: (dataset.bills || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
+            waterRows: (dataset.readings || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
+            moveInRows: (dataset.moveIns || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
+            checkoutRows: (dataset.checkouts || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
+            docRows,
+            photoRows,
+            startDate: tenant.move_in_date,
+            endDate: target.rangeEnd,
+            warnings,
+            warningPrefix: `NAM_${year}_KHACH_DANG_O`
+          });
+        }
+        progressCount += 1;
+        setExportProgress('Đang gom database ZIP', progressCount, totalTargets || 1, `Đã gom hồ sơ active: ${tenant.full_name || 'Khách'}`);
+        await new Promise(resolve => setTimeout(resolve, 80));
+      }
+
+      for (const archived of (dataset.archivedTenants || [])) {
+        const originalTenantId = archived.original_tenant_id;
+        const occupantRows = (dataset.occupants || []).filter(row => row.tenant_id === originalTenantId);
+        const docRows = (dataset.tenantDocuments || []).filter(row => row.tenant_id === originalTenantId);
+        const photoRows = (dataset.roomPhotos || []).filter(row => row.tenant_id === originalTenantId);
+        const year = getCycleStartYear(archived.move_out_date || '');
         const target = yearFolders.get(year);
-        if (!target) continue;
-        const folder = target.activeRoot.folder(buildHouseholdFolderName('', tenant.full_name, room.room_number, tenant.move_in_date, target.rangeEnd));
-        exportedFileCount += await appendHouseholdArchiveFolder(folder, {
-          statusLabel: 'Khách đang ở',
-          room,
-          person: tenant,
-          occupants: occupantRows,
-          billRows: (dataset.bills || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
-          waterRows: (dataset.readings || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
-          moveInRows: (dataset.moveIns || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
-          checkoutRows: (dataset.checkouts || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
-          docRows,
-          photoRows,
-          startDate: tenant.move_in_date,
-          endDate: target.rangeEnd,
-          warnings,
-          warningPrefix: `NAM_${year}_KHACH_DANG_O`
-        });
+        if (target) {
+          const billRows = (dataset.bills || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year);
+          const mergedArchivedBills = [
+            ...billRows,
+            ...((Array.isArray(archived.billing_history) ? archived.billing_history : []).filter(historyItem => getCycleStartYear(historyItem.billing_month) === year && !billRows.some(bill => bill.billing_month === historyItem.billing_month)))
+          ];
+          const folder = target.archivedRoot.folder(buildHouseholdFolderName('KHACH CU', archived.full_name, archived.room_number, archived.move_in_date, archived.move_out_date));
+          exportedFileCount += await appendHouseholdArchiveFolder(folder, {
+            statusLabel: 'Khách cũ',
+            room: { room_number: archived.room_number || '' },
+            person: {
+              ...archived,
+              place_of_origin: archived.place_of_origin || archived.hometown || ''
+            },
+            occupants: occupantRows,
+            billRows: mergedArchivedBills,
+            waterRows: (dataset.readings || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year),
+            moveInRows: (dataset.moveIns || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year),
+            checkoutRows: (dataset.checkouts || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year),
+            docRows,
+            photoRows,
+            startDate: archived.move_in_date,
+            endDate: archived.move_out_date,
+            warnings,
+            warningPrefix: `NAM_${year}_KHACH_CU`
+          });
+        }
+        progressCount += 1;
+        setExportProgress('Đang gom database ZIP', progressCount, totalTargets || 1, `Đã gom hồ sơ khách cũ: ${archived.full_name || 'Khách cũ'}`);
+        await new Promise(resolve => setTimeout(resolve, 80));
       }
-      progressCount += 1;
-      setExportProgress('Đang gom database ZIP', progressCount, totalTargets || 1, `Đã gom hồ sơ active: ${tenant.full_name || 'Khách'}`);
-      await new Promise(resolve => setTimeout(resolve, 80));
-    }
 
-    for (const archived of (dataset.archivedTenants || [])) {
-      const originalTenantId = archived.original_tenant_id;
-      const occupantRows = (dataset.occupants || []).filter(row => row.tenant_id === originalTenantId);
-      const docRows = (dataset.tenantDocuments || []).filter(row => row.tenant_id === originalTenantId);
-      const photoRows = (dataset.roomPhotos || []).filter(row => row.tenant_id === originalTenantId);
-      const year = getCycleStartYear(archived.move_out_date || '');
-      const target = yearFolders.get(year);
-      if (target) {
-        const billRows = (dataset.bills || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year);
-        const mergedArchivedBills = [
-          ...billRows,
-          ...((Array.isArray(archived.billing_history) ? archived.billing_history : []).filter(historyItem => getCycleStartYear(historyItem.billing_month) === year && !billRows.some(bill => bill.billing_month === historyItem.billing_month)))
-        ];
-        const folder = target.archivedRoot.folder(buildHouseholdFolderName('KHACH CU', archived.full_name, archived.room_number, archived.move_in_date, archived.move_out_date));
-        exportedFileCount += await appendHouseholdArchiveFolder(folder, {
-          statusLabel: 'Khách cũ',
-          room: { room_number: archived.room_number || '' },
-          person: {
-            ...archived,
-            place_of_origin: archived.place_of_origin || archived.hometown || ''
-          },
-          occupants: occupantRows,
-          billRows: mergedArchivedBills,
-          waterRows: (dataset.readings || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year),
-          moveInRows: (dataset.moveIns || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year),
-          checkoutRows: (dataset.checkouts || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year),
-          docRows,
-          photoRows,
-          startDate: archived.move_in_date,
-          endDate: archived.move_out_date,
-          warnings,
-          warningPrefix: `NAM_${year}_KHACH_CU`
-        });
+      for (const doc of (dataset.generalDocuments || [])) {
+        const docYear = doc.created_at ? new Date(doc.created_at).getFullYear() : null;
+        const target = docYear && yearFolders.get(docYear) ? yearFolders.get(docYear).sharedRoot : systemRoot;
+        const groupFolder = target.folder(sanitizeZipSegment(normalizeDocumentGroupName(doc.document_name, 'Tai_lieu_chung')));
+        const notes = [];
+        const ok = await addStorageFileToZip(groupFolder, doc.file_url, getFileNameFromPath(doc.file_url), notes);
+        if (ok) exportedFileCount += 1;
+        if (notes.length) {
+          groupFolder.file('CANH_BAO_FILE.txt', notes.join('\n'));
+          warnings.push(`[TAI_LIEU_CHUNG] ${doc.document_name || getFileNameFromPath(doc.file_url)}\n${notes.join('\n')}`);
+        }
+        progressCount += 1;
+        setExportProgress('Đang gom database ZIP', progressCount, totalTargets || 1, `Đã gom tài liệu chung: ${doc.document_name || getFileNameFromPath(doc.file_url)}`);
       }
-      progressCount += 1;
-      setExportProgress('Đang gom database ZIP', progressCount, totalTargets || 1, `Đã gom hồ sơ khách cũ: ${archived.full_name || 'Khách cũ'}`);
-      await new Promise(resolve => setTimeout(resolve, 80));
-    }
 
-    for (const doc of (dataset.generalDocuments || [])) {
-      const docYear = doc.created_at ? new Date(doc.created_at).getFullYear() : null;
-      const target = docYear && yearFolders.get(docYear) ? yearFolders.get(docYear).sharedRoot : systemRoot;
-      const groupFolder = target.folder(sanitizeZipSegment(normalizeDocumentGroupName(doc.document_name, 'Tai_lieu_chung')));
-      const notes = [];
-      const ok = await addStorageFileToZip(groupFolder, doc.file_url, getFileNameFromPath(doc.file_url), notes);
-      if (ok) exportedFileCount += 1;
-      if (notes.length) {
-        groupFolder.file('CANH_BAO_FILE.txt', notes.join('\n'));
-        warnings.push(`[TAI_LIEU_CHUNG] ${doc.document_name || getFileNameFromPath(doc.file_url)}\n${notes.join('\n')}`);
+      if (dataset.settingsRow?.qr_image_url) {
+        const notes = [];
+        const ok = await addStorageFileToZip(systemRoot, dataset.settingsRow.qr_image_url, 'QR_CHUYEN_KHOAN', notes);
+        if (ok) exportedFileCount += 1;
+        if (notes.length) warnings.push(`[HE_THONG] QR chuyển khoản\n${notes.join('\n')}`);
       }
-      progressCount += 1;
-      setExportProgress('Đang gom database ZIP', progressCount, totalTargets || 1, `Đã gom tài liệu chung: ${doc.document_name || getFileNameFromPath(doc.file_url)}`);
-    }
 
-    if (dataset.settingsRow?.qr_image_url) {
-      const notes = [];
-      const ok = await addStorageFileToZip(systemRoot, dataset.settingsRow.qr_image_url, 'QR_CHUYEN_KHOAN', notes);
-      if (ok) exportedFileCount += 1;
-      if (notes.length) warnings.push(`[HE_THONG] QR chuyển khoản\n${notes.join('\n')}`);
-    }
+      root.file('99_BAO_CAO_XUAT_ZIP.txt', buildZipSummaryText([
+        `Ngày xuất: ${getTodayIsoLocal()} ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`,
+        `Workbook tổng hợp all-time: 1 file`,
+        `Số khung năm trong hồ sơ ZIP: ${yearScopes.length}`,
+        `Khách đang ở: ${activeTenants.length} hộ`,
+        `Khách cũ: ${(dataset.archivedTenants || []).length} hộ`,
+        `Tài liệu chung: ${(dataset.generalDocuments || []).length} file`,
+        `Số file scan / tài liệu tải được vào ZIP: ${exportedFileCount}`,
+        warnings.length
+          ? `Có ${warnings.length} nhóm phát sinh cảnh báo tải file. Xem 99_CANH_BAO_TAI_FILE.txt để biết chi tiết.`
+          : 'Không có cảnh báo tải file.'
+      ]));
+      if (warnings.length) {
+        root.file('99_CANH_BAO_TAI_FILE.txt', warnings.join('\n\n------------------------------\n\n'));
+      }
 
-    root.file('99_BAO_CAO_XUAT_ZIP.txt', buildZipSummaryText([
-      `Ngày xuất: ${getTodayIsoLocal()} ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`,
-      `Workbook tổng hợp all-time: 1 file`,
-      `Số khung năm trong hồ sơ ZIP: ${yearScopes.length}`,
-      `Khách đang ở: ${activeTenants.length} hộ`,
-      `Khách cũ: ${(dataset.archivedTenants || []).length} hộ`,
-      `Tài liệu chung: ${(dataset.generalDocuments || []).length} file`,
-      `Số file scan / tài liệu tải được vào ZIP: ${exportedFileCount}`,
-      warnings.length
-        ? `Có ${warnings.length} nhóm phát sinh cảnh báo tải file. Xem 99_CANH_BAO_TAI_FILE.txt để biết chi tiết.`
-        : 'Không có cảnh báo tải file.'
-    ]));
-    if (warnings.length) {
-      root.file('99_CANH_BAO_TAI_FILE.txt', warnings.join('\n\n------------------------------\n\n'));
+      setExportProgress('Đang nén database ZIP', totalTargets || 1, totalTargets || 1, 'Đã gom xong hồ sơ và workbook, đang nén file ZIP...');
+      const zipBlob = await generateZipBlob(zip);
+      downloadBlobFile(zipBlob, `DATABASE_NHA_TRO_DANG_DUOC_${getTodayIsoLocal().replace(/-/g, '_')}.zip`);
+      toast('Đã xuất database ZIP theo từng năm hoạt động, kèm hồ sơ và file scan đầy đủ.');
+      clearExportProgress(1400);
+    } catch (error) {
+      console.error('exportDatabaseZip failed:', error);
+      clearExportProgress();
+      toast(`Lỗi xuất database ZIP: ${error?.message || 'Không rõ lỗi'}`, 'error');
+      throw error;
     }
-
-    const zipBlob = await generateZipBlob(zip);
-    downloadBlobFile(zipBlob, `DATABASE_NHA_TRO_DANG_DUOC_${getTodayIsoLocal().replace(/-/g, '_')}.zip`);
-    toast('Đã xuất database ZIP theo từng năm hoạt động, kèm hồ sơ và file scan đầy đủ.');
-    clearExportProgress(1400);
   });
 }
 
