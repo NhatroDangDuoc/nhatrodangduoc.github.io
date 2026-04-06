@@ -16,7 +16,7 @@ html{scroll-behavior:smooth}
 body{font-family:'Manrope',sans-serif;background:linear-gradient(180deg,#F8FAFC 0%,var(--bg) 100%);color:var(--text);min-height:100vh;display:flex;line-height:1.45;transition:background .25s ease,color .25s ease}
 body.dark-mode{--bg:#0F141A;--card:#151B22;--gold:#FF9A4D;--gold-hover:#FFAF69;--gold-light:#362011;--text:#F3F4F6;--text2:#9CA3AF;--border:#29313A;--shadow:0 1px 3px rgba(0,0,0,.22),0 10px 24px rgba(0,0,0,.18);--shadow-lg:0 20px 44px rgba(0,0,0,.28);--surface-soft:#11171E;--surface-hover:#182028;--surface-raised:#161D25;--surface-raised-2:#131920;--table-head:#182028;--table-hover:#1D2630;--input-bg:#0F141A;--sidebar-bg:#090C10;--sidebar-hover:#11171E;--sidebar-text:#8D99A8;--sidebar-active:#141B23}
 /* SIDEBAR */
-.sidebar{width:220px;background:var(--sidebar-bg);color:#fff;height:100vh;position:fixed;left:0;top:0;z-index:100;display:flex;flex-direction:column;transition:transform .3s,background .25s ease;box-shadow:18px 0 36px rgba(15,23,42,.08)}
+.sidebar{width:214px;background:var(--sidebar-bg);color:#fff;height:100vh;position:fixed;left:0;top:0;z-index:100;display:flex;flex-direction:column;transition:transform .3s,background .25s ease;box-shadow:18px 0 36px rgba(15,23,42,.08)}
 .sidebar-header{padding:12px 12px 10px;border-bottom:1px solid rgba(255,255,255,.05)}
 .sidebar-header h2{font-size:13px;font-weight:800;color:#F9FAFB;letter-spacing:0;line-height:1.2;font-family:'Manrope','Inter',sans-serif}
 .sidebar-header .logo{width:32px;height:32px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:none;flex:none}
@@ -29,7 +29,7 @@ body.dark-mode{--bg:#0F141A;--card:#151B22;--gold:#FF9A4D;--gold-hover:#FFAF69;-
 .sidebar-header .nav-feature-launch.nav-feature-inline .nav-feature-copy{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;flex:1}
 .sidebar-header .nav-feature-launch.nav-feature-inline .nav-feature-title{display:none}
 .sidebar-header .nav-feature-launch.nav-feature-inline .nav-feature-badge{width:28px;height:28px;border-radius:10px;font-size:12px;box-shadow:none;margin-left:0;flex:none}
-.nav-menu{flex:1;padding:10px 10px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.nav-menu{flex:1;padding:8px 10px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
 .nav-feature-launch{margin:0 12px 6px;padding:14px 14px 14px 16px;border-radius:18px;border:1px solid rgba(255,172,94,.22);background:
 linear-gradient(135deg,rgba(255,140,46,.18) 0%,rgba(255,194,112,.1) 55%,rgba(255,140,46,.16) 100%),
 linear-gradient(180deg,#181e26 0%,#12171d 100%);
@@ -44,11 +44,11 @@ display:flex;align-items:center;justify-content:space-between;gap:12px;color:#F8
 .nav-feature-badge{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#FF9A4D;color:#261300;font-size:15px;font-weight:900;box-shadow:0 0 0 4px rgba(255,154,77,.16);animation:nav-feature-pulse 2.2s ease-in-out infinite}
 .nav-cluster{padding:0;border:none;border-radius:0;background:transparent;transition:none}
 .nav-cluster.active-cluster{border:none;background:transparent;box-shadow:none}
-.nav-cluster-head{display:flex;align-items:center;justify-content:flex-start;gap:12px;margin-bottom:4px;padding:0 10px}
+.nav-cluster-head{display:flex;align-items:center;justify-content:flex-start;gap:12px;margin-bottom:3px;padding:0 10px}
 .nav-cluster-kicker{display:none}
 .nav-cluster-title{font-size:11px;font-weight:600;color:rgba(255,255,255,.42);letter-spacing:.03em;line-height:1.2}
 .nav-cluster-note,.nav-cluster-count{display:none}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:0;color:var(--sidebar-text);cursor:pointer;transition:background .18s ease,color .18s ease,border-color .18s ease;font-size:14px;font-weight:500;border-left:none;border-radius:12px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 10px;margin:0;color:var(--sidebar-text);cursor:pointer;transition:background .18s ease,color .18s ease,border-color .18s ease;font-size:14px;font-weight:500;border-left:none;border-radius:12px}
 .nav-item:hover{background:var(--sidebar-hover);color:#F9FAFB;transform:none}
 .nav-item.active{background:var(--sidebar-active);color:#F9FAFB;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
 .nav-item-major{padding:10px 12px;background:transparent;border:none}
@@ -58,22 +58,22 @@ display:flex;align-items:center;justify-content:space-between;gap:12px;color:#F8
 .nav-copy{display:flex;flex-direction:column;gap:0;min-width:0}
 .nav-label{font-size:13px;font-weight:600;color:inherit}
 .nav-caption{display:none}
-.nav-footer{padding:10px 12px 12px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:#6B7280}
-.sidebar-status-card{padding:9px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);margin-bottom:10px}
-.sidebar-status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.nav-footer{padding:8px 12px 12px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:#6B7280}
+.sidebar-status-card{padding:8px 9px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);margin-bottom:9px}
+.sidebar-status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .sidebar-status-item{display:flex;flex-direction:column;gap:2px;min-width:0}
 .sidebar-status-item-full{grid-column:1/-1}
-.sidebar-status-label{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.38)}
-.sidebar-status-value{font-size:12px;font-weight:700;color:#F8FAFC;line-height:1.25;word-break:break-word}
+.sidebar-status-label{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.34)}
+.sidebar-status-value{font-size:11.5px;font-weight:700;color:#F8FAFC;line-height:1.2;word-break:break-word}
 .sidebar-status-value.muted{color:#C8D1DC;font-weight:600}
 .sidebar-status-note{display:none}
 .sidebar-status-item-plain{justify-content:center;min-height:34px}
 .sidebar-status-item-plain .sidebar-status-value{font-size:11px;font-weight:800;letter-spacing:.01em}
 .sidebar-cycle-block{display:flex;flex-direction:column;gap:1px}
-.sidebar-cycle-main{font-size:13px;font-weight:800;color:#F8FAFC}
-.sidebar-cycle-range{font-size:11px;color:#C8D1DC;font-weight:600}
+.sidebar-cycle-main{font-size:12px;font-weight:800;color:#F8FAFC}
+.sidebar-cycle-range{font-size:10px;color:#C8D1DC;font-weight:600}
 /* MAIN */
-.main{margin-left:220px;flex:1;min-height:100vh;background:var(--bg)}
+.main{margin-left:214px;flex:1;min-height:100vh;background:var(--bg)}
 .page-header{position:sticky;top:0;z-index:75;background:rgba(255,255,255,.78);backdrop-filter:blur(14px);border-bottom:1px solid rgba(17,24,39,.06);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px;flex-wrap:wrap}
 body.dark-mode .page-header{background:rgba(15,20,26,.82)}
 .page-header-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -200,10 +200,10 @@ body.dark-mode .theme-toggle{background:rgba(15,20,26,.86)}
 .overview-panel{padding:20px 22px}
 .overview-section{padding:18px}
 .overview-panel-head,.overview-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
-.overview-kicker{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.04em;text-transform:uppercase}
-.overview-panel-title,.overview-section-title{font-size:18px;font-weight:600;letter-spacing:-.02em;margin-top:4px}
-.overview-section-title-emphasis{font-size:28px;font-weight:800;letter-spacing:-.04em;line-height:1.08}
-.overview-panel-note,.overview-section-note{font-size:13px;color:var(--text2);margin-top:5px;line-height:1.45;max-width:680px}
+.overview-kicker{font-size:10px;font-weight:800;color:#90A2B5;letter-spacing:.12em;text-transform:uppercase}
+.overview-panel-title,.overview-section-title{font-size:20px;font-weight:800;letter-spacing:-.03em;margin-top:6px;line-height:1.15}
+.overview-section-title-emphasis{font-size:32px;font-weight:800;letter-spacing:-.05em;line-height:1.02}
+.overview-panel-note,.overview-section-note{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.55;max-width:620px}
 .overview-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .overview-summary-grid-month{grid-template-columns:repeat(4,minmax(0,1fr))}
 .overview-summary-grid-alltime{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -226,25 +226,26 @@ body.dark-mode .theme-toggle{background:rgba(15,20,26,.86)}
 body.dark-mode .overview-turnover-brief{background:linear-gradient(180deg,rgba(255,154,77,.09),rgba(255,154,77,.04));border-color:rgba(255,154,77,.24)}
 body.dark-mode .overview-turnover-brief-label{color:#CBD5E1}
 body.dark-mode .overview-turnover-brief-meta{color:#94A3B8}
-.overview-collapsible{margin-top:16px;border:1px solid var(--border);border-radius:14px;background:var(--surface-soft);overflow:hidden}
-.overview-collapsible summary{list-style:none;cursor:pointer;padding:14px 16px;font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.overview-collapsible{margin-top:16px;border:1px solid var(--border);border-radius:16px;background:var(--surface-soft);overflow:hidden}
+.overview-collapsible summary{list-style:none;cursor:pointer;padding:16px 18px;font-size:13px;font-weight:800;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:10px}
 .overview-collapsible summary::-webkit-details-marker{display:none}
-.overview-collapsible-body{padding:0 16px 16px}
+.overview-collapsible-body{padding:2px 18px 18px}
 .overview-month-shell,.overview-lifetime-shell{padding:22px 24px}
 .overview-lifetime-shell{border:1px solid rgba(255,255,255,.02)}
 .overview-lifetime-toggle{padding:0;overflow:hidden}
 .overview-lifetime-toggle details{display:block}
-.overview-lifetime-toggle summary{list-style:none;cursor:pointer;padding:20px 22px;display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.overview-lifetime-toggle summary{list-style:none;cursor:pointer;padding:22px 24px;display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
 .overview-lifetime-toggle summary::-webkit-details-marker{display:none}
 .overview-lifetime-toggle[open] summary,.overview-lifetime-toggle details[open] summary{border-bottom:1px solid rgba(127,140,160,.12)}
-.overview-lifetime-body{padding:18px 22px 22px}
-.overview-toggle-hint{font-size:12px;color:#9A5B14;font-weight:800;white-space:nowrap;padding:7px 12px;border-radius:999px;border:1px solid rgba(255,154,77,.28);background:rgba(255,154,77,.12);box-shadow:0 8px 20px rgba(255,154,77,.08)}
-.overview-collapsible summary span:last-child{font-size:12px;color:#9A5B14;font-weight:800;white-space:nowrap;padding:7px 12px;border-radius:999px;border:1px solid rgba(255,154,77,.28);background:rgba(255,154,77,.12);box-shadow:0 8px 20px rgba(255,154,77,.08)}
+.overview-lifetime-body{padding:20px 24px 24px}
+.overview-toggle-hint{font-size:11px;color:#A65E15;font-weight:800;white-space:nowrap;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,154,77,.3);background:rgba(255,154,77,.14);box-shadow:0 8px 20px rgba(255,154,77,.08);letter-spacing:.04em;text-transform:uppercase}
+.overview-collapsible summary span:last-child{font-size:11px;color:#A65E15;font-weight:800;white-space:nowrap;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,154,77,.3);background:rgba(255,154,77,.14);box-shadow:0 8px 20px rgba(255,154,77,.08);letter-spacing:.04em;text-transform:uppercase}
 .overview-section-head{padding-bottom:14px;border-bottom:1px solid rgba(127,140,160,.12);margin-bottom:16px}
 .overview-section:last-child .overview-section-head{margin-bottom:16px}
 .overview-breakdown-table .overview-money-negative{font-weight:700}
 .overview-breakdown-table td,.overview-breakdown-table th{white-space:nowrap}
-.overview-actions{display:flex;align-items:flex-start;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.overview-actions{display:flex;align-items:stretch;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.overview-actions .btn{min-height:42px}
 .overview-toggle-chip{display:inline-flex;align-items:center;justify-content:center;padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface-soft);font-size:12px;font-weight:700;color:var(--text2)}
 .overview-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:16px;background:var(--card)}
 .overview-table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0}
@@ -310,7 +311,8 @@ body.dark-mode .overview-table tbody tr.overview-turnover-row td{background:rgba
 .overview-finance-table tbody tr:nth-child(even) td{background:rgba(148,163,184,.03)}
 body.dark-mode .overview-finance-table tbody tr:nth-child(even) td{background:rgba(255,255,255,.015)}
 .overview-finance-table tbody tr.overview-turnover-row td:first-child{box-shadow:inset 3px 0 0 var(--gold)}
-.overview-action-export{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.overview-action-export{display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-start;gap:6px}
+.overview-action-export .btn{align-self:flex-end}
 .overview-backup-note{font-size:12px;color:var(--warning);line-height:1.55;max-width:280px;text-align:right}
 .nav-footer-actions{display:flex;align-items:center;gap:8px}
 .water-message-cell,.water-action-cell{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -392,14 +394,44 @@ body.dark-mode .overview-finance-table tbody tr:nth-child(even) td{background:rg
 .settings-room-total{margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,154,77,.22);background:linear-gradient(180deg,rgba(255,154,77,.08),rgba(255,154,77,.03));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .settings-room-total-label{font-size:12px;color:var(--text2);line-height:1.5}
 .settings-room-total-value{font-size:24px;font-weight:800;color:var(--gold);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.settings-card-title{font-size:21px;font-weight:800;letter-spacing:-.03em;margin-bottom:10px}
+.settings-card-note{font-size:12px;color:var(--text2);line-height:1.6;max-width:760px;margin-bottom:14px}
 .settings-reminder-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .settings-toggle-stack{display:flex;flex-direction:column;gap:10px}
 .settings-toggle-chip{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface-soft);font-size:13px;color:var(--text)}
 .settings-toggle-chip input{width:16px;height:16px}
 .settings-helper-note{font-size:12px;color:var(--text2);line-height:1.55;padding:10px 12px;border-radius:12px;background:var(--surface-soft);border:1px solid var(--border)}
-.settings-preview-box{margin-top:12px;padding:12px 14px;border-radius:14px;background:linear-gradient(180deg,rgba(255,154,77,.08),rgba(255,154,77,.03));border:1px solid rgba(255,154,77,.18);font-size:12px;color:var(--text2);line-height:1.65}
+.settings-reminder-editor{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+.settings-reminder-panel{padding:14px 16px;border-radius:16px;border:1px solid var(--border);background:var(--surface-soft);display:flex;flex-direction:column;gap:14px}
+.settings-reminder-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.settings-reminder-panel-title{font-size:14px;font-weight:800;color:var(--text)}
+.settings-reminder-panel-note{font-size:12px;color:var(--text2);line-height:1.55;max-width:420px}
+.settings-run-block{display:flex;flex-direction:column;gap:8px}
+.settings-run-caption{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text2)}
+.settings-inline-field{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.settings-inline-field .form-group{margin:0;min-width:96px}
+.settings-mini-input{max-width:110px}
+.settings-run-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(34px,1fr));gap:8px;flex:1 1 220px}
+.settings-run-chip,.settings-day-chip{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 10px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:12px;font-weight:800;color:var(--text2);cursor:pointer;transition:border-color .18s ease,transform .18s ease,background .18s ease,color .18s ease,box-shadow .18s ease}
+.settings-run-chip:hover,.settings-day-chip:hover{transform:translateY(-1px);border-color:rgba(255,154,77,.3)}
+.settings-run-chip.active,.settings-day-chip.active{border-color:rgba(255,154,77,.34);background:linear-gradient(180deg,rgba(255,154,77,.12),rgba(255,154,77,.05));color:#D97706;box-shadow:0 10px 18px rgba(255,154,77,.08)}
+.settings-day-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.settings-preview-box{margin-top:14px;padding:14px 16px;border-radius:14px;background:linear-gradient(180deg,rgba(255,154,77,.08),rgba(255,154,77,.03));border:1px solid rgba(255,154,77,.18);font-size:12px;color:var(--text2);line-height:1.7}
 .export-stack{display:flex;flex-direction:column;gap:12px}
-.export-note-inline{font-size:12px;color:var(--warning);line-height:1.6}
+.export-note-inline{font-size:11.5px;color:var(--warning);line-height:1.6;margin-top:8px}
+.year-frame-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.year-frame-card{border:1px solid var(--border);border-radius:16px;background:var(--surface-soft);padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.year-frame-card.closed{border-color:rgba(255,154,77,.34);background:linear-gradient(180deg,rgba(255,154,77,.08),rgba(255,154,77,.03))}
+.year-frame-card.unlocked{border-color:rgba(245,158,11,.4);box-shadow:0 0 0 1px rgba(245,158,11,.14)}
+.year-frame-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.year-frame-title{font-size:18px;font-weight:800;color:var(--text)}
+.year-frame-meta{font-size:12px;color:var(--text2);line-height:1.6}
+.year-frame-badges{display:flex;gap:6px;flex-wrap:wrap}
+.year-frame-actions{display:flex;gap:8px;flex-wrap:wrap}
+.year-frame-actions .btn{flex:1 1 160px}
+.year-frame-carry{padding:10px 12px;border-radius:12px;border:1px dashed rgba(255,154,77,.22);background:rgba(255,154,77,.05);font-size:12px;color:var(--text2);line-height:1.6}
+.year-frame-carry strong{color:var(--text)}
+.year-frame-db-note{margin-top:12px;font-size:12px;color:var(--warning);line-height:1.6}
 .export-frame-modal{max-width:720px}
 .export-frame-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
 .export-frame-card{border:1px solid var(--border);border-radius:16px;background:var(--surface-soft);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}
@@ -415,6 +447,9 @@ body.dark-mode .overview-finance-table tbody tr:nth-child(even) td{background:rg
 .login-reminder-modal{max-width:720px}
 .login-reminder-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
 .login-reminder-time{font-size:12px;color:var(--text2);margin-top:4px}
+@media (max-width: 980px){
+  .settings-reminder-editor{grid-template-columns:1fr}
+}
 .login-reminder-stack{display:flex;flex-direction:column;gap:12px}
 .login-reminder-card{border:1px solid var(--border);border-radius:16px;background:var(--surface-soft);padding:14px 16px}
 .login-reminder-card.warning{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.08)}
@@ -1611,24 +1646,53 @@ body.mobile-app .save-float{bottom:96px;right:16px}
           </div>
         </div>
         <div class="card" style="max-width:900px">
-          <h3 style="margin-bottom:16px">🔔 Popup nhắc việc khi đăng nhập</h3>
-          <div class="settings-reminder-grid">
-            <div class="settings-toggle-stack">
-              <label class="settings-toggle-chip"><input type="checkbox" id="setReminderWaterEnabled" onchange="renderReminderSettingsPreview()"> Bật popup nhắc nhập số nước</label>
-              <label class="settings-toggle-chip"><input type="checkbox" id="setReminderBillingEnabled" onchange="renderReminderSettingsPreview()"> Bật popup nhắc thu tiền</label>
+          <h3 class="settings-card-title">🔔 Popup nhắc việc khi đăng nhập</h3>
+          <div class="settings-card-note">Chỉ nhắc đúng kỳ đang hoạt động. Nếu tick “không show lại” thì popup chỉ ẩn trong session đăng nhập hiện tại.</div>
+          <div class="settings-helper-note">Popup dùng giờ thật của trình duyệt đang đăng nhập.</div>
+          <div class="settings-reminder-editor">
+            <div class="settings-reminder-panel">
+              <div class="settings-reminder-panel-head">
+                <div>
+                  <div class="settings-reminder-panel-title">Nhắc nhập số nước</div>
+                  <div class="settings-reminder-panel-note">Chọn số ngày ở cuối tháng trước và đầu tháng này để hệ thống nhắc chốt kỳ.</div>
+                </div>
+                <label class="settings-toggle-chip"><input type="checkbox" id="setReminderWaterEnabled" onchange="renderReminderSettingsControls()"> Bật</label>
+              </div>
+              <div class="settings-inline-field">
+                <div class="settings-run-block" style="flex:1 1 260px">
+                  <div class="settings-run-caption">Cuối tháng trước</div>
+                  <div id="reminderWaterTailGrid" class="settings-run-grid"></div>
+                </div>
+                <div class="form-group settings-mini-input">
+                  <label>Số ngày</label>
+                  <input type="number" class="form-input" id="setReminderWaterTailDays" min="0" placeholder="Ví dụ: 3" oninput="renderReminderSettingsControls()">
+                </div>
+              </div>
+              <div class="settings-inline-field">
+                <div class="settings-run-block" style="flex:1 1 260px">
+                  <div class="settings-run-caption">Đầu tháng này</div>
+                  <div id="reminderWaterHeadGrid" class="settings-run-grid"></div>
+                </div>
+                <div class="form-group settings-mini-input">
+                  <label>Số ngày</label>
+                  <input type="number" class="form-input" id="setReminderWaterHeadDays" min="0" placeholder="Ví dụ: 3" oninput="renderReminderSettingsControls()">
+                </div>
+              </div>
             </div>
-            <div class="settings-helper-note">
-              Rule nhắc việc dùng giờ thật của trình duyệt đang đăng nhập.
-              Tick "không show lại" thì chỉ ẩn trong session hiện tại, logout/login lại sẽ hiện lại theo rule.
+            <div class="settings-reminder-panel">
+              <div class="settings-reminder-panel-head">
+                <div>
+                  <div class="settings-reminder-panel-title">Nhắc thu tiền</div>
+                  <div class="settings-reminder-panel-note">Chọn các ngày trong tháng cần popup báo nhanh tình trạng bill UNPAID.</div>
+                </div>
+                <label class="settings-toggle-chip"><input type="checkbox" id="setReminderBillingEnabled" onchange="renderReminderSettingsControls()"> Bật</label>
+              </div>
+              <div class="settings-run-block">
+                <div class="settings-run-caption">Lịch chạy trong tháng</div>
+                <div id="reminderBillingDaysGrid" class="settings-day-grid"></div>
+                <input type="hidden" id="setReminderBillingDays">
+              </div>
             </div>
-          </div>
-          <div class="settings-reminder-grid" style="margin-top:14px">
-            <div class="form-group"><label>Nhắc nhập nước đầu tháng đến ngày</label><input type="number" class="form-input" id="setReminderWaterHeadDays" min="0" placeholder="Ví dụ: 3" oninput="renderReminderSettingsPreview()"></div>
-            <div class="form-group"><label>Nhắc nhập nước ở cuối tháng trước (số ngày)</label><input type="number" class="form-input" id="setReminderWaterTailDays" min="0" placeholder="Ví dụ: 3" oninput="renderReminderSettingsPreview()"></div>
-          </div>
-          <div class="form-group" style="margin-top:6px">
-            <label>Các ngày nhắc thu tiền trong tháng</label>
-            <input type="text" class="form-input" id="setReminderBillingDays" placeholder="Ví dụ: 5,7,8,10" oninput="renderReminderSettingsPreview()">
           </div>
           <div class="form-group">
             <label>Tin nhắn popup cho nhắc nhập số nước</label>
@@ -1641,13 +1705,19 @@ body.mobile-app .save-float{bottom:96px;right:16px}
           <div class="settings-preview-box" id="reminderSettingsPreview">Rule popup sẽ hiện ở đây để kiểm tra nhanh trước khi lưu.</div>
         </div>
         <div class="card" style="max-width:700px">
-          <h3 style="margin-bottom:16px">📊 Xuất dữ liệu</h3>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Xuất trọn bộ hồ sơ quản lý all-time để lưu trữ: tổng quan, bảng tiền tháng, bảng nước, bảng người ở, khách cũ, giấy tờ, lịch sử phòng và các bản sao lưu.</div>
+          <h3 class="settings-card-title">📊 Xuất dữ liệu</h3>
+          <div class="settings-card-note">Xuất hồ sơ quản lý để lưu trữ và đối soát: sổ trọ, bảng nước, người ở, khách cũ, giấy tờ và lịch sử vận hành.</div>
           <div class="export-stack">
-            <button class="btn btn-attention" id="settingsExportWorkbookBtn" type="button" onclick="exportCompleteManagementWorkbook()">📊 Xuất Excel toàn bộ dữ liệu quản lý</button>
+            <button class="btn btn-attention" id="settingsExportWorkbookBtn" type="button" onclick="openExportFrameModal('management')">📊 Xuất Excel toàn bộ dữ liệu quản lý</button>
             <button class="btn btn-outline" id="settingsExportDatabaseBtn" type="button" onclick="exportDatabaseZip()">🗂️ Xuất database ZIP đầy đủ hồ sơ</button>
           </div>
-          <div class="export-note-inline">CẦN BACKUP HẰNG THÁNG / QUÝ / NĂM để giữ bản đối soát ngoài database.</div>
+          <div class="export-note-inline">Nên backup định kỳ theo tháng / quý / năm để luôn có bản đối soát ngoài database.</div>
+        </div>
+        <div class="card" style="max-width:900px">
+          <h3 class="settings-card-title">🗓️ Khung năm hoạt động</h3>
+          <div class="settings-card-note">Dùng để khóa sổ theo năm phục vụ quản trị và thuế. Năm đã đóng sẽ chuyển sang read-only, vẫn có thể mở khóa lại khi cần; khách đang ở cuối năm sẽ được carry forward sang năm kế tiếp.</div>
+          <div id="yearFrameSettingsBox" class="year-frame-grid"></div>
+          <div id="yearFrameSettingsNote" class="year-frame-db-note" style="display:none"></div>
         </div>
         <button class="btn btn-primary" id="saveSettingsBtn" style="padding:14px 32px;margin-top:8px" onclick="saveSettings()">💾 Lưu cài đặt</button>
       </div>
@@ -1780,6 +1850,7 @@ const AUTH_SESSION_STARTED_KEY = 'nhatro_auth_session_started_at_v1';
 const AUTH_SESSION_NOTICE_KEY = 'nhatro_auth_session_notice_v1';
 const LOGIN_REMINDER_SUPPRESS_KEY = 'nhatro_login_reminder_suppressed_v1';
 const LOGIN_REMINDER_CONFIG_KEY = 'nhatro_login_reminder_config_v1';
+const YEAR_FRAME_CONFIG_KEY = 'nhatro_year_frame_config_v1';
 const RESIDENT_LIVE_DEFAULT_ROWS = 20;
 const MOBILE_BREAKPOINT = 900;
 const AUTH_SESSION_MAX_MS = 120 * 60 * 1000;
@@ -1791,6 +1862,13 @@ const DEFAULT_LOGIN_REMINDER_CONFIG = {
   billingDays: [5, 7, 8, 10],
   waterMessage: '',
   billingMessage: ''
+};
+const REMINDER_WINDOW_PRESET_DAYS = [0, 1, 2, 3, 4, 5, 6, 7];
+const REMINDER_MONTH_DAYS = Array.from({ length: 31 }, (_, index) => index + 1);
+const DEFAULT_YEAR_FRAME_CONFIG = {
+  closedYears: [],
+  unlockedYears: [],
+  wrapups: {}
 };
 
 let sb = null; // Supabase client
@@ -1819,6 +1897,7 @@ let exportFrameState = {
   year: String(new Date().getFullYear())
 };
 let mobileMode = false;
+let yearFrameConfigCache = null;
 
 function isMobileDeviceContext() {
   const widthMatch = window.matchMedia(`(max-width:${MOBILE_BREAKPOINT}px)`).matches;
@@ -1928,17 +2007,282 @@ function getLoginReminderConfigFromInputs() {
   });
 }
 
+function setReminderWaterWindow(edge = 'head', value = 0) {
+  const inputId = edge === 'tail' ? 'setReminderWaterTailDays' : 'setReminderWaterHeadDays';
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.value = Math.max(0, parseInt(value, 10) || 0);
+  renderReminderSettingsControls();
+}
+
+function toggleReminderBillingDay(day) {
+  const input = document.getElementById('setReminderBillingDays');
+  if (!input) return;
+  const targetDay = parseInt(day, 10);
+  if (!Number.isFinite(targetDay) || targetDay < 1 || targetDay > 31) return;
+  const nextDays = normalizeReminderDayList(input.value);
+  const nextSet = new Set(nextDays);
+  if (nextSet.has(targetDay)) nextSet.delete(targetDay);
+  else nextSet.add(targetDay);
+  input.value = [...nextSet].sort((a, b) => a - b).join(',');
+  renderReminderSettingsControls();
+}
+
+function renderReminderQuickRunGrid(targetId, selectedValue, edge = 'head') {
+  const box = document.getElementById(targetId);
+  if (!box) return;
+  const current = Math.max(0, parseInt(selectedValue, 10) || 0);
+  box.innerHTML = REMINDER_WINDOW_PRESET_DAYS.map(day => `
+    <button
+      type="button"
+      class="settings-run-chip ${day === current ? 'active' : ''}"
+      onclick="setReminderWaterWindow('${edge}', ${day})"
+    >${day}</button>
+  `).join('');
+}
+
+function renderReminderBillingDayGrid(selectedDays = []) {
+  const box = document.getElementById('reminderBillingDaysGrid');
+  if (!box) return;
+  const selected = new Set(normalizeReminderDayList(selectedDays));
+  box.innerHTML = REMINDER_MONTH_DAYS.map(day => `
+    <button
+      type="button"
+      class="settings-day-chip ${selected.has(day) ? 'active' : ''}"
+      onclick="toggleReminderBillingDay(${day})"
+    >${day}</button>
+  `).join('');
+}
+
+function renderReminderSettingsControls() {
+  renderReminderQuickRunGrid('reminderWaterTailGrid', document.getElementById('setReminderWaterTailDays')?.value, 'tail');
+  renderReminderQuickRunGrid('reminderWaterHeadGrid', document.getElementById('setReminderWaterHeadDays')?.value, 'head');
+  renderReminderBillingDayGrid(document.getElementById('setReminderBillingDays')?.value || '');
+  renderReminderSettingsPreview();
+}
+
 function renderReminderSettingsPreview() {
   const el = document.getElementById('reminderSettingsPreview');
   if (!el) return;
   const cfg = getLoginReminderConfigFromInputs();
   const billingDaysText = cfg.billingDays.length ? cfg.billingDays.join(', ') : 'chưa có ngày nào';
   el.innerHTML = `
-    <div><strong>Nhắc nhập nước:</strong> ${cfg.waterEnabled ? `bật từ ngày 1 đến ngày ${cfg.waterHeadDays} và ${cfg.waterTailDays} ngày cuối tháng trước.` : 'đang tắt.'}</div>
-    <div><strong>Nhắc thu tiền:</strong> ${cfg.billingEnabled ? `bật vào các ngày ${billingDaysText} hằng tháng.` : 'đang tắt.'}</div>
-    <div><strong>Tin nhắn nhập nước:</strong> ${esc(cfg.waterMessage || 'Dùng nội dung mặc định của hệ thống.')}</div>
-    <div><strong>Tin nhắn thu tiền:</strong> ${esc(cfg.billingMessage || 'Dùng nội dung mặc định của hệ thống.')}</div>
+    <div><strong>Nhắc nhập nước:</strong> ${cfg.waterEnabled ? `${cfg.waterTailDays} ngày cuối tháng trước + ${cfg.waterHeadDays} ngày đầu tháng này.` : 'Đang tắt.'}</div>
+    <div><strong>Nhắc thu tiền:</strong> ${cfg.billingEnabled ? `Các ngày ${billingDaysText} trong tháng.` : 'Đang tắt.'}</div>
+    <div><strong>Nội dung popup nhập nước:</strong> ${esc(cfg.waterMessage || 'Dùng nội dung mặc định của hệ thống.')}</div>
+    <div><strong>Nội dung popup thu tiền:</strong> ${esc(cfg.billingMessage || 'Dùng nội dung mặc định của hệ thống.')}</div>
   `;
+}
+
+function hasYearFrameConfigColumn() {
+  return !!(appData.settings && Object.prototype.hasOwnProperty.call(appData.settings, 'year_frame_config'));
+}
+
+function normalizeYearList(value) {
+  return [...new Set((Array.isArray(value) ? value : [])
+    .map(item => parseInt(item, 10))
+    .filter(year => Number.isFinite(year) && year >= getCycleStartYear(BUSINESS_START_DATE)))]
+    .sort((a, b) => a - b);
+}
+
+function normalizeCarryForwardRow(row = {}) {
+  return {
+    tenant_id: row.tenant_id || row.original_tenant_id || '',
+    full_name: String(row.full_name || '').trim(),
+    room_number: row.room_number ?? '',
+    move_in_date: row.move_in_date || '',
+    deposit_amount: parseInt(row.deposit_amount, 10) || 0,
+    hot_water: row.hot_water ?? '',
+    cold_water: row.cold_water ?? '',
+    source_label: row.source_label || ''
+  };
+}
+
+function normalizeYearFrameConfig(raw = {}) {
+  const cfg = raw || {};
+  const closedYears = normalizeYearList(cfg.closedYears);
+  const unlockedYears = normalizeYearList(cfg.unlockedYears).filter(year => closedYears.includes(year));
+  const rawWrapups = cfg.wrapups && typeof cfg.wrapups === 'object' ? cfg.wrapups : {};
+  const wrapups = {};
+  Object.entries(rawWrapups).forEach(([yearKey, value]) => {
+    const year = parseInt(yearKey, 10);
+    if (!Number.isFinite(year)) return;
+    const wrap = value || {};
+    wrapups[year] = {
+      year,
+      closedAt: wrap.closedAt || '',
+      cycleCount: parseInt(wrap.cycleCount, 10) || 0,
+      lastCycle: wrap.lastCycle || '',
+      carryForwardCount: parseInt(wrap.carryForwardCount, 10) || 0,
+      carryForwardHouseholds: Array.isArray(wrap.carryForwardHouseholds)
+        ? wrap.carryForwardHouseholds.map(normalizeCarryForwardRow)
+        : []
+    };
+  });
+  return { closedYears, unlockedYears, wrapups };
+}
+
+function getStoredYearFrameConfig() {
+  try {
+    return JSON.parse(localStorage.getItem(YEAR_FRAME_CONFIG_KEY) || '{}') || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function getYearFrameConfig() {
+  if (hasYearFrameConfigColumn() && appData.settings?.year_frame_config) {
+    yearFrameConfigCache = normalizeYearFrameConfig(appData.settings.year_frame_config);
+    return yearFrameConfigCache;
+  }
+  if (yearFrameConfigCache) return normalizeYearFrameConfig(yearFrameConfigCache);
+  yearFrameConfigCache = normalizeYearFrameConfig(getStoredYearFrameConfig());
+  return yearFrameConfigCache;
+}
+
+function saveYearFrameConfigLocal(config = {}) {
+  const normalized = normalizeYearFrameConfig(config);
+  yearFrameConfigCache = normalized;
+  localStorage.setItem(YEAR_FRAME_CONFIG_KEY, JSON.stringify(normalized));
+}
+
+async function persistYearFrameConfig(config = {}) {
+  const normalized = normalizeYearFrameConfig(config);
+  if (hasYearFrameConfigColumn()) {
+    const { error } = await sb.from('settings').update({ year_frame_config: normalized }).eq('id', appData.settings.id);
+    if (error) throw error;
+    appData.settings.year_frame_config = normalized;
+  }
+  saveYearFrameConfigLocal(normalized);
+  return { ok: true, persistedToDb: hasYearFrameConfigColumn() };
+}
+
+function getYearStartIso(year) {
+  return `${year}-01-01`;
+}
+
+function getYearEndIso(year) {
+  return `${year}-12-31`;
+}
+
+function overlapsIsoRange(startDate, endDate, rangeStart, rangeEnd) {
+  if (!startDate) return false;
+  return String(startDate) <= String(rangeEnd) && (!endDate || String(endDate) >= String(rangeStart));
+}
+
+function buildTenantMoveOutDateMap(dataset = {}) {
+  const moveOutByTenantId = new Map();
+  const remember = (tenantId, dateValue) => {
+    if (!tenantId || !dateValue) return;
+    const iso = String(dateValue).slice(0, 10);
+    if (!iso) return;
+    const existing = moveOutByTenantId.get(tenantId);
+    if (!existing || String(iso) > String(existing)) {
+      moveOutByTenantId.set(tenantId, iso);
+    }
+  };
+  (dataset.checkouts || []).forEach(row => {
+    remember(row.tenant_id, row.checkout_date || row.move_out_date || '');
+  });
+  (dataset.archivedTenants || []).forEach(row => {
+    remember(row.original_tenant_id, row.move_out_date || row.checkout_date || '');
+  });
+  return moveOutByTenantId;
+}
+
+function getTenantMoveOutDate(moveOutByTenantId, tenantId) {
+  if (!tenantId || !(moveOutByTenantId instanceof Map)) return '';
+  return moveOutByTenantId.get(tenantId) || '';
+}
+
+function getTenantRangeEndDate(row = {}, moveOutByTenantId = new Map()) {
+  return getTenantMoveOutDate(moveOutByTenantId, row?.id || '');
+}
+
+function canCloseOperationalYear(year) {
+  const targetYear = Number(year);
+  if (!Number.isFinite(targetYear)) return false;
+  const finalCycleStart = `${targetYear}-12-01`;
+  const finalCycleEnd = getNextCycleStart(finalCycleStart);
+  return getTodayIsoLocal() >= finalCycleEnd;
+}
+
+function isOperationalYearClosed(year) {
+  return getYearFrameConfig().closedYears.includes(Number(year));
+}
+
+function isOperationalYearUnlocked(year) {
+  return getYearFrameConfig().unlockedYears.includes(Number(year));
+}
+
+function isCycleLockedByYearFrame(cycleStart) {
+  const year = getCycleStartYear(cycleStart);
+  return isOperationalYearClosed(year) && !isOperationalYearUnlocked(year);
+}
+
+function getYearFrameLockMessage(cycleStart, actionText = 'chỉnh sửa dữ liệu') {
+  const year = getCycleStartYear(cycleStart);
+  return `Năm ${year} đã được đóng sổ theo khung năm nên đang ở trạng thái read-only. Muốn ${actionText}, vào Cài đặt và bấm "Mở khóa chỉnh sửa" cho năm ${year}.`;
+}
+
+function buildCarryForwardRowsFromArchiveData(dataset = {}, year) {
+  const targetYear = Number(year);
+  if (!Number.isFinite(targetYear)) return [];
+  const yearEnd = getYearEndIso(targetYear);
+  const moveOutByTenantId = buildTenantMoveOutDateMap(dataset);
+  const roomMap = new Map((dataset.rooms || []).map(room => [room.id, room.room_number]));
+  const readingCandidates = (dataset.readings || [])
+    .filter(row => row?.tenant_id && row?.reading_date && String(row.reading_date) <= yearEnd)
+    .sort((a, b) => String(b.reading_date || '').localeCompare(String(a.reading_date || '')));
+  const latestReadingByTenant = new Map();
+  readingCandidates.forEach(row => {
+    if (!latestReadingByTenant.has(row.tenant_id)) latestReadingByTenant.set(row.tenant_id, row);
+  });
+  const rows = [];
+  const seen = new Set();
+
+  (dataset.tenants || []).forEach(row => {
+    if (!row?.move_in_date || String(row.move_in_date) > yearEnd) return;
+    const moveOutDate = getTenantRangeEndDate(row, moveOutByTenantId);
+    if (moveOutDate && String(moveOutDate) <= yearEnd) return;
+    const key = `active:${row.id}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    const reading = latestReadingByTenant.get(row.id);
+    rows.push(normalizeCarryForwardRow({
+      tenant_id: row.id,
+      full_name: row.full_name,
+      room_number: roomMap.get(row.room_id) || row.room_number || '',
+      move_in_date: row.move_in_date,
+      deposit_amount: row.deposit_amount || 0,
+      hot_water: reading?.hot_water_current ?? row.last_hot_water_reading ?? '',
+      cold_water: reading?.cold_water_current ?? row.last_cold_water_reading ?? '',
+      source_label: 'Đang ở cuối năm'
+    }));
+  });
+
+  return rows.sort((a, b) => {
+    const roomDiff = Number(a.room_number || 0) - Number(b.room_number || 0);
+    if (roomDiff) return roomDiff;
+    return String(a.full_name || '').localeCompare(String(b.full_name || ''), 'vi');
+  });
+}
+
+function getYearWrapupData(year, dataset = null) {
+  const cfg = getYearFrameConfig();
+  const fromConfig = cfg.wrapups?.[year];
+  if (fromConfig?.carryForwardHouseholds?.length || fromConfig?.cycleCount || fromConfig?.closedAt) return fromConfig;
+  if (!dataset) return null;
+  const cycleStarts = buildCycleStartsForExportFrame('single_year', String(year), dataset.cycleStarts || getTrackedCycleStarts());
+  const carryForwardHouseholds = buildCarryForwardRowsFromArchiveData(dataset, year);
+  return {
+    year,
+    closedAt: '',
+    cycleCount: cycleStarts.length,
+    lastCycle: cycleStarts[cycleStarts.length - 1] || '',
+    carryForwardCount: carryForwardHouseholds.length,
+    carryForwardHouseholds
+  };
 }
 
 function formatSessionRemaining(ms = 0) {
@@ -2626,22 +2970,28 @@ function getNextCycleStart(cycleStart) {
   return formatIsoDate(d);
 }
 
-function canEditWaterCycle(cycleStart, today = getTodayIsoLocal()) {
+function hasCycleReachedSettlementDate(cycleStart, today = getTodayIsoLocal()) {
   return !!cycleStart && String(today) >= getNextCycleStart(cycleStart);
+}
+
+function canEditWaterCycle(cycleStart, today = getTodayIsoLocal()) {
+  return hasCycleReachedSettlementDate(cycleStart, today) && !isCycleLockedByYearFrame(cycleStart);
 }
 
 function getWaterCycleLockMessage(cycleStart, today = getTodayIsoLocal()) {
   if (!cycleStart) return 'Chưa chọn kỳ nhập số nước.';
+  if (isCycleLockedByYearFrame(cycleStart)) return getYearFrameLockMessage(cycleStart, 'nhập số nước');
   const openDate = getNextCycleStart(cycleStart);
   return `Kỳ ${getPeriodMonthTitle(cycleStart).replace('THÁNG', 'Tháng')} chỉ được nhập số nước từ ${fmtDate(openDate)} trở đi. Hôm nay là ${fmtDate(today)} nên vẫn khóa. Nếu giữa kỳ có phát sinh, xử lý bằng nghiệp vụ khách vào/trả phòng.`;
 }
 
 function canEditBillingCycle(cycleStart, today = getTodayIsoLocal()) {
-  return !!cycleStart && String(today) >= getNextCycleStart(cycleStart);
+  return hasCycleReachedSettlementDate(cycleStart, today) && !isCycleLockedByYearFrame(cycleStart);
 }
 
 function getBillingCycleLockMessage(cycleStart, today = getTodayIsoLocal()) {
   if (!cycleStart) return 'Chưa chọn kỳ tính tiền.';
+  if (isCycleLockedByYearFrame(cycleStart)) return getYearFrameLockMessage(cycleStart, 'tính tiền');
   const openDate = getNextCycleStart(cycleStart);
   return `Kỳ ${getPeriodMonthTitle(cycleStart).replace('THÁNG', 'Tháng')} chỉ được tính tiền từ ${fmtDate(openDate)} trở đi vì trước đó tháng vẫn chưa kết thúc. Hôm nay là ${fmtDate(today)} nên form tính tiền vẫn khóa hoàn toàn.`;
 }
@@ -2714,11 +3064,11 @@ function renderPeriodPicker(kind) {
   input.value = selected;
   const options = getPeriodOptions();
   dropdown.innerHTML = options.map(opt => `
-    <button type="button" class="period-card ${opt.monthValue === selected ? 'active' : ''} ${((kind === 'billing' || kind === 'water') && opt.monthValue > currentMonth) || (kind === 'billing' && !canEditBillingCycle(opt.cycleStart)) || (kind === 'water' && !canEditWaterCycle(opt.cycleStart)) ? 'disabled' : ''} ${(kind === 'dashboard' && !canEditBillingCycle(opt.cycleStart)) ? 'attention' : ''}" onclick="selectPeriod('${kind}','${opt.monthValue}', event)" ${((kind === 'billing' || kind === 'water') && opt.monthValue > currentMonth) || (kind === 'billing' && !canEditBillingCycle(opt.cycleStart)) || (kind === 'water' && !canEditWaterCycle(opt.cycleStart)) ? 'disabled' : ''}>
+    <button type="button" class="period-card ${opt.monthValue === selected ? 'active' : ''} ${((kind === 'billing' || kind === 'water') && opt.monthValue > currentMonth) || (kind === 'billing' && !canEditBillingCycle(opt.cycleStart)) || (kind === 'water' && !canEditWaterCycle(opt.cycleStart)) ? 'disabled' : ''} ${(kind === 'dashboard' && !hasCycleReachedSettlementDate(opt.cycleStart)) ? 'attention' : ''}" onclick="selectPeriod('${kind}','${opt.monthValue}', event)" ${((kind === 'billing' || kind === 'water') && opt.monthValue > currentMonth) || (kind === 'billing' && !canEditBillingCycle(opt.cycleStart)) || (kind === 'water' && !canEditWaterCycle(opt.cycleStart)) ? 'disabled' : ''}>
       <div class="period-card-title">${getPeriodMonthTitle(opt.cycleStart)}</div>
       <div class="period-card-range">${fmtDate(opt.cycleStart)} → ${fmtDate(opt.cycleEnd)}</div>
-      ${((kind === 'billing' && !canEditBillingCycle(opt.cycleStart)) || (kind === 'water' && !canEditWaterCycle(opt.cycleStart))) ? '<div class="period-card-note">Chưa tới kỳ, chỉ ghi nhận khách ra/vào trong giai đoạn này.</div>' : ''}
-      ${(kind === 'dashboard' && !canEditBillingCycle(opt.cycleStart)) ? '<div class="period-card-note"><strong>CHƯA ĐẾN HẠN TẤT TOÁN CỦA KỲ</strong></div>' : ''}
+${((kind === 'billing' && !canEditBillingCycle(opt.cycleStart)) || (kind === 'water' && !canEditWaterCycle(opt.cycleStart))) ? `<div class="period-card-note">${isCycleLockedByYearFrame(opt.cycleStart) ? 'Năm này đã đóng sổ, muốn sửa hãy mở khóa năm trong Cài đặt.' : 'Chưa tới kỳ, chỉ ghi nhận khách ra/vào trong giai đoạn này.'}</div>` : ''}
+${(kind === 'dashboard' && !hasCycleReachedSettlementDate(opt.cycleStart)) ? '<div class="period-card-note"><strong>CHƯA ĐẾN HẠN TẤT TOÁN CỦA KỲ</strong></div>' : ''}
     </button>
   `).join('');
   syncPeriodPicker(kind);
@@ -3527,7 +3877,7 @@ function buildDepositMetricDetailsHtml(totalHeldDeposit = 0) {
       <summary>Chi tiết</summary>
       <div class="overview-metric-details-body">
         <div><strong>Tổng tiền cọc đang giữ:</strong> ${fmt(totalHeldDeposit)}</div>
-        <div>Tiền cọc là line riêng, không cộng vào doanh thu hoặc lợi nhuận.</div>
+        <div>Tiền cọc không cộng vào doanh thu hoặc lợi nhuận</div>
       </div>
     </details>
   `;
@@ -4229,7 +4579,7 @@ function buildDepositSummaryRows() {
 
 function buildDepositTableHtml(rows = []) {
   if (!rows.length) {
-    return '<div class="overview-empty" style="padding:18px">Hiện chưa có tiền cọc nào đang giữ.</div>';
+    return '<div class="overview-empty" style="padding:18px">Hiện chưa giữ cọc nào.</div>';
   }
   return `
     <div class="overview-table-wrap">
@@ -4278,7 +4628,7 @@ function buildDepositActivityHtml(moveIns = [], checkouts = []) {
   ].sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
 
   if (!entries.length) {
-    return '<div class="overview-empty" style="padding:18px">Tháng này chưa có phát sinh cọc.</div>';
+    return '<div class="overview-empty" style="padding:18px">Tháng này chưa phát sinh cọc.</div>';
   }
 
   return `
@@ -4467,10 +4817,10 @@ async function renderDashboard(skipReload = false) {
           <summary class="overview-section-summary">
             <div>
               <div class="overview-kicker">Toàn thời gian</div>
-              <div class="overview-section-title">Tổng lũy kế</div>
-              <div class="overview-section-note">Ấn để xem toàn bộ lũy kế vận hành, tiền cọc đang giữ và chi tiết theo từng tháng.</div>
+              <div class="overview-section-title">Lũy kế vận hành</div>
+              <div class="overview-section-note">Xem doanh thu, chi phí, lợi nhuận và tiền cọc đang giữ từ đầu tới hiện tại.</div>
             </div>
-            <div class="overview-toggle-hint">Ấn để mở</div>
+            <div class="overview-toggle-hint">Mở chi tiết</div>
           </summary>
           <div class="overview-lifetime-body">
             <div class="overview-summary-grid overview-summary-grid-alltime">
@@ -4504,7 +4854,7 @@ async function renderDashboard(skipReload = false) {
         <div class="overview-section-head">
           <div>
             <div class="overview-section-title overview-section-title-emphasis">${getPeriodMonthTitle(month).replace('THÁNG ', 'BẢNG TIỀN THÁNG ')}</div>
-            <div class="overview-section-note">Lưu ý: nhập số điện cũ/mới và ghi chú nếu cần và lưu lại rồi mới xuất file excel.</div>
+            <div class="overview-section-note">Nhập số điện và ghi chú nếu cần, lưu lại rồi mới xuất Excel.</div>
           </div>
           <div class="overview-actions">
             <button class="btn btn-outline" type="button" onclick="toggleOverviewFinanceDetailColumns()">${isOverviewFinanceDetailExpanded() ? '▾ Ẩn cột phụ' : '▸ Hiện cột phụ'}</button>
@@ -4521,8 +4871,8 @@ async function renderDashboard(skipReload = false) {
       <section class="overview-section overview-month-shell">
         <div class="overview-section-head">
           <div>
-            <div class="overview-section-title">${getPeriodMonthTitle(month).replace('THÁNG', 'Tháng')}</div>
-            <div class="overview-section-note">Đưa xuống dưới bảng tiền tháng để đối chiếu xong từng dòng rồi mới nhìn số tổng kết.</div>
+            <div class="overview-section-title">${getPeriodMonthTitle(month).replace('THÁNG ', 'BẢNG TỔNG KẾT THÁNG ')}</div>
+            <div class="overview-section-note">Rà xong từng dòng bill ở bảng trên rồi hãy nhìn khối tổng kết này.</div>
           </div>
         </div>
         <div class="overview-summary-grid overview-summary-grid-month overview-summary-grid-5">
@@ -4558,11 +4908,11 @@ async function renderDashboard(skipReload = false) {
       <section class="overview-section">
         <details class="overview-collapsible">
           <summary>
-            <span>Tiền cọc đang giữ và phát sinh tháng</span>
-            <span>Ấn để mở</span>
+            <span>TIỀN CỌC VÀ PHÁT SINH THÁNG</span>
+            <span>Mở chi tiết</span>
           </summary>
           <div class="overview-collapsible-body">
-            <div class="overview-section-note" style="margin:0 0 12px">Tiền cọc là line riêng, không cộng vào doanh thu hoặc lợi nhuận.</div>
+            <div class="overview-section-note" style="margin:2px 0 12px">Tiền cọc không cộng vào doanh thu hay lợi nhuận.</div>
             <div class="overview-split-grid">
               <div>
                 <div class="overview-block-title">Cọc đang giữ hiện tại</div>
@@ -4581,7 +4931,7 @@ async function renderDashboard(skipReload = false) {
         <details class="overview-collapsible">
           <summary>
             <span>BẢNG NGƯỜI Ở HIỆN TẠI</span>
-            <span>Ấn để mở</span>
+            <span>Mở chi tiết</span>
           </summary>
           <div class="overview-collapsible-body">
             ${buildOverviewResidentsTableHtml(residentRows)}
@@ -5608,28 +5958,30 @@ async function fetchAllManagementArchiveData() {
 
 function buildArchiveGuideRows(dataset = {}) {
   return [
-    ['NHÀ TRỌ ĐẶNG ĐƯỢC - HƯỚNG DẪN ĐỐI SOÁT DỮ LIỆU'],
+    ['NHÀ TRỌ ĐẶNG ĐƯỢC - MỤC LỤC HỒ SƠ LƯU TRỮ'],
     ['Ngày xuất', `${getTodayIsoLocal()} ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`],
-    ['Tổng số kỳ đã theo dõi', String(dataset.cycleStarts?.length || 0)],
-    ['Tổng phòng', String(dataset.rooms?.length || 0)],
-    ['Chủ hộ đang active', String((dataset.tenants || []).filter(row => row.is_active).length)],
-    ['Khách cũ / archived', String(dataset.archivedTenants?.length || 0)],
-    ['Người nhà đang lưu', String(dataset.occupants?.length || 0)],
+    ['Tổng số kỳ đang lưu', String(dataset.cycleStarts?.length || 0)],
+    ['Tổng số phòng', String(dataset.rooms?.length || 0)],
+    ['Chủ hộ đang ở', String((dataset.tenants || []).filter(row => row.is_active).length)],
+    ['Khách cũ', String(dataset.archivedTenants?.length || 0)],
+    ['Người nhà', String(dataset.occupants?.length || 0)],
     ['Giấy tờ liên quan', String(dataset.tenantDocuments?.length || 0)],
-    ['Ảnh hiện trạng phòng', String(dataset.roomPhotos?.length || 0)],
+    ['Hiện trạng phòng', String(dataset.roomPhotos?.length || 0)],
     ['Tài liệu chung', String(dataset.generalDocuments?.length || 0)],
+    ['Sổ năm đã đóng', (getYearFrameConfig().closedYears || []).join(', ') || 'Chưa có'],
     [''],
-    ['Cách đọc file'],
-    ['1', 'Mở sheet Tong_quan để xem tổng quan vận hành từ đầu tới cuối.'],
-    ['2', 'Mở Bang_tien_thang và Bang_nuoc để đối chiếu tiền và số nước theo từng kỳ.'],
-    ['3', 'Mở Phong_master, Khach_dang_o, Khach_cu, Nguoi_nha để xem hồ sơ quản lý.'],
-    ['4', 'Mở Lich_su_bill, Lich_su_nuoc, Khach_vao, Khach_ra, Sheet_thang_raw để đối soát lịch sử vận hành.'],
-    ['5', 'Mở Giay_to_lien_quan, Hien_trang_phong, Tai_lieu_chung để tra lại file đã lưu trên hệ thống.']
+    ['Trình tự đối soát'],
+    ['1', 'Mở Tong_quan để xem doanh thu, chi phí, lợi nhuận và tiền cọc theo toàn bộ kỳ.'],
+    ['2', 'Mở Bang_tien_thang và Bang_nuoc để đối chiếu tiền, điện, nước theo từng kỳ.'],
+    ['3', 'Mở Nguoi_dang_o, Khach_dang_o, Khach_cu, Nguoi_nha để tra hồ sơ cư trú.'],
+    ['4', 'Mở Khach_vao, Khach_ra, Lich_su_bill, Lich_su_nuoc để tra lịch sử vận hành.'],
+    ['5', 'Mở Giay_to_lien_quan, Hien_trang_phong, Tai_lieu_chung để tra file scan và ảnh lưu trữ.']
   ];
 }
 
 function buildSettingsExportRows(settingsRow = {}) {
   const reminderConfig = getLoginReminderConfig();
+  const yearFrameConfig = getYearFrameConfig();
   return [{
     owner_name: settingsRow.owner_name || '',
     owner_phone: settingsRow.owner_phone || '',
@@ -5649,9 +6001,153 @@ function buildSettingsExportRows(settingsRow = {}) {
     login_reminder_billing_days: (reminderConfig.billingDays || []).join(', '),
     login_reminder_water_message: reminderConfig.waterMessage || '',
     login_reminder_billing_message: reminderConfig.billingMessage || '',
+    year_frame_closed_years: (yearFrameConfig.closedYears || []).join(', '),
+    year_frame_unlocked_years: (yearFrameConfig.unlockedYears || []).join(', '),
     updated_at: settingsRow.updated_at || '',
     qr_image_url: settingsRow.qr_image_url || ''
   }];
+}
+
+function buildYearFrameExportSheet(dataset = {}) {
+  const years = getTrackedYears(dataset.cycleStarts || getTrackedCycleStarts());
+  const cfg = getYearFrameConfig();
+  const rows = [
+    ['Năm hoạt động', 'Trạng thái sổ', 'Số kỳ theo dõi', 'Kỳ cuối năm', 'Ngày khóa sổ', 'Số hộ carry forward', 'Ghi chú']
+  ];
+  years.forEach(year => {
+    const wrapup = getYearWrapupData(year, dataset) || {};
+    const status = isOperationalYearClosed(year)
+      ? (isOperationalYearUnlocked(year) ? 'Đã khóa sổ nhưng đang mở chỉnh sửa' : 'Đã khóa sổ read-only')
+      : (canCloseOperationalYear(year) ? 'Đã qua mốc 1/1 năm sau, có thể khóa sổ' : 'Đang vận hành, chờ chốt kỳ 1/12 → 1/1');
+    rows.push([
+      year,
+      status,
+      wrapup.cycleCount || buildCycleStartsForExportFrame('single_year', String(year), dataset.cycleStarts || getTrackedCycleStarts()).length,
+      wrapup.lastCycle ? getPeriodMonthTitle(wrapup.lastCycle).replace('THÁNG', 'Tháng') : '',
+      wrapup.closedAt ? formatSnapshotMoment(wrapup.closedAt) : '',
+      wrapup.carryForwardCount || 0,
+      (wrapup.carryForwardHouseholds || []).length
+        ? (wrapup.carryForwardHouseholds || []).map(item => `P${item.room_number}: ${item.full_name}`).join(' | ')
+        : (cfg.closedYears.includes(year) ? 'Không có hộ carry forward.' : 'Chưa khóa sổ năm này.')
+    ]);
+  });
+  return XLSX.utils.aoa_to_sheet(rows);
+}
+
+function getYearArchiveFolderLabel(year) {
+  return year === new Date().getFullYear()
+    ? `${year}_TU_DAU_NAM_DEN_HIEN_TAI`
+    : String(year);
+}
+
+function buildYearArchiveScopes(dataset = {}) {
+  return getTrackedYears(dataset.cycleStarts || getTrackedCycleStarts()).map(year => ({
+    year,
+    folderLabel: getYearArchiveFolderLabel(year),
+    rangeStart: getYearStartIso(year),
+    rangeEnd: year === new Date().getFullYear() ? getTodayIsoLocal() : getYearEndIso(year),
+    cycleStarts: buildCycleStartsForExportFrame('single_year', String(year), dataset.cycleStarts || getTrackedCycleStarts())
+  }));
+}
+
+function filterRowsByBillingYear(rows = [], year) {
+  return (rows || []).filter(row => row?.billing_month && getCycleStartYear(row.billing_month) === Number(year));
+}
+
+function filterRowsByTimestampYear(rows = [], year, field = 'created_at') {
+  return (rows || []).filter(row => {
+    const value = row?.[field];
+    if (!value) return false;
+    const date = new Date(value);
+    return !Number.isNaN(date.getTime()) && date.getFullYear() === Number(year);
+  });
+}
+
+function getEntityOverlapYears(startDate, endDate, scopes = []) {
+  return (scopes || [])
+    .filter(scope => overlapsIsoRange(startDate, endDate, scope.rangeStart, scope.rangeEnd))
+    .map(scope => scope.year);
+}
+
+function getCarryForwardRowsForYear(dataset = {}, year) {
+  const wrapup = getYearWrapupData(year, dataset);
+  return Array.isArray(wrapup?.carryForwardHouseholds) && wrapup.carryForwardHouseholds.length
+    ? wrapup.carryForwardHouseholds
+    : buildCarryForwardRowsFromArchiveData(dataset, year);
+}
+
+function buildYearScopedDataset(dataset = {}, year) {
+  const targetYear = Number(year);
+  const cycleStarts = buildCycleStartsForExportFrame('single_year', String(targetYear), dataset.cycleStarts || getTrackedCycleStarts());
+  const monthBundles = (dataset.monthBundles || []).filter(bundle => bundle?.month && getCycleStartYear(bundle.month) === targetYear);
+  const bills = filterRowsByBillingYear(dataset.bills || [], targetYear);
+  const readings = filterRowsByBillingYear(dataset.readings || [], targetYear);
+  const moveIns = filterRowsByBillingYear(dataset.moveIns || [], targetYear);
+  const checkouts = filterRowsByBillingYear(dataset.checkouts || [], targetYear);
+  const sheetRows = filterRowsByBillingYear(dataset.sheetRows || [], targetYear);
+  const yearStart = getYearStartIso(targetYear);
+  const yearEnd = targetYear === new Date().getFullYear() ? getTodayIsoLocal() : getYearEndIso(targetYear);
+  const moveOutByTenantId = buildTenantMoveOutDateMap(dataset);
+  const tenantRowsInYear = (dataset.tenants || []).filter(row =>
+    overlapsIsoRange(row.move_in_date, getTenantRangeEndDate(row, moveOutByTenantId), yearStart, yearEnd)
+  );
+  const carryForwardTenants = tenantRowsInYear.filter(row => {
+    const moveOutDate = getTenantRangeEndDate(row, moveOutByTenantId);
+    return !moveOutDate || String(moveOutDate) > yearEnd;
+  });
+  const archivedTenants = (dataset.archivedTenants || []).filter(row =>
+    row?.move_out_date && String(row.move_out_date) >= yearStart && String(row.move_out_date) <= yearEnd
+  );
+  const activeIds = new Set(tenantRowsInYear.map(row => row.id));
+  const archivedIds = new Set(archivedTenants.map(row => row.original_tenant_id).filter(Boolean));
+  const roomIds = new Set([
+    ...tenantRowsInYear.map(row => row.room_id).filter(Boolean),
+    ...sheetRows.map(row => row.room_id).filter(Boolean),
+    ...bills.map(row => row.room_id).filter(Boolean),
+    ...readings.map(row => row.room_id).filter(Boolean),
+    ...moveIns.map(row => row.room_id).filter(Boolean),
+    ...checkouts.map(row => row.room_id).filter(Boolean)
+  ]);
+  const occupants = (dataset.occupants || []).filter(row => activeIds.has(row.tenant_id) || archivedIds.has(row.tenant_id));
+  const tenantDocuments = (dataset.tenantDocuments || []).filter(row =>
+    activeIds.has(row.tenant_id)
+    || archivedIds.has(row.tenant_id)
+    || (row.room_id && roomIds.has(row.room_id) && filterRowsByTimestampYear([row], targetYear).length)
+  );
+  const roomPhotos = (dataset.roomPhotos || []).filter(row =>
+    activeIds.has(row.tenant_id)
+    || archivedIds.has(row.tenant_id)
+    || (row.room_id && roomIds.has(row.room_id) && filterRowsByTimestampYear([row], targetYear).length)
+  );
+  const generalDocuments = filterRowsByTimestampYear(dataset.generalDocuments || [], targetYear);
+  const carryForwardRows = getCarryForwardRowsForYear(dataset, targetYear);
+  const totalHeldDeposit = targetYear === new Date().getFullYear()
+    ? carryForwardTenants.reduce((sum, row) => sum + (row.deposit_amount || 0), 0)
+    : carryForwardRows.reduce((sum, row) => sum + (row.deposit_amount || 0), 0);
+
+  return {
+    ...dataset,
+    cycleStarts,
+    monthBundles,
+    bills,
+    readings,
+    moveIns,
+    checkouts,
+    sheetRows,
+    tenantSnapshotMode: 'year_end',
+    tenants: carryForwardTenants,
+    archivedTenants,
+    occupants,
+    tenantDocuments,
+    roomPhotos,
+    generalDocuments,
+    residentRows: targetYear === new Date().getFullYear() ? (dataset.residentRows || []) : [],
+    residentSnapshots: filterSnapshotsByExportFrame(dataset.residentSnapshots || [], 'single_year', String(targetYear)),
+    totals: {
+      ...getFinanceSummary(bills, moveIns, checkouts),
+      totalHeldDeposit
+    }
+  };
 }
 
 function buildRoomMasterExportRows(rooms = []) {
@@ -5897,6 +6393,9 @@ function createManagementWorkbook(dataset = {}, options = {}) {
   const totals = dataset.totals || { revenue: 0, expense: 0, profit: 0, totalHeldDeposit: 0 };
   const includeLiveResidents = options.includeLiveResidents !== false;
   const residentSnapshots = Array.isArray(options.residentSnapshots) ? options.residentSnapshots : (dataset.residentSnapshots || []);
+  const tenantRowsForExport = dataset.tenantSnapshotMode === 'year_end'
+    ? (dataset.tenants || [])
+    : (dataset.tenants || []).filter(row => row.is_active);
 
   appendWorkbookAoaSheet(workbook, 'Huong_dan', buildArchiveGuideRows(dataset), [{ wch: 20 }, { wch: 90 }]);
   XLSX.utils.book_append_sheet(workbook, buildOverviewSummaryExportSheet(monthBundles, totals), 'Tong_quan');
@@ -5913,9 +6412,10 @@ function createManagementWorkbook(dataset = {}, options = {}) {
       toExcelSheetName(`BAN_SAO_LUU_${index + 1}_${formatSnapshotMoment(snapshot.snapshot_taken_at).replace(/[\/:\s]/g, '_')}`, `BAN_SAO_LUU_${index + 1}`)
     );
   });
+  XLSX.utils.book_append_sheet(workbook, buildYearFrameExportSheet(dataset), 'Khung_nam');
   appendWorkbookJsonSheet(workbook, 'Cai_dat', buildSettingsExportRows(dataset.settingsRow || {}));
   appendWorkbookJsonSheet(workbook, 'Phong_master', buildRoomMasterExportRows(dataset.rooms || []));
-  appendWorkbookJsonSheet(workbook, 'Khach_dang_o', buildTenantActiveExportRows((dataset.tenants || []).filter(row => row.is_active), dataset.rooms || []));
+  appendWorkbookJsonSheet(workbook, 'Khach_dang_o', buildTenantActiveExportRows(tenantRowsForExport, dataset.rooms || []));
   appendWorkbookJsonSheet(workbook, 'Khach_cu', buildArchivedTenantExportRows(dataset.archivedTenants || []));
   appendWorkbookJsonSheet(workbook, 'Nguoi_nha', buildOccupantExportRows(dataset.occupants || [], dataset.rooms || [], dataset.tenants || []));
   appendWorkbookJsonSheet(workbook, 'Lich_su_bill', buildBillHistoryExportRows(dataset.bills || [], dataset.rooms || [], dataset.tenants || [], dataset.archivedTenants || []));
@@ -5948,6 +6448,7 @@ function createScopedManagementWorkbook(payload = {}, options = {}) {
       toExcelSheetName(`BAN_SAO_LUU_${index + 1}_${formatSnapshotMoment(snapshot.snapshot_taken_at).replace(/[\/:\s]/g, '_')}`, `BAN_SAO_LUU_${index + 1}`)
     );
   });
+  XLSX.utils.book_append_sheet(workbook, buildYearFrameExportSheet(payload), 'Khung_nam');
   return workbook;
 }
 
@@ -5955,6 +6456,118 @@ function createWaterOverviewWorkbook(rows = [], title = 'NHÀ TRỌ ĐẶNG ĐƯ
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, buildWaterOverviewExportSheet(rows, title), 'Bang_nuoc');
   return workbook;
+}
+
+function generateZipBlob(zip) {
+  return zip.generateAsync({
+    type: 'blob',
+    compression: 'DEFLATE',
+    compressionOptions: { level: 6 },
+    streamFiles: true
+  });
+}
+
+async function appendHouseholdArchiveFolder(folder, options = {}) {
+  const {
+    statusLabel = 'Khách đang ở',
+    room = {},
+    person = {},
+    occupants = [],
+    billRows = [],
+    waterRows = [],
+    moveInRows = [],
+    checkoutRows = [],
+    docRows = [],
+    photoRows = [],
+    startDate = '',
+    endDate = '',
+    warnings = [],
+    warningPrefix = statusLabel.toUpperCase()
+  } = options;
+
+  const householdWorkbook = createHouseholdArchiveWorkbook({
+    label: statusLabel,
+    room,
+    person,
+    moveOutDate: endDate || '',
+    occupants,
+    billRows,
+    waterRows,
+    moveInRows,
+    checkoutRows,
+    docRows,
+    photoRows
+  });
+  folder.file(`HO_SO_${sanitizeZipSegment(person.full_name || (statusLabel === 'Khách cũ' ? 'KHACH_CU' : 'KHACH'))}.xlsx`, XLSX.write(householdWorkbook, { bookType: 'xlsx', type: 'array' }));
+  folder.file('THONG_TIN.txt', buildZipSummaryText([
+    `Loại hồ sơ: ${statusLabel}`,
+    `Chủ hộ: ${person.full_name || ''}`,
+    `Phòng đang quản lý: ${room.room_number || person.room_number || ''}`,
+    `Thời gian lưu trú: ${startDate ? fmtDate(startDate) : ''} -> ${endDate ? fmtDate(endDate) : fmtDate(getTodayIsoLocal())}`,
+    `SĐT: ${person.phone || ''}`,
+    `CCCD: ${person.cccd_number || ''}`,
+    `Tiền cọc: ${fmt(person.deposit_amount || 0)}`
+  ]));
+
+  const cccdFolder = folder.folder('CCCD');
+  const docsFolder = folder.folder('GIAY_TO');
+  const photosFolder = folder.folder('HIEN_TRANG_PHONG');
+  const occupantsFolder = folder.folder('NGUOI_NHA');
+  const billFolder = folder.folder('BILL_THANG');
+  const fileNotes = [];
+  let exportedCount = 0;
+
+  if (person.cccd_front_url) {
+    const ok = await addStorageFileToZip(cccdFolder, person.cccd_front_url, 'CCCD_MAT_TRUOC', fileNotes);
+    if (ok) exportedCount += 1;
+  }
+  if (person.cccd_back_url) {
+    const ok = await addStorageFileToZip(cccdFolder, person.cccd_back_url, 'CCCD_MAT_SAU', fileNotes);
+    if (ok) exportedCount += 1;
+  }
+
+  for (const occupant of occupants) {
+    const occFolder = occupantsFolder.folder(sanitizeZipSegment(occupant.full_name || 'Nguoi_nha'));
+    occFolder.file('THONG_TIN.txt', buildZipSummaryText([
+      `Họ tên: ${occupant.full_name || ''}`,
+      `Vai trò: ${occupant.relationship || ''}`,
+      `SĐT: ${occupant.phone || ''}`,
+      `CCCD: ${occupant.cccd_number || ''}`,
+      `Quê quán: ${occupant.place_of_origin || occupant.hometown || ''}`,
+      `Nơi thường trú: ${occupant.permanent_address || ''}`
+    ]));
+    if (occupant.cccd_front_url) {
+      const ok = await addStorageFileToZip(occFolder, occupant.cccd_front_url, 'CCCD_MAT_TRUOC', fileNotes);
+      if (ok) exportedCount += 1;
+    }
+    if (occupant.cccd_back_url) {
+      const ok = await addStorageFileToZip(occFolder, occupant.cccd_back_url, 'CCCD_MAT_SAU', fileNotes);
+      if (ok) exportedCount += 1;
+    }
+  }
+
+  for (const doc of docRows) {
+    const groupFolder = docsFolder.folder(sanitizeZipSegment(normalizeDocumentGroupName(doc.document_name, 'Tai_lieu')));
+    const ok = await addStorageFileToZip(groupFolder, doc.file_url, getFileNameFromPath(doc.file_url), fileNotes);
+    if (ok) exportedCount += 1;
+  }
+
+  for (const photo of photoRows) {
+    const groupFolder = photosFolder.folder(sanitizeZipSegment(photo.description || 'Hien_trang'));
+    const ok = await addStorageFileToZip(groupFolder, photo.photo_url, getFileNameFromPath(photo.photo_url), fileNotes);
+    if (ok) exportedCount += 1;
+  }
+
+  exportedCount += await addBillFilesToZip(billFolder, billRows, fileNotes);
+
+  if (fileNotes.length) {
+    folder.file('CANH_BAO_FILE.txt', fileNotes.join('\n'));
+    if (Array.isArray(warnings)) {
+      warnings.push(`[${warningPrefix}] ${person.full_name || 'Khách'}\n${fileNotes.join('\n')}`);
+    }
+  }
+
+  return exportedCount;
 }
 
 function sanitizeZipSegment(value = '', fallback = 'du_lieu') {
@@ -6032,6 +6645,58 @@ async function addStorageFileToZip(folder, filePath, fallbackName, notes = []) {
   }
 }
 
+function extractArchivedDocumentPaths(documents = []) {
+  const rows = Array.isArray(documents) ? documents : safeJsonParse(documents, []);
+  return (rows || []).map(row => row?.file_url).filter(Boolean);
+}
+
+function extractBillAttachmentPaths(rows = []) {
+  return (rows || []).flatMap(row => [
+    row?.evn_bill_image_url || '',
+    row?.generated_bill_image_url || ''
+  ]).filter(Boolean);
+}
+
+async function removeStorageFiles(fileRefs = [], options = {}) {
+  const refs = [...new Set((fileRefs || []).filter(Boolean).map(ref => String(ref).trim()).filter(Boolean))];
+  const grouped = new Map();
+  const warnings = [];
+  let removedCount = 0;
+
+  for (const ref of refs) {
+    const storageRef = parseStorageReference(ref);
+    if (!storageRef?.bucket || !storageRef?.path) continue;
+    const bucketPaths = grouped.get(storageRef.bucket) || new Set();
+    bucketPaths.add(storageRef.path);
+    grouped.set(storageRef.bucket, bucketPaths);
+    if (typeof signedUrlCache?.keys === 'function') {
+      for (const key of signedUrlCache.keys()) {
+        if (key.startsWith(`${storageRef.path}:`)) signedUrlCache.delete(key);
+      }
+    }
+  }
+
+  for (const [bucket, pathSet] of grouped.entries()) {
+    const paths = [...pathSet];
+    for (let i = 0; i < paths.length; i += 100) {
+      const batch = paths.slice(i, i + 100);
+      const { data, error } = await sb.storage.from(bucket).remove(batch);
+      if (error) {
+        warnings.push(`[${bucket}] ${error.message}`);
+        continue;
+      }
+      removedCount += Array.isArray(data) ? data.length : batch.length;
+    }
+  }
+
+  if (warnings.length && !options.silent) {
+    toast(`Đã xóa DB nhưng còn ${warnings.length} lỗi xóa file trong bucket.`, 'warning');
+    console.warn('Storage cleanup warnings:', warnings);
+  }
+
+  return { removedCount, warnings };
+}
+
 function buildZipSummaryText(lines = []) {
   return lines.filter(Boolean).join('\n');
 }
@@ -6071,15 +6736,15 @@ async function addBillFilesToZip(folder, billRows = [], notes = []) {
 function buildHouseholdSummaryRows({ label = 'Khách đang ở', room = {}, person = {}, moveOutDate = '', depositLabel = 'Tiền cọc đang giữ' } = {}) {
   return [
     ['Mục', 'Giá trị'],
-    ['Nhóm hồ sơ', label],
+    ['Loại hồ sơ', label],
     ['Chủ hộ', person.full_name || ''],
     ['Phòng', room.room_number || person.room_number || ''],
-    ['SĐT', person.phone || ''],
+    ['Số điện thoại', person.phone || ''],
     ['CCCD', person.cccd_number || ''],
     ['Quê quán', person.place_of_origin || person.hometown || ''],
     ['Nơi thường trú', person.permanent_address || ''],
     ['Ngày vào ở', person.move_in_date ? fmtDate(person.move_in_date) : ''],
-    ['Ngày rời', moveOutDate ? fmtDate(moveOutDate) : 'Đang ở'],
+    ['Ngày kết thúc lưu trú', moveOutDate ? fmtDate(moveOutDate) : 'Đang ở'],
     [depositLabel, fmt(person.deposit_amount || 0)]
   ];
 }
@@ -6196,7 +6861,7 @@ function createHouseholdArchiveWorkbook({
   appendWorkbookLabeledSheet(
     workbook,
     'Lich_su_nuoc',
-    ['Kỳ', 'Ngày ghi', 'Nước nóng', 'Nước lạnh', 'Nguồn ghi', 'Nợ nước'],
+    ['Kỳ', 'Ngày ghi', 'Nước nóng', 'Nước lạnh', 'Nguồn ghi nhận', 'Nợ nước'],
     buildHouseholdWaterRows(waterRows)
   );
   appendWorkbookLabeledSheet(
@@ -6208,7 +6873,7 @@ function createHouseholdArchiveWorkbook({
   appendWorkbookLabeledSheet(
     workbook,
     'Khach_ra',
-    ['Ngày rời', 'Kỳ', 'Hoàn tiền phòng', 'Trả cọc', 'Tiền điện trừ', 'Tiền nước trừ', 'Hư hỏng', 'Khấu trừ', 'Net', 'Ghi chú'],
+    ['Ngày rời', 'Kỳ', 'Hoàn tiền phòng', 'Trả cọc', 'Tiền điện trừ', 'Tiền nước trừ', 'Hư hỏng', 'Khấu trừ', 'Số thực trả / thực thu', 'Ghi chú'],
     buildHouseholdCheckoutRows(checkoutRows)
   );
   appendWorkbookLabeledSheet(
@@ -6273,7 +6938,7 @@ async function exportWorkbookZipByYear(kind = 'management') {
       setExportProgress(kind === 'water' ? 'Đang gom ZIP bảng nước theo năm' : 'Đang gom ZIP sổ trọ theo năm', index + 1, years.length, `Đã xử lý năm ${year} (${index + 1}/${years.length})`);
       await new Promise(resolve => setTimeout(resolve, 120));
     }
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    const zipBlob = await generateZipBlob(zip);
     downloadBlobFile(zipBlob, kind === 'water' ? 'BANG_NUOC_CHIA_THEO_NAM.zip' : 'SO_TRO_CHIA_THEO_NAM.zip');
     toast(kind === 'water' ? 'Đã xuất ZIP bảng nước chia theo năm.' : 'Đã xuất ZIP sổ trọ chia theo năm.');
     clearExportProgress(1200);
@@ -6299,7 +6964,7 @@ async function exportOverviewWorkbook(options = {}) {
   await withBusyState('export-management-workbook', {
     title: 'Đang xuất Excel thông tin Đặng Được',
     meta: `Phạm vi: ${getExportFrameSummaryText(cycleStarts)}.`,
-    selectors: ['#dashboardExportWorkbookBtn'],
+    selectors: ['#dashboardExportWorkbookBtn', '#settingsExportWorkbookBtn'],
     busyText: '⬇ Đang xuất...'
   }, async () => {
     const payload = await collectMonthBundlesForExport(cycleStarts);
@@ -6394,132 +7059,101 @@ async function exportDatabaseZip() {
     const zip = new JSZip();
     const rootName = sanitizeZipSegment(`DATABASE NHA TRO DANG DUOC ${getTodayIsoLocal()}`);
     const root = zip.folder(rootName);
-    const workbookFolder = root.folder('01_EXCEL_TONG_HOP');
-    const activeRoot = root.folder('02_KHACH_DANG_O');
-    const archivedRoot = root.folder('03_KHACH_CU');
-    const sharedRoot = root.folder('04_TAI_LIEU_CHUNG');
-    const systemRoot = root.folder('05_HE_THONG');
+    const workbookFolder = root.folder('00_EXCEL_TOAN_THOI_GIAN');
+    const systemRoot = root.folder('00_HE_THONG_CHUNG_ALL_TIME');
     const warnings = [];
     let exportedFileCount = 0;
+    const yearScopes = buildYearArchiveScopes(dataset);
+    const yearFolders = new Map();
 
     const workbookBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     workbookFolder.file(buildWorkbookFilename('NHÀ TRỌ ĐẶNG ĐƯỢC - FULL ARCHIVE', dataset.cycleStarts || [BUSINESS_START_DATE]), workbookBuffer);
     root.file('00_DOC_HUONG_DAN.txt', buildZipSummaryText([
-      'DATABASE ZIP NHÀ TRỌ ĐẶNG ĐƯỢC',
+      'HỒ SƠ LƯU TRỮ TOÀN BỘ - NHÀ TRỌ ĐẶNG ĐƯỢC',
       `Ngày xuất: ${getTodayIsoLocal()} ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`,
       '',
-      'Cấu trúc file ZIP:',
-      '01_EXCEL_TONG_HOP: workbook Excel all-time tổng hợp toàn bộ dữ liệu quản lý.',
-      '02_KHACH_DANG_O: hồ sơ từng hộ đang ở, người nhà, bill, nước, giấy tờ, hiện trạng, CCCD.',
-      '03_KHACH_CU: hồ sơ từng hộ đã rời đi, lịch sử khi ở trọ, bill/nước/checkout/tài liệu liên quan.',
-      '04_TAI_LIEU_CHUNG: tài liệu chung của hệ thống.',
-      '05_HE_THONG: file hệ thống như QR chuyển khoản hoặc các file cấu hình đính kèm.',
+      'Cấu trúc chính:',
+      '00_EXCEL_TOAN_THOI_GIAN: workbook tổng hợp toàn bộ dữ liệu từ đầu tới hiện tại.',
+      '00_HE_THONG_CHUNG_ALL_TIME: tài liệu dùng chung của hệ thống, ví dụ QR chuyển khoản.',
+      'Mỗi folder năm: sổ trọ của năm đó, hồ sơ khách đang ở/khách cũ, tài liệu chung và snapshot carry forward.',
       '',
-      'Nếu có file nào không tải được từ storage, xem file 99_CANH_BAO_TAI_FILE.txt ở gốc ZIP.'
+      'Nếu có file nào không tải được từ storage, mở 99_CANH_BAO_TAI_FILE.txt ở gốc ZIP.'
     ]));
 
+    for (const scope of yearScopes) {
+      const yearDataset = buildYearScopedDataset(dataset, scope.year);
+      const yearRoot = root.folder(sanitizeZipSegment(scope.folderLabel));
+      const yearWorkbookFolder = yearRoot.folder('01_EXCEL_TONG_HOP');
+      const yearActiveRoot = yearRoot.folder('02_KHACH_DANG_O');
+      const yearArchivedRoot = yearRoot.folder('03_KHACH_CU');
+      const yearSharedRoot = yearRoot.folder('04_TAI_LIEU_CHUNG');
+      const yearCarryRoot = yearRoot.folder('05_CHUYEN_NAM');
+      const yearWorkbook = createManagementWorkbook(yearDataset, {
+        includeLiveResidents: scope.year === new Date().getFullYear(),
+        residentSnapshots: yearDataset.residentSnapshots || []
+      });
+      yearWorkbookFolder.file(
+        buildWorkbookFilename(`NHÀ TRỌ ĐẶNG ĐƯỢC - SỔ TRỌ ${scope.year}`, scope.cycleStarts || [scope.rangeStart]),
+        XLSX.write(yearWorkbook, { bookType: 'xlsx', type: 'array' })
+      );
+      const carryForwardRows = getCarryForwardRowsForYear(dataset, scope.year);
+      yearCarryRoot.file('TONG_KET_CHUYEN_NAM.txt', buildZipSummaryText([
+        `Tổng kết chuyển năm ${scope.year}${scope.year === new Date().getFullYear() ? ' (từ đầu năm tới nay)' : ''}`,
+        `Số kỳ theo dõi trong năm: ${scope.cycleStarts.length}`,
+        `Số hộ carry forward cuối năm: ${carryForwardRows.length}`,
+        carryForwardRows.length
+          ? `Danh sách: ${carryForwardRows.map(item => `P${item.room_number} ${item.full_name}`).join(' | ')}`
+          : 'Năm này chưa có hộ carry forward hoặc chưa khóa sổ.'
+      ]));
+      yearFolders.set(scope.year, {
+        ...scope,
+        root: yearRoot,
+        activeRoot: yearActiveRoot,
+        archivedRoot: yearArchivedRoot,
+        sharedRoot: yearSharedRoot,
+        carryRoot: yearCarryRoot
+      });
+    }
+
     const roomMap = new Map((dataset.rooms || []).map(room => [room.id, room]));
-    const activeTenants = (dataset.tenants || []).filter(row => row.is_active);
-    const totalTargets = activeTenants.length + (dataset.archivedTenants || []).length + (dataset.generalDocuments || []).length + 1;
+    const moveOutByTenantId = buildTenantMoveOutDateMap(dataset);
+    const allTenantRows = dataset.tenants || [];
+    const totalTargets = yearScopes.length + allTenantRows.length + (dataset.archivedTenants || []).length + (dataset.generalDocuments || []).length + 1;
     setExportProgress('Đang gom database ZIP', 0, totalTargets || 1, 'Đang chuẩn bị thư mục hồ sơ...');
 
     let progressCount = 0;
-    for (const tenant of activeTenants) {
+    progressCount += yearScopes.length;
+    setExportProgress('Đang gom database ZIP', progressCount, totalTargets || 1, `Đã tạo ${yearScopes.length} khung năm trong file ZIP`);
+
+    for (const tenant of allTenantRows) {
       const room = roomMap.get(tenant.room_id) || {};
-      const folder = activeRoot.folder(buildHouseholdFolderName('', tenant.full_name, room.room_number, tenant.move_in_date, getTodayIsoLocal()));
       const occupantRows = (dataset.occupants || []).filter(row => row.tenant_id === tenant.id);
-      const billRows = (dataset.bills || []).filter(row => row.tenant_id === tenant.id);
-      const waterRows = (dataset.readings || []).filter(row => row.tenant_id === tenant.id);
-      const moveInRows = (dataset.moveIns || []).filter(row => row.tenant_id === tenant.id);
-      const checkoutRows = (dataset.checkouts || []).filter(row => row.tenant_id === tenant.id);
       const docRows = (dataset.tenantDocuments || []).filter(row => row.tenant_id === tenant.id || (!row.tenant_id && row.room_id === tenant.room_id));
       const photoRows = (dataset.roomPhotos || []).filter(row => row.tenant_id === tenant.id || (!row.tenant_id && row.room_id === tenant.room_id));
-      const manifest = {
-        room,
-        tenant,
-        occupants: occupantRows,
-        bills: billRows,
-        water_readings: waterRows,
-        move_ins: moveInRows,
-        checkouts: checkoutRows,
-        documents: docRows,
-        room_photos: photoRows
-      };
-      folder.file('THONG_TIN.txt', [
-        `Chu ho: ${tenant.full_name || ''}`,
-        `Phong: ${room.room_number || ''}`,
-        `Thoi gian o: ${fmtDate(tenant.move_in_date)} -> ${fmtDate(getTodayIsoLocal())}`,
-        `So dien thoai: ${tenant.phone || ''}`,
-        `CCCD: ${tenant.cccd_number || ''}`,
-        `Que quan: ${tenant.place_of_origin || tenant.hometown || ''}`,
-        `Noi thuong tru: ${tenant.permanent_address || ''}`,
-        `Tien coc dang giu: ${fmt(tenant.deposit_amount || 0)}`
-      ].join('\n'));
-      const fileNotes = [];
-      const cccdFolder = folder.folder('CCCD');
-      const docsFolder = folder.folder('GIAY_TO');
-      const photoFolder = folder.folder('HIEN_TRANG_PHONG');
-      const occupantsFolder = folder.folder('NGUOI_NHA');
-      const billFolder = folder.folder('BILL_THANG');
-      const waterFolder = folder.folder('NUOC_VA_PHAT_SINH');
-      const householdWorkbook = createHouseholdArchiveWorkbook({
-        label: 'Khách đang ở',
-        room,
-        person: tenant,
-        occupants: occupantRows,
-        billRows,
-        waterRows,
-        moveInRows,
-        checkoutRows,
-        docRows,
-        photoRows
-      });
-      folder.file(`HO_SO_${sanitizeZipSegment(tenant.full_name || 'KHACH')}.xlsx`, XLSX.write(householdWorkbook, { bookType: 'xlsx', type: 'array' }));
-      waterFolder.file('README.txt', buildZipSummaryText([
-        'Chi tiết lịch sử nước/khách vào/khách ra đã được đưa vào file Excel hồ sơ hộ.',
-        'Thư mục này giữ lại để gom các file scan hoặc tài liệu liên quan nếu có sau này.'
-      ]));
-      if (tenant.cccd_front_url) {
-        const ok = await addStorageFileToZip(cccdFolder, tenant.cccd_front_url, 'CCCD_MAT_TRUOC', fileNotes);
-        if (ok) exportedFileCount += 1;
-      }
-      if (tenant.cccd_back_url) {
-        const ok = await addStorageFileToZip(cccdFolder, tenant.cccd_back_url, 'CCCD_MAT_SAU', fileNotes);
-        if (ok) exportedFileCount += 1;
-      }
-      for (const occupant of occupantRows) {
-        const occFolder = occupantsFolder.folder(sanitizeZipSegment(occupant.full_name || 'Nguoi_nha'));
-        occFolder.file('THONG_TIN.txt', [
-          `Ho ten: ${occupant.full_name || ''}`,
-          `Vai tro: ${occupant.relationship || ''}`,
-          `So dien thoai: ${occupant.phone || ''}`,
-          `CCCD: ${occupant.cccd_number || ''}`,
-          `Que quan: ${occupant.place_of_origin || occupant.hometown || ''}`,
-          `Noi thuong tru: ${occupant.permanent_address || ''}`
-        ].join('\n'));
-        if (occupant.cccd_front_url) {
-          const ok = await addStorageFileToZip(occFolder, occupant.cccd_front_url, 'CCCD_MAT_TRUOC', fileNotes);
-          if (ok) exportedFileCount += 1;
-        }
-        if (occupant.cccd_back_url) {
-          const ok = await addStorageFileToZip(occFolder, occupant.cccd_back_url, 'CCCD_MAT_SAU', fileNotes);
-          if (ok) exportedFileCount += 1;
-        }
-      }
-      for (const doc of docRows) {
-        const groupFolder = docsFolder.folder(sanitizeZipSegment(normalizeDocumentGroupName(doc.document_name, 'Tai_lieu')));
-        const ok = await addStorageFileToZip(groupFolder, doc.file_url, getFileNameFromPath(doc.file_url), fileNotes);
-        if (ok) exportedFileCount += 1;
-      }
-      for (const photo of photoRows) {
-        const groupFolder = photoFolder.folder(sanitizeZipSegment(photo.description || 'Hien_trang'));
-        const ok = await addStorageFileToZip(groupFolder, photo.photo_url, getFileNameFromPath(photo.photo_url), fileNotes);
-        if (ok) exportedFileCount += 1;
-      }
-      exportedFileCount += await addBillFilesToZip(billFolder, billRows, fileNotes);
-      if (fileNotes.length) {
-        folder.file('CANH_BAO_FILE.txt', fileNotes.join('\n'));
-        warnings.push(`[KHACH_DANG_O] ${tenant.full_name || 'Khách'}\n${fileNotes.join('\n')}`);
+      const moveOutDate = getTenantRangeEndDate(tenant, moveOutByTenantId);
+      const overlapYears = yearScopes
+        .filter(scope => tenant.move_in_date && String(tenant.move_in_date) <= String(scope.rangeEnd) && (!moveOutDate || String(moveOutDate) > String(scope.rangeEnd)))
+        .map(scope => scope.year);
+      for (const year of overlapYears) {
+        const target = yearFolders.get(year);
+        if (!target) continue;
+        const folder = target.activeRoot.folder(buildHouseholdFolderName('', tenant.full_name, room.room_number, tenant.move_in_date, target.rangeEnd));
+        exportedFileCount += await appendHouseholdArchiveFolder(folder, {
+          statusLabel: 'Khách đang ở',
+          room,
+          person: tenant,
+          occupants: occupantRows,
+          billRows: (dataset.bills || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
+          waterRows: (dataset.readings || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
+          moveInRows: (dataset.moveIns || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
+          checkoutRows: (dataset.checkouts || []).filter(row => row.tenant_id === tenant.id && getCycleStartYear(row.billing_month) === year),
+          docRows,
+          photoRows,
+          startDate: tenant.move_in_date,
+          endDate: target.rangeEnd,
+          warnings,
+          warningPrefix: `NAM_${year}_KHACH_DANG_O`
+        });
       }
       progressCount += 1;
       setExportProgress('Đang gom database ZIP', progressCount, totalTargets || 1, `Đã gom hồ sơ active: ${tenant.full_name || 'Khách'}`);
@@ -6527,94 +7161,38 @@ async function exportDatabaseZip() {
     }
 
     for (const archived of (dataset.archivedTenants || [])) {
-      const folder = archivedRoot.folder(buildHouseholdFolderName('KHACH CU', archived.full_name, archived.room_number, archived.move_in_date, archived.move_out_date));
       const originalTenantId = archived.original_tenant_id;
       const occupantRows = (dataset.occupants || []).filter(row => row.tenant_id === originalTenantId);
-      const billRows = (dataset.bills || []).filter(row => row.tenant_id === originalTenantId);
-      const waterRows = (dataset.readings || []).filter(row => row.tenant_id === originalTenantId);
-      const checkoutRows = (dataset.checkouts || []).filter(row => row.tenant_id === originalTenantId);
-      const moveInRows = (dataset.moveIns || []).filter(row => row.tenant_id === originalTenantId);
       const docRows = (dataset.tenantDocuments || []).filter(row => row.tenant_id === originalTenantId);
       const photoRows = (dataset.roomPhotos || []).filter(row => row.tenant_id === originalTenantId);
-      folder.file('THONG_TIN.txt', [
-        `Khach cu: ${archived.full_name || ''}`,
-        `Phong luc o: ${archived.room_number || ''}`,
-        `Thoi gian o: ${fmtDate(archived.move_in_date)} -> ${fmtDate(archived.move_out_date)}`,
-        `So dien thoai: ${archived.phone || ''}`,
-        `Tien coc luc checkout: ${fmt(archived.deposit_amount || 0)}`
-      ].join('\n'));
-      const fileNotes = [];
-      const cccdFolder = folder.folder('CCCD');
-      const docsFolder = folder.folder('GIAY_TO');
-      const photoFolder = folder.folder('HIEN_TRANG_PHONG');
-      const occupantsFolder = folder.folder('NGUOI_NHA');
-      const billFolder = folder.folder('BILL_THANG');
-      const waterFolder = folder.folder('NUOC_VA_PHAT_SINH');
-      const mergedArchivedBills = [
-        ...billRows,
-        ...((Array.isArray(archived.billing_history) ? archived.billing_history : []).filter(historyItem => !billRows.some(bill => bill.billing_month === historyItem.billing_month)))
-      ];
-      const householdWorkbook = createHouseholdArchiveWorkbook({
-        label: 'Khách cũ',
-        room: { room_number: archived.room_number || '' },
-        person: {
-          ...archived,
-          place_of_origin: archived.place_of_origin || archived.hometown || ''
-        },
-        moveOutDate: archived.move_out_date,
-        occupants: occupantRows,
-        billRows: mergedArchivedBills,
-        waterRows,
-        moveInRows,
-        checkoutRows,
-        docRows,
-        photoRows
-      });
-      folder.file(`HO_SO_${sanitizeZipSegment(archived.full_name || 'KHACH_CU')}.xlsx`, XLSX.write(householdWorkbook, { bookType: 'xlsx', type: 'array' }));
-      waterFolder.file('README.txt', buildZipSummaryText([
-        'Chi tiết lịch sử nước/khách vào/khách ra đã được đưa vào file Excel hồ sơ hộ.',
-        'Thư mục này giữ lại để gom các file scan hoặc tài liệu liên quan nếu có sau này.'
-      ]));
-      billFolder.file('README.txt', 'Lịch sử bill đã được tổng hợp trong file Excel hồ sơ hộ.');
-      if (archived.cccd_front_url) {
-        const ok = await addStorageFileToZip(cccdFolder, archived.cccd_front_url, 'CCCD_MAT_TRUOC', fileNotes);
-        if (ok) exportedFileCount += 1;
-      }
-      if (archived.cccd_back_url) {
-        const ok = await addStorageFileToZip(cccdFolder, archived.cccd_back_url, 'CCCD_MAT_SAU', fileNotes);
-        if (ok) exportedFileCount += 1;
-      }
-      for (const occupant of occupantRows) {
-        const occFolder = occupantsFolder.folder(sanitizeZipSegment(occupant.full_name || 'Nguoi_nha'));
-        occFolder.file('THONG_TIN.txt', [
-          `Ho ten: ${occupant.full_name || ''}`,
-          `Vai tro: ${occupant.relationship || ''}`,
-          `So dien thoai: ${occupant.phone || ''}`,
-          `CCCD: ${occupant.cccd_number || ''}`
-        ].join('\n'));
-        if (occupant.cccd_front_url) {
-          const ok = await addStorageFileToZip(occFolder, occupant.cccd_front_url, 'CCCD_MAT_TRUOC', fileNotes);
-          if (ok) exportedFileCount += 1;
-        }
-        if (occupant.cccd_back_url) {
-          const ok = await addStorageFileToZip(occFolder, occupant.cccd_back_url, 'CCCD_MAT_SAU', fileNotes);
-          if (ok) exportedFileCount += 1;
-        }
-      }
-      for (const doc of docRows) {
-        const groupFolder = docsFolder.folder(sanitizeZipSegment(normalizeDocumentGroupName(doc.document_name, 'Tai_lieu')));
-        const ok = await addStorageFileToZip(groupFolder, doc.file_url, getFileNameFromPath(doc.file_url), fileNotes);
-        if (ok) exportedFileCount += 1;
-      }
-      for (const photo of photoRows) {
-        const groupFolder = photoFolder.folder(sanitizeZipSegment(photo.description || 'Hien_trang'));
-        const ok = await addStorageFileToZip(groupFolder, photo.photo_url, getFileNameFromPath(photo.photo_url), fileNotes);
-        if (ok) exportedFileCount += 1;
-      }
-      exportedFileCount += await addBillFilesToZip(billFolder, billRows, fileNotes);
-      if (fileNotes.length) {
-        folder.file('CANH_BAO_FILE.txt', fileNotes.join('\n'));
-        warnings.push(`[KHACH_CU] ${archived.full_name || 'Khách cũ'}\n${fileNotes.join('\n')}`);
+      const year = getCycleStartYear(archived.move_out_date || '');
+      const target = yearFolders.get(year);
+      if (target) {
+        const billRows = (dataset.bills || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year);
+        const mergedArchivedBills = [
+          ...billRows,
+          ...((Array.isArray(archived.billing_history) ? archived.billing_history : []).filter(historyItem => getCycleStartYear(historyItem.billing_month) === year && !billRows.some(bill => bill.billing_month === historyItem.billing_month)))
+        ];
+        const folder = target.archivedRoot.folder(buildHouseholdFolderName('KHACH CU', archived.full_name, archived.room_number, archived.move_in_date, archived.move_out_date));
+        exportedFileCount += await appendHouseholdArchiveFolder(folder, {
+          statusLabel: 'Khách cũ',
+          room: { room_number: archived.room_number || '' },
+          person: {
+            ...archived,
+            place_of_origin: archived.place_of_origin || archived.hometown || ''
+          },
+          occupants: occupantRows,
+          billRows: mergedArchivedBills,
+          waterRows: (dataset.readings || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year),
+          moveInRows: (dataset.moveIns || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year),
+          checkoutRows: (dataset.checkouts || []).filter(row => row.tenant_id === originalTenantId && getCycleStartYear(row.billing_month) === year),
+          docRows,
+          photoRows,
+          startDate: archived.move_in_date,
+          endDate: archived.move_out_date,
+          warnings,
+          warningPrefix: `NAM_${year}_KHACH_CU`
+        });
       }
       progressCount += 1;
       setExportProgress('Đang gom database ZIP', progressCount, totalTargets || 1, `Đã gom hồ sơ khách cũ: ${archived.full_name || 'Khách cũ'}`);
@@ -6622,7 +7200,9 @@ async function exportDatabaseZip() {
     }
 
     for (const doc of (dataset.generalDocuments || [])) {
-      const groupFolder = sharedRoot.folder(sanitizeZipSegment(normalizeDocumentGroupName(doc.document_name, 'Tai_lieu_chung')));
+      const docYear = doc.created_at ? new Date(doc.created_at).getFullYear() : null;
+      const target = docYear && yearFolders.get(docYear) ? yearFolders.get(docYear).sharedRoot : systemRoot;
+      const groupFolder = target.folder(sanitizeZipSegment(normalizeDocumentGroupName(doc.document_name, 'Tai_lieu_chung')));
       const notes = [];
       const ok = await addStorageFileToZip(groupFolder, doc.file_url, getFileNameFromPath(doc.file_url), notes);
       if (ok) exportedFileCount += 1;
@@ -6643,11 +7223,12 @@ async function exportDatabaseZip() {
 
     root.file('99_BAO_CAO_XUAT_ZIP.txt', buildZipSummaryText([
       `Ngày xuất: ${getTodayIsoLocal()} ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`,
-      `Workbook tổng hợp: 1 file`,
+      `Workbook tổng hợp all-time: 1 file`,
+      `Số khung năm trong hồ sơ ZIP: ${yearScopes.length}`,
       `Khách đang ở: ${activeTenants.length} hộ`,
       `Khách cũ: ${(dataset.archivedTenants || []).length} hộ`,
       `Tài liệu chung: ${(dataset.generalDocuments || []).length} file`,
-      `Số file storage tải được vào ZIP: ${exportedFileCount}`,
+      `Số file scan / tài liệu tải được vào ZIP: ${exportedFileCount}`,
       warnings.length
         ? `Có ${warnings.length} nhóm phát sinh cảnh báo tải file. Xem 99_CANH_BAO_TAI_FILE.txt để biết chi tiết.`
         : 'Không có cảnh báo tải file.'
@@ -6656,9 +7237,9 @@ async function exportDatabaseZip() {
       root.file('99_CANH_BAO_TAI_FILE.txt', warnings.join('\n\n------------------------------\n\n'));
     }
 
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    const zipBlob = await generateZipBlob(zip);
     downloadBlobFile(zipBlob, `DATABASE_NHA_TRO_DANG_DUOC_${getTodayIsoLocal().replace(/-/g, '_')}.zip`);
-    toast('Đã xuất database ZIP đầy đủ hồ sơ, giấy tờ và lịch sử.');
+    toast('Đã xuất database ZIP theo từng năm hoạt động, kèm hồ sơ và file scan đầy đủ.');
     clearExportProgress(1400);
   });
 }
@@ -7440,6 +8021,7 @@ async function saveRoomProfile(fromClose = false) {
   const tenantId = roomModalCtx.tenantId;
   const room = appData.rooms.find(r => r.id === roomId);
   const tenant = getTenantForRoom(roomId);
+  const occupantMap = new Map((appData.roomOccupants || []).map(row => [row.id, row]));
   return withBusyState('save-room-profile', {
     title: `Đang lưu thông tin Phòng ${room?.room_number || ''}`.trim(),
     meta: 'Đang cập nhật phòng, chủ hộ và người nhà.',
@@ -7489,11 +8071,24 @@ async function saveRoomProfile(fromClose = false) {
 
     const frontFile = document.getElementById('tnCCCDFront')?.files?.[0];
     const backFile = document.getElementById('tnCCCDBack')?.files?.[0];
+    const oldTenantFront = tenant.cccd_front_url || '';
+    const oldTenantBack = tenant.cccd_back_url || '';
     if (frontFile) updates.cccd_front_url = await uploadFile('nhatro-docs', `cccd/${tenantId}_front_${Date.now()}_${frontFile.name}`, frontFile);
     if (backFile) updates.cccd_back_url = await uploadFile('nhatro-docs', `cccd/${tenantId}_back_${Date.now()}_${backFile.name}`, backFile);
 
     const tu = await sb.from('tenants').update(updates).eq('id', tenantId);
-    if (tu.error) { toast('Lỗi lưu chủ hộ: ' + tu.error.message + ' (chạy migration_v2_2.sql)', 'error'); return false; }
+    if (tu.error) {
+      await removeStorageFiles([
+        frontFile ? updates.cccd_front_url : '',
+        backFile ? updates.cccd_back_url : ''
+      ], { silent: true });
+      toast('Lỗi lưu chủ hộ: ' + tu.error.message + ' (chạy migration_v2_2.sql)', 'error');
+      return false;
+    }
+    await removeStorageFiles([
+      frontFile && oldTenantFront && oldTenantFront !== updates.cccd_front_url ? oldTenantFront : '',
+      backFile && oldTenantBack && oldTenantBack !== updates.cccd_back_url ? oldTenantBack : ''
+    ], { silent: true });
     await upsertTenantWaterBaseline(tenantId, roomId, updates.move_in_date, hotBaseline, coldBaseline);
     await sb.from('move_in_records').delete().eq('tenant_id', tenantId);
     if (!isBeforeBusinessStart(updates.move_in_date)) {
@@ -7504,7 +8099,9 @@ async function saveRoomProfile(fromClose = false) {
   // Occupants upsert/delete
   const deleteIds = (document.getElementById('occDeleteIds')?.value || '').split(',').filter(Boolean);
   if (deleteIds.length) {
+    const rowsToDelete = deleteIds.map(id => occupantMap.get(id)).filter(Boolean);
     await sb.from('room_occupants').delete().in('id', deleteIds);
+    await removeStorageFiles(rowsToDelete.flatMap(row => [row?.cccd_front_url || '', row?.cccd_back_url || '']), { silent: true });
   }
 
   const occCards = Array.from(document.querySelectorAll('.occ-card'));
@@ -7534,15 +8131,34 @@ async function saveRoomProfile(fromClose = false) {
 
     const front = card.querySelector('.occ-front')?.files?.[0];
     const back = card.querySelector('.occ-back')?.files?.[0];
+    const existingOccupant = occId ? occupantMap.get(occId) : null;
     if (front) payload.cccd_front_url = await uploadFile('nhatro-docs', `occupant/${roomId}/${occId || 'new'}_front_${Date.now()}_${front.name}`, front);
     if (back) payload.cccd_back_url = await uploadFile('nhatro-docs', `occupant/${roomId}/${occId || 'new'}_back_${Date.now()}_${back.name}`, back);
 
     if (occId) {
       const u = await sb.from('room_occupants').update(payload).eq('id', occId);
-      if (u.error) { toast('Lỗi lưu người nhà: ' + u.error.message + ' (chạy migration_v2_2.sql)', 'error'); return false; }
+      if (u.error) {
+        await removeStorageFiles([
+          front ? payload.cccd_front_url : '',
+          back ? payload.cccd_back_url : ''
+        ], { silent: true });
+        toast('Lỗi lưu người nhà: ' + u.error.message + ' (chạy migration_v2_2.sql)', 'error');
+        return false;
+      }
+      await removeStorageFiles([
+        front && existingOccupant?.cccd_front_url && existingOccupant.cccd_front_url !== payload.cccd_front_url ? existingOccupant.cccd_front_url : '',
+        back && existingOccupant?.cccd_back_url && existingOccupant.cccd_back_url !== payload.cccd_back_url ? existingOccupant.cccd_back_url : ''
+      ], { silent: true });
     } else {
       const i = await sb.from('room_occupants').insert(payload);
-      if (i.error) { toast('Lỗi thêm người nhà: ' + i.error.message + ' (chạy migration_v2_2.sql)', 'error'); return false; }
+      if (i.error) {
+        await removeStorageFiles([
+          front ? payload.cccd_front_url : '',
+          back ? payload.cccd_back_url : ''
+        ], { silent: true });
+        toast('Lỗi thêm người nhà: ' + i.error.message + ' (chạy migration_v2_2.sql)', 'error');
+        return false;
+      }
     }
   }
   await loadAllData();
@@ -7612,6 +8228,7 @@ async function uploadDocSection(id) {
         file_type: mimeType || null
       });
       if (insertRes.error) {
+        await removeStorageFiles([path], { silent: true });
         toast('Lưu file vào DB thất bại: ' + insertRes.error.message, 'error');
         return;
       }
@@ -7660,7 +8277,12 @@ async function uploadPhotoSection(id) {
     for (const f of files) {
       const path = await uploadFile('nhatro-docs', `room/${roomId}/${Date.now()}_${f.name}`, f);
       if (!path) continue;
-      await sb.from('room_photos').insert({ room_id: roomId, tenant_id: tenantId || null, photo_url: path, description: label || f.name });
+      const insertRes = await sb.from('room_photos').insert({ room_id: roomId, tenant_id: tenantId || null, photo_url: path, description: label || f.name });
+      if (insertRes.error) {
+        await removeStorageFiles([path], { silent: true });
+        toast('Lưu file hiện trạng vào DB thất bại: ' + insertRes.error.message, 'error');
+        return;
+      }
     }
     toast('Đã upload mục hiện trạng');
     await openRoomDetail(roomId);
@@ -7680,11 +8302,17 @@ async function deleteDocGroup(ids = [], name = '') {
   const label = normalizeDocumentGroupName(name, 'Tài liệu liên quan');
   if (!confirm(`Xóa toàn bộ mục giấy tờ "${label}"?`)) return;
   await withTransientProgress('Đang xóa mục giấy tờ', `Đang xóa toàn bộ file trong mục "${label}".`, async () => {
-    let query = sb.from('tenant_documents').delete().eq('room_id', roomModalCtx.roomId);
-    if (ids.length) query = query.in('id', ids);
-    else query = query.eq('document_name', label);
-    const r = await query;
+    let fetchQuery = sb.from('tenant_documents').select('id,file_url').eq('room_id', roomModalCtx.roomId);
+    if (ids.length) fetchQuery = fetchQuery.in('id', ids);
+    else fetchQuery = fetchQuery.eq('document_name', label);
+    const rowsRes = await fetchQuery;
+    if (rowsRes.error) { toast('Lỗi tải file trước khi xóa: ' + rowsRes.error.message, 'error'); return; }
+    let deleteQuery = sb.from('tenant_documents').delete().eq('room_id', roomModalCtx.roomId);
+    if (ids.length) deleteQuery = deleteQuery.in('id', ids);
+    else deleteQuery = deleteQuery.eq('document_name', label);
+    const r = await deleteQuery;
     if (r.error) { toast('Lỗi xóa mục giấy tờ: ' + r.error.message, 'error'); return; }
+    await removeStorageFiles((rowsRes.data || []).map(row => row.file_url));
     toast('Đã xóa mục giấy tờ');
     await openRoomDetail(roomModalCtx.roomId);
     switchRoomSection('docs');
@@ -7694,8 +8322,11 @@ async function deleteDocGroup(ids = [], name = '') {
 async function deletePhotoGroup(name) {
   if (!confirm(`Xóa toàn bộ mục ảnh "${name}"?`)) return;
   await withTransientProgress('Đang xóa mục hiện trạng', `Đang xóa toàn bộ file trong mục "${name}".`, async () => {
+    const rowsRes = await sb.from('room_photos').select('id,photo_url').eq('room_id', roomModalCtx.roomId).eq('description', name);
+    if (rowsRes.error) { toast('Lỗi tải file hiện trạng trước khi xóa: ' + rowsRes.error.message, 'error'); return; }
     const r = await sb.from('room_photos').delete().eq('room_id', roomModalCtx.roomId).eq('description', name);
     if (r.error) { toast('Lỗi xóa mục ảnh: ' + r.error.message, 'error'); return; }
+    await removeStorageFiles((rowsRes.data || []).map(row => row.photo_url));
     toast('Đã xóa mục ảnh');
     await openRoomDetail(roomModalCtx.roomId);
     switchRoomSection('notes');
@@ -7927,11 +8558,11 @@ async function exportHardDeleteRoomSnapshot(roomId) {
   const warnings = [];
   let exportedFileCount = 0;
   root.file('00_HUONG_DAN.txt', buildZipSummaryText([
-    `Backup phòng ${room.room_number} trước khi HARD DELETE`,
+    `Hồ sơ backup Phòng ${room.room_number} trước khi HARD DELETE`,
     `Ngày xuất: ${getTodayIsoLocal()} ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`,
     '',
-    'Mở file Excel tổng trước để đối chiếu toàn bộ lịch sử phòng.',
-    'Các thư mục khách hiện tại / khách cũ chứa hồ sơ Excel riêng và toàn bộ file scan liên quan của đúng phòng này.'
+    'Mở file Excel tổng trước để xem toàn bộ lịch sử phòng.',
+    'Các thư mục khách đang ở / khách cũ chứa hồ sơ Excel riêng và toàn bộ file scan liên quan của đúng phòng này.'
   ]));
   root.file(`BACKUP_HARD_DELETE_PHONG_${room.room_number}.xlsx`, XLSX.write(workbook, { bookType: 'xlsx', type: 'array' }));
 
@@ -8120,12 +8751,12 @@ async function exportHardDeleteRoomSnapshot(roomId) {
     `Phòng: ${room.room_number}`,
     `Số khách hiện tại: ${tenants.length}`,
     `Số khách cũ: ${archived.length}`,
-    `Số file storage tải được vào ZIP: ${exportedFileCount}`,
+    `Số file scan / tài liệu tải được vào ZIP: ${exportedFileCount}`,
     warnings.length ? `Có ${warnings.length} nhóm cảnh báo tải file.` : 'Không có cảnh báo tải file.'
   ]));
   if (warnings.length) root.file('99_CANH_BAO_TAI_FILE.txt', warnings.join('\n\n------------------------------\n\n'));
 
-  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  const zipBlob = await generateZipBlob(zip);
   downloadBlobFile(zipBlob, `BACKUP_HARD_DELETE_PHONG_${room.room_number}_${getTodayIsoLocal().replace(/-/g, '_')}.zip`);
   return true;
 }
@@ -8177,6 +8808,31 @@ async function hardDeleteTenant(tenantId, roomId) {
         throw new Error('Không tải được danh sách tenant của phòng: ' + roomTenantRes.error.message);
       }
       const roomTenantIds = (roomTenantRes.data || []).map(row => row.id).filter(Boolean);
+      const [tenantFilesRes, occupantFilesRes, docFilesRes, photoFilesRes, billFilesRes, archivedFilesRes] = await Promise.all([
+        sb.from('tenants').select('cccd_front_url,cccd_back_url').eq('room_id', roomId),
+        sb.from('room_occupants').select('cccd_front_url,cccd_back_url').eq('room_id', roomId),
+        sb.from('tenant_documents').select('file_url').eq('room_id', roomId),
+        sb.from('room_photos').select('photo_url').eq('room_id', roomId),
+        sb.from('monthly_bills').select('evn_bill_image_url,generated_bill_image_url').eq('room_id', roomId),
+        sb.from('archived_tenants').select('cccd_front_url,cccd_back_url,documents,billing_history').eq('room_number', room.room_number)
+      ]);
+      const fileLoadError = [tenantFilesRes, occupantFilesRes, docFilesRes, photoFilesRes, billFilesRes, archivedFilesRes].find(item => item?.error);
+      if (fileLoadError?.error) {
+        throw new Error('Không tải được danh sách file của phòng trước khi xóa: ' + fileLoadError.error.message);
+      }
+      const storagePaths = [
+        ...(tenantFilesRes.data || []).flatMap(row => [row?.cccd_front_url || '', row?.cccd_back_url || '']),
+        ...(occupantFilesRes.data || []).flatMap(row => [row?.cccd_front_url || '', row?.cccd_back_url || '']),
+        ...(docFilesRes.data || []).map(row => row.file_url || ''),
+        ...(photoFilesRes.data || []).map(row => row.photo_url || ''),
+        ...extractBillAttachmentPaths(billFilesRes.data || []),
+        ...(archivedFilesRes.data || []).flatMap(row => [
+          row?.cccd_front_url || '',
+          row?.cccd_back_url || '',
+          ...extractArchivedDocumentPaths(row?.documents || []),
+          ...extractBillAttachmentPaths(row?.billing_history || [])
+        ])
+      ];
 
       const deleteTasks = [
         sb.from('monthly_bills').delete().eq('room_id', roomId),
@@ -8206,6 +8862,8 @@ async function hardDeleteTenant(tenantId, roomId) {
       if (roomReset.error) {
         throw new Error('Không reset được ghi chú phòng: ' + roomReset.error.message);
       }
+
+      await removeStorageFiles(storagePaths);
 
       hasUnsavedChanges = false;
       unsavedReason = '';
@@ -9037,7 +9695,15 @@ async function saveBillRoom(roomId, tenantId, month) {
     else if (clearEvn) billData.evn_bill_image_url = null;
 
     const { error } = await sb.from('monthly_bills').upsert(billData, { onConflict: 'tenant_id,billing_month' });
-    if (error) { toast('Lỗi lưu bill: ' + error.message, 'error'); return; }
+    if (error) {
+      await removeStorageFiles([evnUrl], { silent: true });
+      toast('Lỗi lưu bill: ' + error.message, 'error');
+      return;
+    }
+    await removeStorageFiles([
+      evnUrl && existingBill?.evn_bill_image_url && existingBill.evn_bill_image_url !== evnUrl ? existingBill.evn_bill_image_url : '',
+      clearEvn && existingBill?.evn_bill_image_url ? existingBill.evn_bill_image_url : ''
+    ], { silent: true });
     await syncMonthlySheetFromBill(roomId, month, tenant, billData);
     const clearFlag = document.getElementById(`bClearEvn-${roomId}`);
     if (clearFlag) clearFlag.value = '0';
@@ -9220,11 +9886,19 @@ async function renderBillImageAsset(roomId, tenantId, month) {
       }
     });
     const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-    const exportPath = `exports/${tenantId}/${month}/bill_${Date.now()}.png`;
+    const previousGeneratedPath = bill.generated_bill_image_url || '';
+    const exportPath = `exports/${tenantId}/${month}/bill.png`;
     if (blob) {
       const f = new File([blob], `bill_${tenantId}_${month}.png`, { type: 'image/png' });
       const pth = await uploadFile('nhatro-docs', exportPath, f);
-      await sb.from('monthly_bills').update({ status: 'billed', generated_bill_image_url: pth || null }).eq('tenant_id', tenantId).eq('billing_month', month);
+      const updateRes = await sb.from('monthly_bills').update({ status: 'billed', generated_bill_image_url: pth || null }).eq('tenant_id', tenantId).eq('billing_month', month);
+      if (updateRes.error) {
+        await removeStorageFiles([pth], { silent: true });
+        throw new Error('Không lưu được bill ảnh vào DB: ' + updateRes.error.message);
+      }
+      await removeStorageFiles([
+        pth && previousGeneratedPath && previousGeneratedPath !== pth ? previousGeneratedPath : ''
+      ], { silent: true });
     }
     container.innerHTML = '';
     return {
@@ -9289,7 +9963,7 @@ async function exportAllBills() {
     toast('Không có bill nào để xuất trong kỳ này.', 'warning');
     return;
   }
-  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  const zipBlob = await generateZipBlob(zip);
   setExportProgress(`Đang hoàn tất file ZIP`, fileCount, fileCount, `Đã gom ${fileCount} bill, đang nén file...`);
   downloadBlobFile(zipBlob, `bill_thang_${month.replace(/-/g, '_')}.zip`);
   toast(`Đã xuất ${fileCount} bill vào file ZIP.`);
@@ -10173,7 +10847,10 @@ async function confirmNewTenant() {
     const frontPath = await uploadFile('nhatro-docs', `cccd/new-tenant/${roomId}/${uploadStamp}_front_${frontFile.name}`, frontFile);
     if (!frontPath) return;
     const backPath = await uploadFile('nhatro-docs', `cccd/new-tenant/${roomId}/${uploadStamp}_back_${backFile.name}`, backFile);
-    if (!backPath) return;
+    if (!backPath) {
+      await removeStorageFiles([frontPath], { silent: true });
+      return;
+    }
 
     const { data, error } = await sb.from('tenants').insert({
       room_id: roomId,
@@ -10196,11 +10873,13 @@ async function confirmNewTenant() {
     
     if (error) {
       if (error.code === '23505') {
+        await removeStorageFiles([frontPath, backPath], { silent: true });
         toast('Phòng này vừa có khách active trong hệ thống. Tải lại danh sách phòng rồi thử lại.', 'warning');
         await loadAllData();
         await loadNewTenantForm();
         return;
       }
+      await removeStorageFiles([frontPath, backPath], { silent: true });
       toast('Lỗi: ' + error.message, 'error');
       return;
     }
@@ -10701,7 +11380,12 @@ async function uploadGeneralDoc() {
       const file = files[i];
       const url = await uploadFile('nhatro-docs', `general/${Date.now()}_${i}_${file.name}`, file);
       if (!url) continue;
-      await sb.from('general_documents').insert({ document_name: files.length>1 ? `${name} (${i+1})` : name, file_url: url, file_type: getFileMimeType(file) });
+      const insertRes = await sb.from('general_documents').insert({ document_name: files.length>1 ? `${name} (${i+1})` : name, file_url: url, file_type: getFileMimeType(file) });
+      if (insertRes.error) {
+        await removeStorageFiles([url], { silent: true });
+        toast('Lưu giấy tờ chung vào DB thất bại: ' + insertRes.error.message, 'error');
+        return;
+      }
     }
     toast('Đã upload!');
     document.getElementById('docName').value = '';
@@ -10713,7 +11397,10 @@ async function uploadGeneralDoc() {
 async function deleteGenDoc(id) {
   if (!confirm('Xóa giấy tờ này?')) return;
   await withTransientProgress('Đang xóa giấy tờ chung', 'Đang xóa file vừa chọn khỏi kho giấy tờ chung.', async () => {
+    const docRes = await sb.from('general_documents').select('file_url').eq('id', id).maybeSingle();
+    if (docRes.error) { toast('Không tải được file giấy tờ trước khi xóa: ' + docRes.error.message, 'error'); return; }
     await sb.from('general_documents').delete().eq('id', id);
+    await removeStorageFiles([docRes.data?.file_url || '']);
     toast('Đã xóa!');
     await loadDocuments();
   });
@@ -10811,10 +11498,158 @@ async function loadArchived() {
 async function deleteArchived(id) {
   if (!confirm('Xóa vĩnh viễn khách cũ này? Không thể khôi phục!')) return;
   await withTransientProgress('Đang xóa khách cũ', 'Đang xóa hồ sơ lưu trữ của khách này khỏi kho khách cũ.', async () => {
+    const archivedRes = await sb.from('archived_tenants').select('*').eq('id', id).maybeSingle();
+    if (archivedRes.error) { toast('Không tải được hồ sơ khách cũ trước khi xóa: ' + archivedRes.error.message, 'error'); return; }
+    const archived = archivedRes.data || null;
+    const occRes = archived?.original_tenant_id
+      ? await sb.from('room_occupants').select('id,cccd_front_url,cccd_back_url').eq('tenant_id', archived.original_tenant_id)
+      : { data: [], error: null };
+    if (occRes.error) { toast('Không tải được người nhà trước khi xóa: ' + occRes.error.message, 'error'); return; }
     await sb.from('archived_tenants').delete().eq('id', id);
+    if (archived?.original_tenant_id && (occRes.data || []).length) {
+      await sb.from('room_occupants').delete().eq('tenant_id', archived.original_tenant_id);
+    }
+    await removeStorageFiles([
+      archived?.cccd_front_url || '',
+      archived?.cccd_back_url || '',
+      ...extractArchivedDocumentPaths(archived?.documents || []),
+      ...(occRes.data || []).flatMap(row => [row?.cccd_front_url || '', row?.cccd_back_url || ''])
+    ]);
     toast('Đã xóa!');
     await loadArchived();
   });
+}
+
+function renderYearFrameSettings() {
+  const box = document.getElementById('yearFrameSettingsBox');
+  const note = document.getElementById('yearFrameSettingsNote');
+  if (!box) return;
+  const years = getTrackedYears();
+  const cfg = getYearFrameConfig();
+  if (!years.length) {
+    box.innerHTML = '<div class="overview-empty" style="padding:18px">Chưa có dữ liệu kỳ để dựng khung năm hoạt động.</div>';
+    if (note) note.style.display = 'none';
+    return;
+  }
+  box.innerHTML = years.map(year => {
+    const closed = isOperationalYearClosed(year);
+    const unlocked = isOperationalYearUnlocked(year);
+    const canClose = canCloseOperationalYear(year);
+    const cycles = buildCycleStartsForExportFrame('single_year', String(year));
+    const wrapup = cfg.wrapups?.[year] || null;
+    const carryForwardCount = wrapup?.carryForwardCount || 0;
+    const lastCycle = wrapup?.lastCycle || cycles[cycles.length - 1] || '';
+    const statusBadge = closed
+      ? (unlocked ? '<span class="badge badge-billed">Read-only đang mở khóa</span>' : '<span class="badge badge-paid">Đã khóa sổ</span>')
+      : (canClose ? '<span class="badge badge-water">Có thể đóng sổ</span>' : '<span class="badge badge-pending">Đang vận hành</span>');
+    return `
+      <div class="year-frame-card ${closed ? 'closed' : ''} ${unlocked ? 'unlocked' : ''}">
+        <div class="year-frame-head">
+          <div>
+            <div class="year-frame-title">Năm ${year}</div>
+            <div class="year-frame-meta">
+              ${cycles.length} kỳ theo dõi${lastCycle ? ` · kỳ cuối ${getPeriodMonthTitle(lastCycle).replace('THÁNG', 'Tháng')}` : ''}<br>
+              ${closed && wrapup?.closedAt ? `Khóa sổ lúc ${formatSnapshotMoment(wrapup.closedAt)}.` : (canClose ? `Đã qua mốc ${fmtDate(getNextCycleStart(`${year}-12-01`))}, có thể khóa sổ năm.` : `Chờ qua mốc ${fmtDate(getNextCycleStart(`${year}-12-01`))} để chốt kỳ 1/12 → 1/1 rồi mới khóa sổ.`)}
+            </div>
+          </div>
+          <div class="year-frame-badges">${statusBadge}</div>
+        </div>
+        <div class="year-frame-carry">
+          <strong>Carry forward cuối năm:</strong> ${carryForwardCount
+            ? `${carryForwardCount} hộ sẽ được mang sang ${year + 1}.`
+            : (closed ? 'Năm này không có hộ carry forward.' : 'Khi đóng sổ, hệ thống sẽ tự chụp các hộ còn ở để mang sang năm sau.')}
+        </div>
+        <div class="year-frame-actions">
+          ${!closed && canClose ? `<button class="btn btn-attention" type="button" id="closeYearBtn-${year}" onclick="closeOperationalYear(${year})">🧾 Đóng sổ năm ${year}</button>` : ''}
+          ${closed && !unlocked ? `<button class="btn btn-outline" type="button" id="unlockYearBtn-${year}" onclick="toggleOperationalYearUnlock(${year}, true)">🔓 Mở khóa chỉnh sửa</button>` : ''}
+          ${closed && unlocked ? `<button class="btn btn-primary" type="button" id="unlockYearBtn-${year}" onclick="toggleOperationalYearUnlock(${year}, false)">🔒 Khóa lại năm ${year}</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+  if (note) {
+    note.style.display = hasYearFrameConfigColumn() ? 'none' : 'block';
+    note.textContent = 'Khung năm hiện đang lưu cục bộ trên trình duyệt này vì DB chưa có cột year_frame_config. Muốn sync đa máy, cần chạy hotfix SQL cho settings.year_frame_config.';
+  }
+}
+
+async function closeOperationalYear(year) {
+  const targetYear = Number(year);
+  if (!Number.isFinite(targetYear)) return;
+  if (!canCloseOperationalYear(targetYear)) {
+    toast(`Năm ${targetYear} chưa thể đóng sổ vì kỳ 1/12/${targetYear} → 1/1/${targetYear + 1} chưa kết thúc.`, 'warning');
+    return;
+  }
+  if (!confirm(`Đóng sổ năm ${targetYear}?\n\nNăm này sẽ chuyển sang read-only để quản trị và thuế. Khách đang ở cuối năm sẽ được ghi nhận carry forward sang ${targetYear + 1}.`)) return;
+  try {
+    await withBusyState(`close-year-${targetYear}`, {
+      title: `Đang đóng sổ năm ${targetYear}`,
+      meta: `Đang tạo snapshot carry forward cuối năm ${targetYear} và khóa năm này ở trạng thái read-only.`,
+      selectors: [`#closeYearBtn-${targetYear}`],
+      busyText: '🧾 Đang đóng sổ...'
+    }, async () => {
+      const dataset = await fetchAllManagementArchiveData();
+      const cycleStarts = buildCycleStartsForExportFrame('single_year', String(targetYear), dataset.cycleStarts || []);
+      const carryForwardHouseholds = buildCarryForwardRowsFromArchiveData(dataset, targetYear);
+      const nextConfig = normalizeYearFrameConfig(getYearFrameConfig());
+      nextConfig.closedYears = [...new Set([...nextConfig.closedYears, targetYear])].sort((a, b) => a - b);
+      nextConfig.unlockedYears = nextConfig.unlockedYears.filter(item => item !== targetYear);
+      nextConfig.wrapups[targetYear] = {
+        year: targetYear,
+        closedAt: new Date().toISOString(),
+        cycleCount: cycleStarts.length,
+        lastCycle: cycleStarts[cycleStarts.length - 1] || '',
+        carryForwardCount: carryForwardHouseholds.length,
+        carryForwardHouseholds
+      };
+      const persistResult = await persistYearFrameConfig(nextConfig);
+      renderYearFrameSettings();
+      toast(`Đã đóng sổ năm ${targetYear}. Carry forward sang ${targetYear + 1}: ${carryForwardHouseholds.length} hộ.${persistResult.persistedToDb ? '' : ' (Đang lưu cục bộ trên trình duyệt này)'}`);
+    });
+  } catch (error) {
+    toast('Đóng sổ năm thất bại: ' + (error?.message || 'Không rõ nguyên nhân'), 'error');
+  }
+}
+
+async function toggleOperationalYearUnlock(year, unlock = true) {
+  const targetYear = Number(year);
+  if (!Number.isFinite(targetYear)) return;
+  const actionLabel = unlock ? 'mở khóa' : 'khóa lại';
+  if (!confirm(`${unlock ? 'Mở khóa chỉnh sửa' : 'Khóa lại'} năm ${targetYear}?\n\n${unlock ? 'Sau khi mở khóa, các kỳ của năm này sẽ cho phép sửa lại bill và số nước theo logic hiện có.' : 'Năm này sẽ quay lại trạng thái read-only.'}`)) return;
+  try {
+    await withBusyState(`toggle-year-${targetYear}`, {
+      title: unlock ? `Đang mở khóa năm ${targetYear}` : `Đang khóa lại năm ${targetYear}`,
+      meta: unlock
+        ? `Đang mở quyền chỉnh sửa lại dữ liệu của năm ${targetYear}.`
+        : `Đang đưa năm ${targetYear} về lại trạng thái read-only.`,
+      selectors: [`#unlockYearBtn-${targetYear}`],
+      busyText: unlock ? '🔓 Đang mở khóa...' : '🔒 Đang khóa...'
+    }, async () => {
+      const nextConfig = normalizeYearFrameConfig(getYearFrameConfig());
+      if (unlock) {
+        if (!nextConfig.closedYears.includes(targetYear)) nextConfig.closedYears.push(targetYear);
+        nextConfig.unlockedYears = [...new Set([...nextConfig.unlockedYears, targetYear])].sort((a, b) => a - b);
+      } else {
+        nextConfig.unlockedYears = nextConfig.unlockedYears.filter(item => item !== targetYear);
+        const dataset = await fetchAllManagementArchiveData();
+        const cycleStarts = buildCycleStartsForExportFrame('single_year', String(targetYear), dataset.cycleStarts || []);
+        const carryForwardHouseholds = buildCarryForwardRowsFromArchiveData(dataset, targetYear);
+        nextConfig.wrapups[targetYear] = {
+          year: targetYear,
+          closedAt: new Date().toISOString(),
+          cycleCount: cycleStarts.length,
+          lastCycle: cycleStarts[cycleStarts.length - 1] || '',
+          carryForwardCount: carryForwardHouseholds.length,
+          carryForwardHouseholds
+        };
+      }
+      const persistResult = await persistYearFrameConfig(nextConfig);
+      renderYearFrameSettings();
+      toast(`Đã ${actionLabel} năm ${targetYear}.${persistResult.persistedToDb ? '' : ' (Đang lưu cục bộ trên trình duyệt này)'}`);
+    });
+  } catch (error) {
+    toast(`Không ${actionLabel} được năm ${targetYear}: ` + (error?.message || 'Không rõ nguyên nhân'), 'error');
+  }
 }
 
 // ============================================================
@@ -10847,7 +11682,8 @@ async function loadSettings() {
   document.getElementById('setReminderBillingMessage').value = reminderConfig.billingMessage || '';
   renderSettingsRoomConfigRows();
   updateSettingsRoomPriceTotal();
-  renderReminderSettingsPreview();
+  renderReminderSettingsControls();
+  renderYearFrameSettings();
 }
 
 function renderSettingsRoomConfigRows() {
@@ -10884,6 +11720,7 @@ async function saveSettings() {
       selectors: ['#saveSettingsBtn'],
       busyText: '⏳ Đang lưu...'
     }, async () => {
+      let uploadedQrPath = '';
       const updates = {
         owner_name: document.getElementById('setOwnerName').value,
         owner_phone: document.getElementById('setOwnerPhone').value,
@@ -10903,13 +11740,23 @@ async function saveSettings() {
       }
       
       const qrFile = document.getElementById('setQRImage').files[0];
+      const oldQrPath = appData.settings?.qr_image_url || '';
       if (qrFile) {
         const url = await uploadFile('nhatro-docs', `qr/qr_${Date.now()}.jpg`, qrFile);
-        if (url) updates.qr_image_url = url;
+        if (url) {
+          updates.qr_image_url = url;
+          uploadedQrPath = url;
+        }
       }
       
       const { error } = await sb.from('settings').update(updates).eq('id', appData.settings.id);
-      if (error) throw new Error('Lỗi: ' + error.message);
+      if (error) {
+        await removeStorageFiles([uploadedQrPath], { silent: true });
+        throw new Error('Lỗi: ' + error.message);
+      }
+      await removeStorageFiles([
+        qrFile && oldQrPath && oldQrPath !== updates.qr_image_url ? oldQrPath : ''
+      ], { silent: true });
 
       const roomUpdates = await Promise.all(appData.rooms.map(room => {
         const roomPrice = parseInt(document.getElementById(`setRoomPrice-${room.id}`)?.value, 10) || 0;
