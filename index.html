@@ -195,6 +195,32 @@ body.dark-mode .theme-toggle{background:rgba(15,20,26,.86)}
 .collection-state{font-size:12px;color:var(--text2);margin-top:2px}
 .collection-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border)}
 .overview-shell{display:flex;flex-direction:column;gap:20px}
+.overview-shell > .overview-section{order:4}
+.overview-command-center{order:0!important;display:grid;grid-template-columns:minmax(280px,1.15fr) minmax(260px,.85fr);gap:16px;padding:0;background:transparent;border:none;box-shadow:none}
+.overview-command-hero,.overview-command-card{background:var(--card);border:1px solid var(--card-border);border-radius:18px;box-shadow:var(--shadow);padding:20px 22px}
+.overview-command-hero{display:flex;flex-direction:column;gap:16px;background:linear-gradient(135deg,rgba(255,154,77,.13),rgba(255,255,255,.96) 42%,rgba(15,138,95,.06))}
+body.dark-mode .overview-command-hero{background:linear-gradient(135deg,rgba(255,154,77,.13),rgba(21,27,34,.98) 42%,rgba(15,138,95,.08))}
+.overview-command-eyebrow{font-size:11px;font-weight:900;letter-spacing:0;text-transform:uppercase;color:var(--gold)}
+.overview-command-title{font-size:30px;font-weight:850;letter-spacing:0;line-height:1.08}
+.overview-command-subtitle{font-size:13px;color:var(--text2);line-height:1.55;max-width:760px}
+.overview-command-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.overview-command-metric{border:1px solid rgba(127,140,160,.14);border-radius:14px;background:rgba(255,255,255,.72);padding:12px 14px;min-width:0}
+body.dark-mode .overview-command-metric{background:rgba(17,23,30,.72)}
+.overview-command-metric-value{font-size:22px;font-weight:850;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1}
+.overview-command-metric-label{font-size:11px;color:var(--text2);margin-top:6px;line-height:1.25}
+.overview-command-actions{display:flex;gap:10px;flex-wrap:wrap}
+.overview-command-card-title{font-size:16px;font-weight:850;color:var(--text)}
+.overview-command-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.overview-command-task{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface-soft);font-size:13px;line-height:1.45}
+.overview-command-task-dot{width:9px;height:9px;border-radius:999px;background:var(--gold);margin-top:5px;flex:none}
+.overview-command-task.done .overview-command-task-dot{background:var(--success)}
+.overview-command-task.danger .overview-command-task-dot{background:var(--danger)}
+.overview-command-task strong{color:var(--text)}
+.overview-finance-workbook{order:2!important}
+.overview-month-shell{order:1!important}
+.overview-deposit-section{order:3!important}
+.overview-resident-section{order:4!important}
+.overview-lifetime-shell{order:5!important}
 .overview-top-grid{display:grid;grid-template-columns:1fr;gap:16px}
 .overview-panel,.overview-section{background:var(--card);border:1px solid var(--card-border);border-radius:18px;box-shadow:var(--shadow)}
 .overview-panel{padding:20px 22px}
@@ -394,6 +420,12 @@ body.dark-mode .overview-finance-table tbody tr:nth-child(even) td{background:rg
 .settings-room-total{margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,154,77,.22);background:linear-gradient(180deg,rgba(255,154,77,.08),rgba(255,154,77,.03));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .settings-room-total-label{font-size:12px;color:var(--text2);line-height:1.5}
 .settings-room-total-value{font-size:24px;font-weight:800;color:var(--gold);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.settings-hub{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.settings-hub-card{border:1px solid var(--card-border);border-radius:18px;background:var(--card);box-shadow:var(--shadow);padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.settings-hub-kicker{font-size:10px;font-weight:900;letter-spacing:0;text-transform:uppercase;color:var(--gold)}
+.settings-hub-title{font-size:18px;font-weight:850;color:var(--text);line-height:1.15;letter-spacing:0}
+.settings-hub-note{font-size:12px;color:var(--text2);line-height:1.55}
+.settings-hub-card .btn{margin-top:auto;justify-content:center}
 .settings-card-title{font-size:21px;font-weight:800;letter-spacing:-.03em;margin-bottom:10px}
 .settings-card-note{font-size:12px;color:var(--text2);line-height:1.6;max-width:760px;margin-bottom:14px}
 .settings-reminder-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
@@ -639,7 +671,7 @@ textarea.form-input{resize:vertical;min-height:108px}
 .billing-field-stack{grid-template-columns:1fr}
 }
 @media(max-width:900px){.export-frame-grid{grid-template-columns:1fr}.login-reminder-actions{align-items:flex-start;flex-direction:column}}
-@media(max-width:1024px){.grid-3{grid-template-columns:repeat(2,1fr)}.collection-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.billing-room-header{grid-template-columns:minmax(180px,220px) 1fr}.billing-room-total{grid-column:1 / -1;align-items:flex-start;text-align:left}.billing-detail-grid{grid-template-columns:1fr}.billing-report-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.billing-field-stack{grid-template-columns:1fr}.overview-top-grid{grid-template-columns:1fr}.overview-summary-grid,.overview-summary-grid.overview-summary-grid-3,.overview-summary-grid.overview-summary-grid-5,.overview-summary-grid-month,.overview-summary-grid-alltime{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-split-grid{grid-template-columns:1fr}}
+@media(max-width:1024px){.grid-3{grid-template-columns:repeat(2,1fr)}.collection-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.billing-room-header{grid-template-columns:minmax(180px,220px) 1fr}.billing-room-total{grid-column:1 / -1;align-items:flex-start;text-align:left}.billing-detail-grid{grid-template-columns:1fr}.billing-report-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.billing-field-stack{grid-template-columns:1fr}.overview-command-center{grid-template-columns:1fr}.overview-command-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.overview-top-grid{grid-template-columns:1fr}.overview-summary-grid,.overview-summary-grid.overview-summary-grid-3,.overview-summary-grid.overview-summary-grid-5,.overview-summary-grid-month,.overview-summary-grid-alltime{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-split-grid{grid-template-columns:1fr}.settings-hub{grid-template-columns:1fr}}
 /* SECTION PAGES */
 .page{display:none;min-height:calc(100vh - 72px)}
 .page.active{display:block}
@@ -1599,6 +1631,26 @@ body.mobile-app .save-float{bottom:96px;right:16px}
         </div>
       </div>
       <div class="page-content page-content-medium">
+        <div class="settings-hub">
+          <div class="settings-hub-card">
+            <div class="settings-hub-kicker">Nền vận hành</div>
+            <div class="settings-hub-title">Phòng, giá phòng, mã điện</div>
+            <div class="settings-hub-note">Đây là dữ liệu cố định. Sai ở đây thì bảng tiền tháng và lợi nhuận sẽ sai theo.</div>
+            <button class="btn btn-outline" type="button" onclick="document.getElementById('settingsRoomConfigRows')?.scrollIntoView({behavior:'smooth',block:'center'})">Mở cấu hình phòng</button>
+          </div>
+          <div class="settings-hub-card">
+            <div class="settings-hub-kicker">Việc cần nhớ</div>
+            <div class="settings-hub-title">Nhắc số nước và thu tiền</div>
+            <div class="settings-hub-note">Popup chỉ hiện khi còn việc thật, giúp người nhà vào web biết ngay phải xử lý gì.</div>
+            <button class="btn btn-outline" type="button" onclick="document.getElementById('setReminderWaterEnabled')?.scrollIntoView({behavior:'smooth',block:'center'})">Mở nhắc việc</button>
+          </div>
+          <div class="settings-hub-card">
+            <div class="settings-hub-kicker">Đối chiếu</div>
+            <div class="settings-hub-title">Xuất Excel và ZIP backup</div>
+            <div class="settings-hub-note">Excel để đọc, gửi, đối chiếu. ZIP để giữ bản khôi phục toàn bộ dữ liệu và file đính kèm.</div>
+            <button class="btn btn-attention" type="button" onclick="document.getElementById('settingsExportWorkbookBtn')?.scrollIntoView({behavior:'smooth',block:'center'})">Mở xuất dữ liệu</button>
+          </div>
+        </div>
         <div class="card" style="max-width:700px">
           <h3 style="margin-bottom:16px">👤 Thông tin chủ trọ</h3>
           <div class="grid-2">
@@ -4787,6 +4839,123 @@ function buildResidentSnapshotHistoryHtml(rows = []) {
   `;
 }
 
+function buildDashboardWorkState({
+  financeRows = [],
+  readings = [],
+  bills = [],
+  moveIns = [],
+  checkouts = []
+} = {}) {
+  const expectedRoomIds = collectReminderExpectedRoomIds(financeRows, moveIns, checkouts);
+  const readingRoomIds = new Set((readings || []).map(row => row.room_id).filter(Boolean));
+  const billMap = new Map((bills || []).map(row => [row.room_id, row]));
+  const roomIds = expectedRoomIds.length
+    ? expectedRoomIds
+    : [...new Set([
+        ...(bills || []).map(row => row.room_id),
+        ...(readings || []).map(row => row.room_id)
+      ].filter(Boolean))];
+  const statusRows = roomIds.map(roomId => ({
+    roomId,
+    status: getBillingUiStatus(billMap.get(roomId), readingRoomIds.has(roomId))
+  }));
+  const missingWater = getReminderRoomLabels(expectedRoomIds.filter(roomId => !readingRoomIds.has(roomId)));
+  const paid = getReminderRoomLabels(statusRows.filter(row => row.status === 'paid').map(row => row.roomId));
+  const unpaid = getReminderRoomLabels(statusRows.filter(row => row.status === 'unpaid').map(row => row.roomId));
+  const ready = getReminderRoomLabels(statusRows.filter(row => row.status === 'ready').map(row => row.roomId));
+  const pending = getReminderRoomLabels(statusRows.filter(row => row.status === 'pending').map(row => row.roomId));
+  return {
+    expectedCount: roomIds.length,
+    waterDoneCount: expectedRoomIds.length
+      ? expectedRoomIds.filter(roomId => readingRoomIds.has(roomId)).length
+      : readingRoomIds.size,
+    paidCount: paid.length,
+    actionCount: missingWater.length + unpaid.length + ready.length + pending.length,
+    missingWater,
+    paid,
+    unpaid,
+    ready,
+    pending
+  };
+}
+
+function buildDashboardTaskRow(label, values = [], tone = '') {
+  if (!values.length) return '';
+  return `
+    <div class="overview-command-task ${tone}">
+      <span class="overview-command-task-dot"></span>
+      <span><strong>${esc(label)}:</strong> ${esc(values.join(', '))}</span>
+    </div>
+  `;
+}
+
+function buildDashboardCommandCenterHtml({
+  month,
+  monthSummary = {},
+  activeRooms = 0,
+  totalPeople = 0,
+  monthFullOccupancyBase = 0,
+  workState = {}
+} = {}) {
+  const monthTitle = getPeriodMonthTitle(month).replace('THÁNG ', 'Tháng ');
+  const expectedCount = Number(workState.expectedCount || 0);
+  const paidText = expectedCount ? `${workState.paidCount || 0}/${expectedCount}` : '0/0';
+  const actionCount = Number(workState.actionCount || 0);
+  const profitGap = Number(monthSummary.profit || 0) - Number(monthFullOccupancyBase || 0);
+  const gapText = profitGap === 0 ? 'Đúng mốc full phòng' : `${profitGap > 0 ? '+' : ''}${fmt(profitGap)}`;
+  const taskHtml = [
+    buildDashboardTaskRow('Thiếu số nước', workState.missingWater || [], 'danger'),
+    buildDashboardTaskRow('Chưa tick Đã thu', workState.unpaid || [], 'danger'),
+    buildDashboardTaskRow('Có số nước, chưa lập bill', workState.ready || [], ''),
+    buildDashboardTaskRow('Thiếu số nước nên chưa tính tiền', workState.pending || [], '')
+  ].filter(Boolean).join('');
+  const doneHtml = `
+    <div class="overview-command-task done">
+      <span class="overview-command-task-dot"></span>
+      <span><strong>Tháng này đã gọn:</strong> đủ số nước, bill đã PAID hoặc không còn việc treo.</span>
+    </div>
+  `;
+
+  return `
+    <section class="overview-section overview-command-center">
+      <div class="overview-command-hero">
+        <div>
+          <div class="overview-command-eyebrow">Màn chính</div>
+          <div class="overview-command-title">${esc(monthTitle)}</div>
+          <div class="overview-command-subtitle">Nhìn nhanh tháng này: còn phòng nào cần nhập nước, bill nào chưa Đã thu, và lợi nhuận giữ lại đang lệch mốc full phòng ra sao.</div>
+        </div>
+        <div class="overview-command-metrics">
+          <div class="overview-command-metric">
+            <div class="overview-command-metric-value">${fmt(monthSummary.profit || 0)}</div>
+            <div class="overview-command-metric-label">Lợi nhuận giữ lại</div>
+          </div>
+          <div class="overview-command-metric">
+            <div class="overview-command-metric-value">${paidText}</div>
+            <div class="overview-command-metric-label">Phòng đã tick Đã thu</div>
+          </div>
+          <div class="overview-command-metric">
+            <div class="overview-command-metric-value">${actionCount}</div>
+            <div class="overview-command-metric-label">Việc còn phải xử lý</div>
+          </div>
+        </div>
+        <div class="overview-command-subtitle">${activeRooms} phòng có khách, ${totalPeople} người đang ở. So với mốc full phòng: ${esc(gapText)}.</div>
+        <div class="overview-command-actions">
+          <button class="btn btn-primary" type="button" onclick="navigate('waterEntry');setWaterPageMode('entry')">Nhập số nước</button>
+          <button class="btn btn-outline" type="button" onclick="navigate('billing')">Tính tiền</button>
+          <button class="btn btn-attention" type="button" onclick="openExportFrameModal('management')">Xuất Excel</button>
+          <button class="btn btn-outline" type="button" onclick="navigate('settings')">Cài đặt</button>
+        </div>
+      </div>
+      <aside class="overview-command-card">
+        <div class="overview-command-card-title">Cần làm trong tháng</div>
+        <div class="overview-command-list">
+          ${taskHtml || doneHtml}
+        </div>
+      </aside>
+    </section>
+  `;
+}
+
 async function renderDashboard(skipReload = false) {
   const el = document.getElementById('dashboardReserved');
   if (!el) return;
@@ -4848,6 +5017,13 @@ async function renderDashboard(skipReload = false) {
     const totalHeldDeposit = depositRows.reduce((sum, row) => sum + (row.deposit_amount || 0), 0);
     const activeRooms = financeRows.filter(row => row.full_name).length;
     const totalPeople = (appData.tenants || []).length + (appData.occupants || []).filter(item => item.is_active).length;
+    const dashboardWorkState = buildDashboardWorkState({
+      financeRows,
+      readings: monthReadings,
+      bills: monthBills,
+      moveIns: monthMoveIns,
+      checkouts: monthCheckouts
+    });
     const selectedResidentSnapshotId = dashboardState.selectedResidentSnapshotId;
 
     dashboardState = {
@@ -4868,6 +5044,15 @@ async function renderDashboard(skipReload = false) {
 
     el.innerHTML = `
     <div class="overview-shell">
+      ${buildDashboardCommandCenterHtml({
+        month,
+        monthSummary,
+        activeRooms,
+        totalPeople,
+        monthFullOccupancyBase,
+        workState: dashboardWorkState
+      })}
+
       <section class="overview-section overview-lifetime-shell overview-lifetime-toggle">
         <details>
           <summary class="overview-section-summary">
@@ -4906,7 +5091,7 @@ async function renderDashboard(skipReload = false) {
         </details>
       </section>
 
-      <section class="overview-section">
+      <section class="overview-section overview-finance-workbook">
         <div class="overview-section-head">
           <div>
             <div class="overview-section-title overview-section-title-emphasis">${getPeriodMonthTitle(month).replace('THÁNG ', 'BẢNG TIỀN THÁNG ')}</div>
@@ -4961,7 +5146,7 @@ async function renderDashboard(skipReload = false) {
         ${buildTurnoverBriefHtml(monthBundle)}
       </section>
 
-      <section class="overview-section">
+      <section class="overview-section overview-deposit-section">
         <details class="overview-collapsible">
           <summary>
             <span>TIỀN CỌC VÀ PHÁT SINH THÁNG</span>
@@ -4983,7 +5168,7 @@ async function renderDashboard(skipReload = false) {
         </details>
       </section>
 
-      <section class="overview-section">
+      <section class="overview-section overview-resident-section">
         <details class="overview-collapsible">
           <summary>
             <span>BẢNG NGƯỜI Ở HIỆN TẠI</span>
