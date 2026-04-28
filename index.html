@@ -444,23 +444,29 @@ body.dark-mode .overview-finance-table tbody tr:nth-child(even) td{background:rg
 .export-frame-year{margin-top:14px;padding:14px 16px;border:1px dashed rgba(255,154,77,.28);border-radius:16px;background:var(--surface-soft);display:none}
 .export-frame-year.show{display:block}
 .export-frame-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:18px}
-.login-reminder-modal{max-width:720px}
-.login-reminder-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
-.login-reminder-time{font-size:12px;color:var(--text2);margin-top:4px}
+.login-reminder-modal{max-width:560px}
+.login-reminder-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px;padding-right:28px}
+.login-reminder-time{font-size:12px;color:var(--text2);margin-top:5px}
 @media (max-width: 980px){
   .settings-reminder-editor{grid-template-columns:1fr}
 }
 .login-reminder-stack{display:flex;flex-direction:column;gap:12px}
-.login-reminder-card{border:1px solid var(--border);border-radius:16px;background:var(--surface-soft);padding:14px 16px}
-.login-reminder-card.warning{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.08)}
+.login-reminder-card{border:1px solid rgba(245,158,11,.26);border-radius:18px;background:linear-gradient(180deg,rgba(245,158,11,.10),rgba(245,158,11,.04));padding:16px}
 .login-reminder-card.info{border-color:rgba(59,130,246,.22);background:rgba(59,130,246,.07)}
-.login-reminder-title{font-size:14px;font-weight:800;color:var(--text)}
-.login-reminder-note{font-size:12px;color:var(--text2);line-height:1.6;margin-top:6px}
-.login-reminder-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
-.login-reminder-item{padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid var(--border);font-size:13px;line-height:1.55}
-.login-reminder-item strong{color:var(--gold)}
-.login-reminder-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:18px}
-.login-reminder-toggle{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2)}
+.login-reminder-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.login-reminder-title{font-size:15px;font-weight:800;color:var(--text);line-height:1.25}
+.login-reminder-summary{font-size:13px;color:var(--text);line-height:1.5;margin-top:6px}
+.login-reminder-note{font-size:12px;color:var(--text2);line-height:1.55;margin-top:8px}
+.login-reminder-chip{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:6px 10px;background:rgba(255,154,77,.14);border:1px solid rgba(255,154,77,.22);color:#F59E0B;font-size:11px;font-weight:800;white-space:nowrap}
+.login-reminder-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.login-reminder-stat{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:10px 12px;min-width:0}
+.login-reminder-stat-value{font-size:18px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1}
+.login-reminder-stat-label{font-size:11px;color:var(--text2);margin-top:5px;line-height:1.25}
+.login-reminder-list{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.login-reminder-item{padding:9px 11px;border-radius:12px;background:var(--card);border:1px solid var(--border);font-size:13px;line-height:1.45}
+.login-reminder-card-foot{display:flex;justify-content:flex-end;margin-top:12px}
+.login-reminder-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px dashed var(--border)}
+.login-reminder-toggle{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)}
 .login-reminder-toggle input{width:16px;height:16px}
 .room-static-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .room-static-item{border:1px solid var(--border);border-radius:14px;background:var(--surface-soft);padding:12px 14px;min-width:0}
@@ -1647,15 +1653,15 @@ body.mobile-app .save-float{bottom:96px;right:16px}
           </div>
         </div>
         <div class="card" style="max-width:900px">
-          <h3 class="settings-card-title">🔔 Popup nhắc việc khi đăng nhập</h3>
-          <div class="settings-card-note">Chỉ nhắc đúng kỳ đang hoạt động. Nếu tick “không show lại” thì popup chỉ ẩn trong session đăng nhập hiện tại.</div>
-          <div class="settings-helper-note">Popup dùng giờ thật của trình duyệt đang đăng nhập.</div>
+          <h3 class="settings-card-title">🔔 Nhắc việc khi đăng nhập</h3>
+          <div class="settings-card-note">Popup chỉ hiện khi có việc cần xử lý: thiếu số nước, chưa lập bill hoặc chưa tick đã thu tiền.</div>
+          <div class="settings-helper-note">Nếu mọi việc đã xong, hệ thống không bật popup để tránh làm rối màn hình.</div>
           <div class="settings-reminder-editor">
             <div class="settings-reminder-panel">
               <div class="settings-reminder-panel-head">
                 <div>
                   <div class="settings-reminder-panel-title">Nhắc nhập số nước</div>
-                  <div class="settings-reminder-panel-note">Chọn số ngày ở cuối tháng trước và đầu tháng này để hệ thống nhắc chốt kỳ.</div>
+                  <div class="settings-reminder-panel-note">Đến ngày hẹn, nếu còn phòng thiếu số nước thì popup mới hiện.</div>
                 </div>
                 <label class="settings-toggle-chip"><input type="checkbox" id="setReminderWaterEnabled" onchange="renderReminderSettingsControls()"> Bật</label>
               </div>
@@ -1684,7 +1690,7 @@ body.mobile-app .save-float{bottom:96px;right:16px}
               <div class="settings-reminder-panel-head">
                 <div>
                   <div class="settings-reminder-panel-title">Nhắc thu tiền</div>
-                  <div class="settings-reminder-panel-note">Chọn các ngày trong tháng cần popup báo nhanh tình trạng bill UNPAID.</div>
+                  <div class="settings-reminder-panel-note">Đến ngày hẹn, nếu còn bill chưa PAID hoặc chưa lập bill thì popup mới hiện.</div>
                 </div>
                 <label class="settings-toggle-chip"><input type="checkbox" id="setReminderBillingEnabled" onchange="renderReminderSettingsControls()"> Bật</label>
               </div>
@@ -1696,23 +1702,23 @@ body.mobile-app .save-float{bottom:96px;right:16px}
             </div>
           </div>
           <div class="form-group">
-            <label>Tin nhắn popup cho nhắc nhập số nước</label>
+            <label>Ghi chú thêm cho nhắc số nước</label>
             <textarea class="form-input" id="setReminderWaterMessage" placeholder="Ví dụ: Tháng này nhớ nhập nước để chốt kỳ đúng hạn." oninput="renderReminderSettingsPreview()"></textarea>
           </div>
           <div class="form-group">
-            <label>Tin nhắn popup cho nhắc thu tiền</label>
+            <label>Ghi chú thêm cho nhắc thu tiền</label>
             <textarea class="form-input" id="setReminderBillingMessage" placeholder="Ví dụ: Kiểm tra các phòng chưa PAID của kỳ hiện tại." oninput="renderReminderSettingsPreview()"></textarea>
           </div>
           <div class="settings-preview-box" id="reminderSettingsPreview">Rule popup sẽ hiện ở đây để kiểm tra nhanh trước khi lưu.</div>
         </div>
         <div class="card" style="max-width:700px">
           <h3 class="settings-card-title">📊 Xuất dữ liệu</h3>
-          <div class="settings-card-note">Xuất hồ sơ quản lý để lưu trữ và đối soát: sổ trọ, bảng nước, người ở, khách cũ, giấy tờ và lịch sử vận hành.</div>
+          <div class="settings-card-note">Dùng Excel để đọc/đối chiếu. Dùng ZIP để backup toàn bộ hồ sơ và file đính kèm.</div>
           <div class="export-stack">
-            <button class="btn btn-attention" id="settingsExportWorkbookBtn" type="button" onclick="openExportFrameModal('management')">📊 Xuất Excel toàn bộ dữ liệu quản lý</button>
-            <button class="btn btn-outline" id="settingsExportDatabaseBtn" type="button" onclick="exportDatabaseZip()">🗂️ Xuất database ZIP đầy đủ hồ sơ</button>
+            <button class="btn btn-attention" id="settingsExportWorkbookBtn" type="button" onclick="openExportFrameModal('management')">📊 Excel để đọc / đối chiếu</button>
+            <button class="btn btn-outline" id="settingsExportDatabaseBtn" type="button" onclick="exportDatabaseZip()">🗂️ ZIP backup đầy đủ</button>
           </div>
-          <div class="export-note-inline">Nên backup định kỳ theo tháng / quý / năm để luôn có bản đối soát ngoài database.</div>
+          <div class="export-note-inline">Excel dành cho mẹ/em gái mở xem số liệu. ZIP dành cho khôi phục khi có sự cố.</div>
         </div>
         <div class="card" style="max-width:900px">
           <h3 class="settings-card-title">🗓️ Khung năm hoạt động</h3>
@@ -1810,7 +1816,7 @@ body.mobile-app .save-float{bottom:96px;right:16px}
     <button class="modal-close" onclick="closeLoginReminderModal()">&times;</button>
     <div class="login-reminder-head">
       <div>
-        <h2 style="margin-bottom:0">📌 Báo cáo nhanh khi đăng nhập</h2>
+        <h2 style="margin-bottom:0">Việc cần làm hôm nay</h2>
         <div class="login-reminder-time" id="loginReminderTime"></div>
       </div>
     </div>
@@ -1818,9 +1824,9 @@ body.mobile-app .save-float{bottom:96px;right:16px}
     <div class="login-reminder-actions">
       <label class="login-reminder-toggle">
         <input type="checkbox" id="loginReminderSuppressToggle">
-        <span>Không show pop up lại nữa trong session đăng nhập này</span>
+        <span>Ẩn trong phiên đăng nhập này</span>
       </label>
-      <button class="btn btn-primary" type="button" onclick="closeLoginReminderModal()">Đã xem</button>
+      <button class="btn btn-primary" type="button" onclick="closeLoginReminderModal()">Đóng</button>
     </div>
   </div>
 </div>
@@ -2068,10 +2074,10 @@ function renderReminderSettingsPreview() {
   const cfg = getLoginReminderConfigFromInputs();
   const billingDaysText = cfg.billingDays.length ? cfg.billingDays.join(', ') : 'chưa có ngày nào';
   el.innerHTML = `
-    <div><strong>Nhắc nhập nước:</strong> ${cfg.waterEnabled ? `${cfg.waterTailDays} ngày cuối tháng trước + ${cfg.waterHeadDays} ngày đầu tháng này.` : 'Đang tắt.'}</div>
-    <div><strong>Nhắc thu tiền:</strong> ${cfg.billingEnabled ? `Các ngày ${billingDaysText} trong tháng.` : 'Đang tắt.'}</div>
-    <div><strong>Nội dung popup nhập nước:</strong> ${esc(cfg.waterMessage || 'Dùng nội dung mặc định của hệ thống.')}</div>
-    <div><strong>Nội dung popup thu tiền:</strong> ${esc(cfg.billingMessage || 'Dùng nội dung mặc định của hệ thống.')}</div>
+    <div><strong>Số nước:</strong> ${cfg.waterEnabled ? `Nhắc trong ${cfg.waterTailDays} ngày cuối tháng trước và ${cfg.waterHeadDays} ngày đầu tháng này, chỉ hiện nếu còn phòng thiếu số nước.` : 'Đang tắt.'}</div>
+    <div><strong>Thu tiền:</strong> ${cfg.billingEnabled ? `Nhắc ngày ${billingDaysText}, chỉ hiện nếu còn phòng chưa PAID/chưa lập bill.` : 'Đang tắt.'}</div>
+    <div><strong>Ghi chú số nước:</strong> ${esc(cfg.waterMessage || 'Không có ghi chú thêm.')}</div>
+    <div><strong>Ghi chú thu tiền:</strong> ${esc(cfg.billingMessage || 'Không có ghi chú thêm.')}</div>
   `;
 }
 
@@ -5748,13 +5754,38 @@ function getReminderRoomLabels(roomIds = []) {
 }
 
 function buildLoginReminderCardHtml(card = {}) {
+  const stats = Array.isArray(card.stats) ? card.stats : [];
+  const lines = Array.isArray(card.lines) ? card.lines : [];
   return `
     <section class="login-reminder-card ${card.tone || 'info'}">
-      <div class="login-reminder-title">${esc(card.title || 'Báo cáo nhanh')}</div>
-      ${card.note ? `<div class="login-reminder-note">${esc(card.note)}</div>` : ''}
-      <div class="login-reminder-list">
-        ${(card.lines || []).map(line => `<div class="login-reminder-item">${esc(line)}</div>`).join('')}
+      <div class="login-reminder-card-top">
+        <div>
+          <div class="login-reminder-title">${esc(card.title || 'Việc cần xử lý')}</div>
+          ${card.summary ? `<div class="login-reminder-summary">${esc(card.summary)}</div>` : ''}
+        </div>
+        ${card.badge ? `<span class="login-reminder-chip">${esc(card.badge)}</span>` : ''}
       </div>
+      ${stats.length ? `
+        <div class="login-reminder-stats">
+          ${stats.map(stat => `
+            <div class="login-reminder-stat">
+              <div class="login-reminder-stat-value">${esc(stat.value)}</div>
+              <div class="login-reminder-stat-label">${esc(stat.label)}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+      ${lines.length ? `
+        <div class="login-reminder-list">
+          ${lines.map(line => `<div class="login-reminder-item">${esc(line)}</div>`).join('')}
+        </div>
+      ` : ''}
+      ${card.note ? `<div class="login-reminder-note">${esc(card.note)}</div>` : ''}
+      ${card.actionPage ? `
+        <div class="login-reminder-card-foot">
+          <button class="btn btn-primary" type="button" onclick="openLoginReminderTarget(${jsArg(card.actionPage)}, ${jsArg(card.actionMode || '')})">${esc(card.actionLabel || 'Mở mục này')}</button>
+        </div>
+      ` : ''}
     </section>
   `;
 }
@@ -5798,24 +5829,28 @@ async function buildWaterLoginReminderCard(today, cache = new Map(), config = ge
   const expectedRoomIds = collectReminderExpectedRoomIds(payload.sheetRows, payload.moveIns, payload.checkouts);
   const readingRoomIds = new Set((payload.readings || []).map(row => row.room_id).filter(Boolean));
   const missingLabels = getReminderRoomLabels(expectedRoomIds.filter(roomId => !readingRoomIds.has(roomId)));
-  const lines = [`Kỳ cần kiểm tra: ${getPeriodDisplayText(cycleStart)}.`];
-  if (expectedRoomIds.length) {
-    lines.push(`Đã nhập số nước: ${readingRoomIds.size}/${expectedRoomIds.length} phòng cần theo dõi.`);
-  } else if (payload.readings.length) {
-    lines.push(`Đã có ${payload.readings.length} phòng lưu số nước cho kỳ này.`);
-  } else {
-    lines.push('Kỳ này chưa có số nước nào được lưu.');
-  }
-  if (missingLabels.length) {
-    lines.push(`Còn thiếu số nước ở: ${missingLabels.join(', ')}.`);
-  } else if (payload.readings.length) {
-    lines.push('Kỳ này đã có dữ liệu nước đầy đủ cho các phòng đang theo dõi.');
-  }
+  const expectedCount = expectedRoomIds.length || payload.readings.length || appData.tenants.length;
+  const doneCount = expectedRoomIds.length
+    ? expectedRoomIds.filter(roomId => readingRoomIds.has(roomId)).length
+    : readingRoomIds.size;
+  if (!missingLabels.length && payload.readings.length) return null;
   return {
-    tone: missingLabels.length || !payload.readings.length ? 'warning' : 'info',
-    title: `Nhắc nhập số nước ${getPeriodMonthTitle(cycleStart).replace('THÁNG', 'Tháng')}`,
-    note: config.waterMessage || 'Popup này chỉ kiểm tra đúng kỳ đang đến hạn nhập nước, không rà lại các kỳ cũ.',
-    lines
+    tone: 'warning',
+    badge: 'Nước',
+    title: `Cần nhập số nước`,
+    summary: `Kỳ ${getPeriodMonthTitle(cycleStart).replace('THÁNG', 'Tháng')}: còn thiếu ${Math.max(0, expectedCount - doneCount)} phòng.`,
+    stats: [
+      { value: `${doneCount}/${expectedCount || 0}`, label: 'Đã nhập' },
+      { value: String(Math.max(0, expectedCount - doneCount)), label: 'Còn thiếu' },
+      { value: cycleStartToMonthValue(cycleStart), label: 'Kỳ' }
+    ],
+    lines: missingLabels.length
+      ? [`Thiếu: ${missingLabels.join(', ')}`]
+      : ['Kỳ này chưa có số nước nào được lưu.'],
+    note: config.waterMessage || '',
+    actionPage: 'waterEntry',
+    actionMode: 'entry',
+    actionLabel: 'Mở Nhập số nước'
   };
 }
 
@@ -5833,17 +5868,7 @@ async function buildBillingLoginReminderCard(today, cache = new Map(), config = 
         ...(payload.bills || []).map(row => row.room_id),
         ...(payload.readings || []).map(row => row.room_id)
       ].filter(Boolean))];
-  if (!roomIds.length && !payload.bills.length) {
-    return {
-      tone: 'info',
-      title: `Theo dõi thu tiền ${getPeriodMonthTitle(cycleStart).replace('THÁNG', 'Tháng')}`,
-      note: 'Popup này chỉ kiểm tra đúng kỳ đang đến hạn thu tiền.',
-      lines: [
-        `Kỳ cần kiểm tra: ${getPeriodDisplayText(cycleStart)}.`,
-        'Hiện chưa có phòng nào phát sinh bill để theo dõi.'
-      ]
-    };
-  }
+  if (!roomIds.length && !payload.bills.length) return null;
   const statusRows = roomIds.map(roomId => ({
     roomId,
     status: getBillingUiStatus(billMap.get(roomId), readingRoomIds.has(roomId))
@@ -5853,21 +5878,25 @@ async function buildBillingLoginReminderCard(today, cache = new Map(), config = 
   const ready = getReminderRoomLabels(statusRows.filter(row => row.status === 'ready').map(row => row.roomId));
   const pending = getReminderRoomLabels(statusRows.filter(row => row.status === 'pending').map(row => row.roomId));
   const totalRooms = statusRows.length;
-  const lines = [
-    `Kỳ cần thu tiền: ${getPeriodDisplayText(cycleStart)}.`,
-    `Đã PAID: ${paid.length}/${totalRooms} phòng.`
-  ];
-  if (unpaid.length) lines.push(`Phòng đang UNPAID: ${unpaid.join(', ')}.`);
-  if (ready.length) lines.push(`Đã có số nước nhưng chưa lập bill: ${ready.join(', ')}.`);
-  if (pending.length) lines.push(`Chưa có số nước nên chưa thể lập bill: ${pending.join(', ')}.`);
-  if (!unpaid.length && !ready.length && !pending.length) {
-    lines.push('Kỳ này hiện không còn phòng nào treo bill hoặc chưa thu tiền.');
-  }
+  if (!unpaid.length && !ready.length && !pending.length) return null;
+  const lines = [];
+  if (unpaid.length) lines.push(`Chưa tick Đã thu: ${unpaid.join(', ')}`);
+  if (ready.length) lines.push(`Có số nước, chưa lập bill: ${ready.join(', ')}`);
+  if (pending.length) lines.push(`Thiếu số nước nên chưa tính tiền: ${pending.join(', ')}`);
   return {
-    tone: unpaid.length || ready.length || pending.length ? 'warning' : 'info',
-    title: `Báo cáo thu tiền ${getPeriodMonthTitle(cycleStart).replace('THÁNG', 'Tháng')}`,
-    note: config.billingMessage || 'Popup này chỉ nhìn đúng kỳ đang cần thu tiền tại thời điểm đăng nhập.',
-    lines
+    tone: 'warning',
+    badge: 'Thu tiền',
+    title: `Cần chốt tiền tháng`,
+    summary: `Kỳ ${getPeriodMonthTitle(cycleStart).replace('THÁNG', 'Tháng')}: ${paid.length}/${totalRooms} phòng đã PAID.`,
+    stats: [
+      { value: `${paid.length}/${totalRooms}`, label: 'Đã thu' },
+      { value: String(unpaid.length + ready.length + pending.length), label: 'Cần xử lý' },
+      { value: cycleStartToMonthValue(cycleStart), label: 'Kỳ' }
+    ],
+    lines,
+    note: config.billingMessage || '',
+    actionPage: 'billing',
+    actionLabel: 'Mở Tính tiền'
   };
 }
 
@@ -5897,13 +5926,20 @@ async function maybeShowLoginReminder() {
     const suppressToggle = document.getElementById('loginReminderSuppressToggle');
     if (!timeEl || !contentEl || !suppressToggle) return;
 
-    timeEl.textContent = `Theo giờ trình duyệt hiện tại: ${fmtDate(getTodayIsoLocal())} ${now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
+    timeEl.textContent = `Cập nhật ${fmtDate(getTodayIsoLocal())} lúc ${now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
     contentEl.innerHTML = cards.map(buildLoginReminderCardHtml).join('');
     suppressToggle.checked = false;
     openModal('loginReminderModal');
   } catch (error) {
     console.error('Login reminder error:', error);
   }
+}
+
+function openLoginReminderTarget(page, mode = '') {
+  closeLoginReminderModal();
+  if (!page) return;
+  navigate(page);
+  if (page === 'waterEntry' && mode) setWaterPageMode(mode);
 }
 
 function closeLoginReminderModal() {
@@ -9348,17 +9384,17 @@ function renderBillingSummary(month, contexts = [], fullOccupancyBase = getFullO
         <div class="report-stat">
           <div class="report-stat-value">${fmt(revenueTotal)}</div>
           <div class="report-stat-label">Doanh thu tháng</div>
-<div class="report-stat-meta">Chỉ cộng các bill đã được đánh dấu là đã thu tiền trong kỳ này.</div>
+          <div class="report-stat-meta">Tổng tiền khách đã trả trong các bill đã PAID.</div>
         </div>
         <div class="report-stat">
           <div class="report-stat-value">${fmt(expenseTotal)}</div>
           <div class="report-stat-label">Chi phí tháng</div>
-          <div class="report-stat-meta">Chỉ cộng điện + nước + wifi + rác của các bill đã thu.</div>
+          <div class="report-stat-meta">Điện + nước + wifi + rác thu hộ/đóng hộ, chỉ tính bill đã PAID.</div>
         </div>
         <div class="report-stat">
           <div class="report-stat-value">${fmt(profitTotal)}</div>
           <div class="report-stat-label">Lợi nhuận tháng</div>
-          <div class="report-stat-meta">Doanh thu đã thu trừ đi chi phí của các bill đã thu.</div>
+          <div class="report-stat-meta">Tiền phòng giữ lại + chi phí khác - khấu trừ, chỉ tính bill đã PAID.</div>
         </div>
         <div class="report-stat report-stat-focus">
           <div class="report-stat-value">${fmt(fullOccupancyBase)}</div>
