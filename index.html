@@ -25,10 +25,11 @@ body.dark-mode{--bg:#0F141A;--card:#151B22;--gold:#FF9A4D;--gold-hover:#FFAF69;-
 .sidebar-brand-row h2{min-width:0;flex:1;word-break:break-word}
 .sidebar-brand-badge{display:inline-flex;align-items:center;justify-content:center;padding:3px 7px;border-radius:999px;background:rgba(255,154,77,.14);border:1px solid rgba(255,154,77,.22);color:#FFBE82;font-size:9px;font-weight:900;letter-spacing:.12em;white-space:nowrap}
 .sidebar-kicker{display:none}
-.sidebar-header .nav-feature-launch.nav-feature-inline{margin:0;width:100%;padding:8px 10px;border-radius:16px;display:flex;align-items:center;justify-content:flex-start;gap:10px;background:linear-gradient(135deg,rgba(255,140,46,.12) 0%,rgba(255,194,112,.06) 55%,rgba(255,140,46,.12) 100%),linear-gradient(180deg,#181e26 0%,#12171d 100%)}
+.sidebar-header .nav-feature-launch.nav-feature-inline{margin:0;width:100%;padding:9px 10px;border-radius:16px;display:flex;align-items:center;justify-content:flex-start;gap:10px;background:linear-gradient(180deg,#141A21 0%,#10151B 100%);border-color:rgba(255,255,255,.08)}
 .sidebar-header .nav-feature-launch.nav-feature-inline .nav-feature-copy{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;flex:1}
-.sidebar-header .nav-feature-launch.nav-feature-inline .nav-feature-title{display:none}
-.sidebar-header .nav-feature-launch.nav-feature-inline .nav-feature-badge{width:28px;height:28px;border-radius:10px;font-size:12px;box-shadow:none;margin-left:0;flex:none}
+.sidebar-header .nav-feature-launch.nav-feature-inline .nav-feature-title{display:block;font-size:13px;font-weight:850;letter-spacing:0;color:#F8FAFC;line-height:1.1}
+.sidebar-header .nav-feature-launch.nav-feature-inline .nav-feature-note{display:block;font-size:11px;color:#8D99A8;line-height:1.2}
+.sidebar-header .nav-feature-launch.nav-feature-inline .nav-feature-badge{width:28px;height:28px;border-radius:10px;font-size:12px;box-shadow:none;margin-left:0;flex:none;background:rgba(255,154,77,.14);color:#FFBE82;border:1px solid rgba(255,154,77,.22);animation:none}
 .nav-menu{flex:1;padding:8px 10px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
 .nav-feature-launch{margin:0 12px 6px;padding:14px 14px 14px 16px;border-radius:18px;border:1px solid rgba(255,172,94,.22);background:
 linear-gradient(135deg,rgba(255,140,46,.18) 0%,rgba(255,194,112,.1) 55%,rgba(255,140,46,.16) 100%),
@@ -59,16 +60,18 @@ display:flex;align-items:center;justify-content:space-between;gap:12px;color:#F8
 .nav-label{font-size:13px;font-weight:600;color:inherit}
 .nav-caption{display:none}
 .nav-footer{padding:8px 12px 12px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:#6B7280}
-.sidebar-status-card{padding:8px 9px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);margin-bottom:9px}
-.sidebar-status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.sidebar-status-card{padding:9px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);margin-bottom:9px}
+.sidebar-status-grid{display:flex;flex-direction:column;gap:7px}
 .sidebar-status-item{display:flex;flex-direction:column;gap:2px;min-width:0}
 .sidebar-status-item-full{grid-column:1/-1}
-.sidebar-status-label{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.34)}
+.sidebar-status-label{font-size:8px;font-weight:800;letter-spacing:0;text-transform:uppercase;color:rgba(255,255,255,.34)}
 .sidebar-status-value{font-size:11.5px;font-weight:700;color:#F8FAFC;line-height:1.2;word-break:break-word}
 .sidebar-status-value.muted{color:#C8D1DC;font-weight:600}
 .sidebar-status-note{display:none}
-.sidebar-status-item-plain{justify-content:center;min-height:34px}
-.sidebar-status-item-plain .sidebar-status-value{font-size:11px;font-weight:800;letter-spacing:.01em}
+.sidebar-status-line{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#CBD5E1;font-size:11px;font-weight:700}
+.sidebar-status-line.muted{color:#8996A7;font-weight:600}
+.sidebar-status-item-plain{display:none}
+.sidebar-status-item-plain .sidebar-status-value{font-size:11px;font-weight:800;letter-spacing:0}
 .sidebar-cycle-block{display:flex;flex-direction:column;gap:1px}
 .sidebar-cycle-main{font-size:12px;font-weight:800;color:#F8FAFC}
 .sidebar-cycle-range{font-size:10px;color:#C8D1DC;font-weight:600}
@@ -196,26 +199,29 @@ body.dark-mode .theme-toggle{background:rgba(15,20,26,.86)}
 .collection-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border)}
 .overview-shell{display:flex;flex-direction:column;gap:20px}
 .overview-shell > .overview-section{order:4}
-.overview-command-center{order:0!important;display:grid;grid-template-columns:minmax(280px,1.15fr) minmax(260px,.85fr);gap:16px;padding:0;background:transparent;border:none;box-shadow:none}
-.overview-command-hero,.overview-command-card{background:var(--card);border:1px solid var(--card-border);border-radius:18px;box-shadow:var(--shadow);padding:20px 22px}
-.overview-command-hero{display:flex;flex-direction:column;gap:16px;background:linear-gradient(135deg,rgba(255,154,77,.13),rgba(255,255,255,.96) 42%,rgba(15,138,95,.06))}
-body.dark-mode .overview-command-hero{background:linear-gradient(135deg,rgba(255,154,77,.13),rgba(21,27,34,.98) 42%,rgba(15,138,95,.08))}
+.overview-command-center{order:0!important;display:grid;grid-template-columns:minmax(420px,1fr) minmax(280px,.38fr);gap:14px;padding:0;background:transparent;border:none;box-shadow:none}
+.overview-command-hero,.overview-command-card{background:var(--card);border:1px solid var(--card-border);border-radius:16px;box-shadow:var(--shadow);padding:16px 18px}
+.overview-command-hero{display:flex;flex-direction:column;gap:12px}
+body.dark-mode .overview-command-hero{background:var(--card)}
+.overview-command-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .overview-command-eyebrow{font-size:11px;font-weight:900;letter-spacing:0;text-transform:uppercase;color:var(--gold)}
-.overview-command-title{font-size:30px;font-weight:850;letter-spacing:0;line-height:1.08}
-.overview-command-subtitle{font-size:13px;color:var(--text2);line-height:1.55;max-width:760px}
+.overview-command-title{font-size:26px;font-weight:850;letter-spacing:0;line-height:1.12}
 .overview-command-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.overview-command-metric{border:1px solid rgba(127,140,160,.14);border-radius:14px;background:rgba(255,255,255,.72);padding:12px 14px;min-width:0}
+.overview-command-metric{border:1px solid rgba(127,140,160,.14);border-radius:14px;background:rgba(255,255,255,.72);padding:13px 14px;min-width:0}
 body.dark-mode .overview-command-metric{background:rgba(17,23,30,.72)}
-.overview-command-metric-value{font-size:22px;font-weight:850;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1}
+.overview-command-metric.primary{border-color:rgba(255,154,77,.42);background:rgba(255,154,77,.08)}
+.overview-command-metric-value{font-size:24px;font-weight:850;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1}
 .overview-command-metric-label{font-size:11px;color:var(--text2);margin-top:6px;line-height:1.25}
-.overview-command-actions{display:flex;gap:10px;flex-wrap:wrap}
 .overview-command-card-title{font-size:16px;font-weight:850;color:var(--text)}
-.overview-command-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
-.overview-command-task{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface-soft);font-size:13px;line-height:1.45}
+.overview-command-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.overview-command-task{display:flex;align-items:flex-start;gap:10px;padding:9px 11px;border-radius:12px;border:1px solid var(--border);background:var(--surface-soft);font-size:13px;line-height:1.42}
 .overview-command-task-dot{width:9px;height:9px;border-radius:999px;background:var(--gold);margin-top:5px;flex:none}
 .overview-command-task.done .overview-command-task-dot{background:var(--success)}
 .overview-command-task.danger .overview-command-task-dot{background:var(--danger)}
 .overview-command-task strong{color:var(--text)}
+.overview-command-chiprow{display:flex;gap:8px;flex-wrap:wrap}
+.overview-command-chip{border:1px solid var(--border);border-radius:999px;background:var(--surface-soft);padding:7px 10px;font-size:12px;color:var(--text2);line-height:1}
+.overview-command-chip strong{color:var(--text)}
 .overview-finance-workbook{order:2!important}
 .overview-month-shell{order:1!important}
 .overview-deposit-section{order:3!important}
@@ -428,6 +434,17 @@ body.dark-mode .overview-finance-table tbody tr:nth-child(even) td{background:rg
 .settings-hub-card .btn{margin-top:auto;justify-content:center}
 .settings-card-title{font-size:21px;font-weight:800;letter-spacing:-.03em;margin-bottom:10px}
 .settings-card-note{font-size:12px;color:var(--text2);line-height:1.6;max-width:760px;margin-bottom:14px}
+.settings-page{display:flex;flex-direction:column;gap:12px}
+.settings-section{border:1px solid var(--card-border);border-radius:18px;background:var(--card);box-shadow:var(--shadow);overflow:hidden}
+.settings-section summary{list-style:none;cursor:pointer;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.settings-section summary::-webkit-details-marker{display:none}
+.settings-section-title{font-size:18px;font-weight:850;color:var(--text);line-height:1.2}
+.settings-section-sub{font-size:12px;color:var(--text2);line-height:1.45;margin-top:4px}
+.settings-section-icon{width:26px;height:26px;border-radius:999px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:14px;flex:none}
+.settings-section[open] .settings-section-icon{color:var(--gold);border-color:rgba(255,154,77,.28);background:var(--gold-light)}
+.settings-section-body{padding:0 20px 20px;border-top:1px solid var(--border)}
+.settings-section-body .grid-2,.settings-section-body .grid-3{margin-top:16px}
+.settings-actions-bar{display:flex;justify-content:flex-end;position:sticky;bottom:0;padding:12px 0;background:linear-gradient(180deg,rgba(0,0,0,0),var(--bg) 34%)}
 .settings-reminder-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .settings-toggle-stack{display:flex;flex-direction:column;gap:10px}
 .settings-toggle-chip{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface-soft);font-size:13px;color:var(--text)}
@@ -591,6 +608,13 @@ textarea.form-input{resize:vertical;min-height:108px}
 .billing-field-card .form-group:last-child{margin-bottom:0}
 .billing-file-preview{margin-top:8px;display:flex;align-items:center;gap:10px}
 .billing-file-hint{font-size:12px;color:var(--text2)}
+.file-selected-preview{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-soft);font-size:12px;color:var(--text2)}
+.file-selected-preview strong{color:var(--text);font-weight:750;word-break:break-word}
+.file-selected-remove{width:24px;height:24px;border-radius:999px;border:1px solid var(--border);background:var(--surface-raised);color:var(--text2);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none}
+.file-selected-remove:hover{border-color:rgba(206,69,52,.35);color:var(--danger);background:rgba(206,69,52,.08)}
+.file-current-preview{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+.file-current-preview img{width:86px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
+.file-current-preview .btn{min-height:32px}
 .billing-water-note{font-size:13px;color:var(--text2);line-height:1.55}
 .billing-quick-list{display:flex;flex-direction:column;gap:10px}
 .billing-quick-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding-bottom:10px;border-bottom:1px dashed #E5E7EB}
@@ -630,17 +654,39 @@ textarea.form-input{resize:vertical;min-height:108px}
 .water-mode-panel{display:none}
 .water-mode-panel.active{display:block}
 .water-note-cell{font-size:12px;color:var(--text2);line-height:1.6;white-space:pre-line}
+.water-entry-card{padding:16px}
+.water-entry-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.water-summary-chip{border:1px solid var(--border);border-radius:999px;background:var(--surface-soft);padding:7px 10px;font-size:12px;color:var(--text2);line-height:1}
+.water-summary-chip strong{color:var(--text)}
+.water-table-wrap{overflow:auto;border-radius:16px}
+.water-reference-main{font-size:12px;color:var(--text2);line-height:1.45}
+.water-reference-main strong{color:var(--text)}
+.water-reference-sub{font-size:11px;color:var(--text2);line-height:1.45;margin-top:4px}
+.water-reference-debt{font-size:11px;color:#D97706;line-height:1.45;margin-top:4px;font-weight:700}
 .water-overview-toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
 .water-overview-toolbar-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
 .water-overview-toolbar-title{font-size:14px;font-weight:800;color:var(--text)}
 .water-overview-toolbar-note{font-size:12px;color:var(--text2);line-height:1.6;max-width:780px}
 .water-overview-empty{font-size:13px;color:var(--text2);padding:18px;text-align:center}
+.water-overview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.water-overview-title{font-size:18px;font-weight:850;color:var(--text);line-height:1.15}
+.water-overview-meta{font-size:12px;color:var(--text2);margin-top:4px}
 .water-overview-table tr.has-events td{background:rgba(245,158,11,.05)}
 .water-overview-table tr.is-paid td{background:rgba(16,185,129,.05)}
+.water-overview-table tr.has-debt td{background:rgba(239,68,68,.05)}
 .water-overview-cell-main{font-weight:700;color:var(--text)}
 .water-overview-cell-sub{font-size:12px;color:var(--text2);line-height:1.55;margin-top:4px}
 .water-overview-cell-tag{display:inline-flex;align-items:center;justify-content:center;padding:4px 9px;border-radius:999px;background:rgba(245,158,11,.14);color:#D97706;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-top:6px}
 .water-overview-summary{font-weight:700;color:var(--text)}
+.water-overview-timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;min-width:360px}
+.water-overview-period{border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.03);padding:8px 9px;min-height:62px}
+.water-overview-period.done{border-color:rgba(16,185,129,.24);background:rgba(16,185,129,.07)}
+.water-overview-period.empty{opacity:.58}
+.water-overview-period.debt{border-color:rgba(239,68,68,.24);background:rgba(239,68,68,.07)}
+.water-overview-period.baseline{border-color:rgba(245,158,11,.28);background:rgba(245,158,11,.08)}
+.water-overview-period-label{font-size:11px;font-weight:850;color:var(--gold);line-height:1}
+.water-overview-period-value{font-size:12px;font-weight:800;color:var(--text);line-height:1.25;margin-top:6px;white-space:nowrap}
+.water-overview-period-sub{font-size:11px;color:var(--text2);line-height:1.35;margin-top:4px}
 .water-overview-note-list{display:flex;flex-direction:column;gap:6px}
 .water-overview-note{font-size:12px;line-height:1.6;color:var(--text2)}
 .water-overview-note.turnover{color:#D97706}
@@ -845,13 +891,12 @@ linear-gradient(180deg,#2d333b 0%,#20262d 100%)}
   .roomgame-banner-stats{justify-content:flex-start}
   .roomgame-footer{grid-template-columns:1fr}
 }
-.nav-feature-launch{margin:0 12px 10px;padding:12px 14px;border-radius:18px;border:1px solid rgba(255,172,94,.26);background:
-linear-gradient(135deg,rgba(255,129,31,.22) 0%,rgba(255,205,112,.14) 56%,rgba(255,120,31,.18) 100%),
-linear-gradient(180deg,#171d25 0%,#0f141a 100%)}
+.nav-feature-launch{margin:0 12px 10px;padding:12px 14px;border-radius:18px;border:1px solid rgba(255,172,94,.18);background:linear-gradient(180deg,#171d25 0%,#0f141a 100%)}
 .nav-feature-copy{display:flex;align-items:center}
-.nav-feature-title{font-size:16px;font-weight:900;letter-spacing:.08em}
-.nav-feature-kicker,.nav-feature-note{display:none}
-.nav-feature-badge{width:40px;height:40px;border-radius:12px;background:#ffb14a;color:#2b1600}
+.nav-feature-title{font-size:14px;font-weight:850;letter-spacing:0}
+.nav-feature-kicker{display:none}
+.nav-feature-note{font-size:11px;color:#8D99A8}
+.nav-feature-badge{width:34px;height:34px;border-radius:12px;background:rgba(255,154,77,.14);color:#FFBE82;border:1px solid rgba(255,154,77,.22);animation:none}
 
 .roomgame-shell{gap:0}
 .roomgame-banner,.roomgame-footer{display:none}
@@ -1017,7 +1062,7 @@ body.dark-mode .roomgame-stage.night{background:linear-gradient(180deg,#050d19 0
 @keyframes roomgame-bird-fly{0%{transform:translateX(0) translateY(0)}50%{transform:translateX(620px) translateY(-12px)}100%{transform:translateX(1280px) translateY(0)}}
 @keyframes roomgame-firefly{0%,100%{transform:translateY(0);opacity:.2}50%{transform:translateY(-12px);opacity:1}}
 
-/* NHATROVUIVE v2 - 8bit city / open world */
+/* Room map scene */
 .roomgame-frame{border-radius:26px;background:#0a1424;border:1px solid rgba(160,196,255,.14);box-shadow:0 30px 80px rgba(3,8,20,.4)}
 .roomgame-stage{min-width:1360px;min-height:860px;padding:22px 22px 0;overflow:hidden;background:linear-gradient(180deg,#77d3ef 0%,#79d5ee 36%,#a5d7e5 36%,#a5d7e5 44%,#56749a 44%,#56749a 58%,#223249 58%,#223249 100%)}
 .roomgame-stage.day{background:linear-gradient(180deg,#77d3ef 0%,#80d8f0 22%,#d8f7ff 22%,#d8f7ff 42%,#80b2d0 42%,#80b2d0 56%,#23334d 56%,#23334d 100%)}
@@ -1193,12 +1238,10 @@ body.mobile-app .save-float{bottom:96px;right:16px}
       <button class="nav-feature-launch nav-feature-inline" data-page="roomMap" type="button" onclick="navigate('roomMap')">
         <div class="logo">ĐĐ</div>
         <div class="nav-feature-copy">
-          <div class="sidebar-brand-row">
-            <h2>NHÀ TRỌ ĐẶNG ĐƯỢC</h2>
-            <span class="sidebar-brand-badge">8BIT</span>
-          </div>
+          <div class="nav-feature-title">Sơ đồ trọ</div>
+          <div class="nav-feature-note">Xem nhanh 9 phòng</div>
         </div>
-        <span class="nav-feature-badge">⛏</span>
+        <span class="nav-feature-badge">›</span>
       </button>
     </div>
     <div class="nav-menu">
@@ -1308,22 +1351,20 @@ body.mobile-app .save-float{bottom:96px;right:16px}
     <div class="nav-footer">
       <div class="sidebar-status-card">
         <div class="sidebar-status-grid">
-          <div class="sidebar-status-item sidebar-status-item-plain">
-            <div class="sidebar-status-value" id="sidebarClockValue">--:--</div>
-          </div>
-          <div class="sidebar-status-item sidebar-status-item-plain">
-            <div class="sidebar-status-value" id="sidebarDateValue">--/--/----</div>
+          <div class="sidebar-status-line">
+            <span id="sidebarDateValue">--/--/----</span>
+            <span id="sidebarClockValue">--:--</span>
           </div>
           <div class="sidebar-status-item sidebar-status-item-full">
-            <div class="sidebar-status-label">Kỳ hiện tại</div>
+            <div class="sidebar-status-label">Kỳ đang mở</div>
             <div class="sidebar-status-value muted sidebar-cycle-block" id="sidebarCycleValue">
               <span class="sidebar-cycle-main">THÁNG ?</span>
               <span class="sidebar-cycle-range">--/--/---- → --/--/----</span>
             </div>
           </div>
-          <div class="sidebar-status-item sidebar-status-item-full">
-            <div class="sidebar-status-label">Session còn lại</div>
-            <div class="sidebar-status-value muted" id="sidebarSessionValue">--:--</div>
+          <div class="sidebar-status-line muted">
+            <span>Phiên đăng nhập</span>
+            <span id="sidebarSessionValue">--:--</span>
           </div>
         </div>
       </div>
@@ -1441,27 +1482,29 @@ body.mobile-app .save-float{bottom:96px;right:16px}
       <div class="page-content">
         <div class="water-mode-switch">
           <button class="water-mode-btn active" type="button" id="waterModeEntryBtn" onclick="setWaterPageMode('entry')">Nhập số nước</button>
-          <button class="water-mode-btn" type="button" id="waterModeOverviewBtn" onclick="setWaterPageMode('overview')">Bảng tổng quan số nước</button>
+          <button class="water-mode-btn" type="button" id="waterModeOverviewBtn" onclick="setWaterPageMode('overview')">Tổng quan số nước năm</button>
         </div>
         <div class="water-mode-panel active" id="waterEntryPanel">
-          <div class="card">
+          <div class="card water-entry-card">
             <div id="waterLockNotice" style="display:none;margin-bottom:14px"></div>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Phòng</th><th>Khách</th>
-                  <th>Nóng hiện tại</th><th>Lạnh hiện tại</th>
-                  <th>Mốc gần nhất</th>
-                  <th>Nhắn số nước</th><th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody id="waterRows"></tbody>
-            </table>
+            <div id="waterEntrySummary" class="water-entry-summary"></div>
+            <div class="water-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Phòng</th><th>Khách</th>
+                    <th>Nóng hiện tại</th><th>Lạnh hiện tại</th>
+                    <th>Mốc gần nhất</th>
+                    <th>Nhắn số nước</th><th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="waterRows"></tbody>
+              </table>
+            </div>
           </div>
         </div>
         <div class="water-mode-panel" id="waterOverviewPanel">
           <div class="card">
-            <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">Bảng này chỉ để xem tổng quan 9 phòng của kỳ đang chọn. Dữ liệu lấy từ phần nhập số nước, snapshot tháng và ghi chú ra/vào phòng, không nhập trực tiếp ở đây.</div>
             <div id="waterOverviewRows" class="water-overview-grid"></div>
           </div>
         </div>
@@ -1630,36 +1673,20 @@ body.mobile-app .save-float{bottom:96px;right:16px}
           <button class="btn btn-outline refresh-db-btn" type="button" onclick="refreshDatabase()">⟳ Refresh DB</button>
         </div>
       </div>
-      <div class="page-content page-content-medium">
-        <div class="settings-hub">
-          <div class="settings-hub-card">
-            <div class="settings-hub-kicker">Nền vận hành</div>
-            <div class="settings-hub-title">Phòng, giá phòng, mã điện</div>
-            <div class="settings-hub-note">Đây là dữ liệu cố định. Sai ở đây thì bảng tiền tháng và lợi nhuận sẽ sai theo.</div>
-            <button class="btn btn-outline" type="button" onclick="document.getElementById('settingsRoomConfigRows')?.scrollIntoView({behavior:'smooth',block:'center'})">Mở cấu hình phòng</button>
-          </div>
-          <div class="settings-hub-card">
-            <div class="settings-hub-kicker">Việc cần nhớ</div>
-            <div class="settings-hub-title">Nhắc số nước và thu tiền</div>
-            <div class="settings-hub-note">Popup chỉ hiện khi còn việc thật, giúp người nhà vào web biết ngay phải xử lý gì.</div>
-            <button class="btn btn-outline" type="button" onclick="document.getElementById('setReminderWaterEnabled')?.scrollIntoView({behavior:'smooth',block:'center'})">Mở nhắc việc</button>
-          </div>
-          <div class="settings-hub-card">
-            <div class="settings-hub-kicker">Đối chiếu</div>
-            <div class="settings-hub-title">Xuất Excel và ZIP backup</div>
-            <div class="settings-hub-note">Excel để đọc, gửi, đối chiếu. ZIP để giữ bản khôi phục toàn bộ dữ liệu và file đính kèm.</div>
-            <button class="btn btn-attention" type="button" onclick="document.getElementById('settingsExportWorkbookBtn')?.scrollIntoView({behavior:'smooth',block:'center'})">Mở xuất dữ liệu</button>
-          </div>
-        </div>
-        <div class="card" style="max-width:700px">
-          <h3 style="margin-bottom:16px">👤 Thông tin chủ trọ</h3>
+      <div class="page-content page-content-medium settings-page">
+        <details class="settings-section" open>
+          <summary>
+            <div>
+              <div class="settings-section-title">Chủ trọ</div>
+              <div class="settings-section-sub">Tên, số điện thoại và tài khoản nhận tiền.</div>
+            </div>
+            <span class="settings-section-icon">⌄</span>
+          </summary>
+          <div class="settings-section-body">
           <div class="grid-2">
             <div class="form-group"><label>Tên chủ trọ</label><input type="text" class="form-input" id="setOwnerName"></div>
             <div class="form-group"><label>SĐT</label><input type="text" class="form-input" id="setOwnerPhone"></div>
           </div>
-        </div>
-        <div class="card" style="max-width:700px">
-          <h3 style="margin-bottom:16px">🏦 Thông tin ngân hàng</h3>
           <div class="grid-2">
             <div class="form-group"><label>Tên ngân hàng</label><input type="text" class="form-input" id="setBankName"></div>
             <div class="form-group"><label>Số tài khoản</label><input type="text" class="form-input" id="setBankAccount"></div>
@@ -1670,23 +1697,40 @@ body.mobile-app .save-float{bottom:96px;right:16px}
             <input type="file" class="form-input" id="setQRImage" accept="image/*">
             <div id="qrPreview" style="margin-top:8px"></div>
           </div>
-        </div>
-        <div class="card" style="max-width:700px">
-          <h3 style="margin-bottom:16px">💧 Giá dịch vụ</h3>
+          </div>
+        </details>
+
+        <details class="settings-section">
+          <summary>
+            <div>
+              <div class="settings-section-title">Đơn giá</div>
+              <div class="settings-section-sub">Nước, wifi và rác.</div>
+            </div>
+            <span class="settings-section-icon">⌄</span>
+          </summary>
+          <div class="settings-section-body">
           <div class="grid-3" style="grid-template-columns:repeat(4,1fr)">
             <div class="form-group"><label>Nước nóng/khối</label><input type="number" class="form-input" id="setPriceHot" value="20000"></div>
             <div class="form-group"><label>Nước lạnh/khối</label><input type="number" class="form-input" id="setPriceCold" value="15000"></div>
             <div class="form-group"><label>Wifi/tháng</label><input type="number" class="form-input" id="setPriceWifi" value="60000"></div>
             <div class="form-group"><label>Rác/tháng</label><input type="number" class="form-input" id="setPriceTrash" placeholder="Ví dụ: 15000"></div>
           </div>
-        </div>
-        <div class="card" style="max-width:900px">
-          <h3 style="margin-bottom:16px">🏠 Dữ liệu cố định theo phòng</h3>
+          </div>
+        </details>
+
+        <details class="settings-section">
+          <summary>
+            <div>
+              <div class="settings-section-title">Phòng</div>
+              <div class="settings-section-sub">Giá phòng, mã điện và mã nước.</div>
+            </div>
+            <span class="settings-section-icon">⌄</span>
+          </summary>
+          <div class="settings-section-body">
           <div class="form-group" style="max-width:280px">
             <label>Mã KH nước dùng chung toàn nhà</label>
             <input type="text" class="form-input settings-fixed-code" id="setWaterCustomerCodeGlobal" placeholder="Ví dụ: 20190227018">
           </div>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Giá phòng và mã khách điện chỉ chỉnh tại đây. Các màn khác chỉ hiển thị để tránh sửa nhầm dữ liệu nền.</div>
           <div class="settings-fixed-wrap">
             <table class="settings-fixed-table">
               <thead>
@@ -1700,20 +1744,27 @@ body.mobile-app .save-float{bottom:96px;right:16px}
             </table>
           </div>
           <div class="settings-room-total">
-            <div class="settings-room-total-label">Tổng tiền full phòng theo cấu hình hiện tại. Đây là mốc tiền phòng gốc nếu 9 phòng kín và không có phát sinh.</div>
+            <div class="settings-room-total-label">Mốc full phòng theo cấu hình hiện tại.</div>
             <div class="settings-room-total-value" id="settingsRoomPriceTotal">0đ</div>
           </div>
-        </div>
-        <div class="card" style="max-width:900px">
-          <h3 class="settings-card-title">🔔 Nhắc việc khi đăng nhập</h3>
-          <div class="settings-card-note">Popup chỉ hiện khi có việc cần xử lý: thiếu số nước, chưa lập bill hoặc chưa tick đã thu tiền.</div>
-          <div class="settings-helper-note">Nếu mọi việc đã xong, hệ thống không bật popup để tránh làm rối màn hình.</div>
+          </div>
+        </details>
+
+        <details class="settings-section">
+          <summary>
+            <div>
+              <div class="settings-section-title">Nhắc việc</div>
+              <div class="settings-section-sub">Popup khi còn việc cần xử lý.</div>
+            </div>
+            <span class="settings-section-icon">⌄</span>
+          </summary>
+          <div class="settings-section-body">
           <div class="settings-reminder-editor">
             <div class="settings-reminder-panel">
               <div class="settings-reminder-panel-head">
                 <div>
                   <div class="settings-reminder-panel-title">Nhắc nhập số nước</div>
-                  <div class="settings-reminder-panel-note">Đến ngày hẹn, nếu còn phòng thiếu số nước thì popup mới hiện.</div>
+                  <div class="settings-reminder-panel-note">Hiện khi còn phòng thiếu số nước.</div>
                 </div>
                 <label class="settings-toggle-chip"><input type="checkbox" id="setReminderWaterEnabled" onchange="renderReminderSettingsControls()"> Bật</label>
               </div>
@@ -1742,7 +1793,7 @@ body.mobile-app .save-float{bottom:96px;right:16px}
               <div class="settings-reminder-panel-head">
                 <div>
                   <div class="settings-reminder-panel-title">Nhắc thu tiền</div>
-                  <div class="settings-reminder-panel-note">Đến ngày hẹn, nếu còn bill chưa PAID hoặc chưa lập bill thì popup mới hiện.</div>
+                  <div class="settings-reminder-panel-note">Hiện khi còn bill chưa xong.</div>
                 </div>
                 <label class="settings-toggle-chip"><input type="checkbox" id="setReminderBillingEnabled" onchange="renderReminderSettingsControls()"> Bật</label>
               </div>
@@ -1761,24 +1812,42 @@ body.mobile-app .save-float{bottom:96px;right:16px}
             <label>Ghi chú thêm cho nhắc thu tiền</label>
             <textarea class="form-input" id="setReminderBillingMessage" placeholder="Ví dụ: Kiểm tra các phòng chưa PAID của kỳ hiện tại." oninput="renderReminderSettingsPreview()"></textarea>
           </div>
-          <div class="settings-preview-box" id="reminderSettingsPreview">Rule popup sẽ hiện ở đây để kiểm tra nhanh trước khi lưu.</div>
-        </div>
-        <div class="card" style="max-width:700px">
-          <h3 class="settings-card-title">📊 Xuất dữ liệu</h3>
-          <div class="settings-card-note">Dùng Excel để đọc/đối chiếu. Dùng ZIP để backup toàn bộ hồ sơ và file đính kèm.</div>
+          <div class="settings-preview-box" id="reminderSettingsPreview">Xem trước lịch nhắc.</div>
+          </div>
+        </details>
+
+        <details class="settings-section">
+          <summary>
+            <div>
+              <div class="settings-section-title">Xuất dữ liệu</div>
+              <div class="settings-section-sub">Excel đối chiếu, ZIP backup.</div>
+            </div>
+            <span class="settings-section-icon">⌄</span>
+          </summary>
+          <div class="settings-section-body">
           <div class="export-stack">
             <button class="btn btn-attention" id="settingsExportWorkbookBtn" type="button" onclick="openExportFrameModal('management')">📊 Excel để đọc / đối chiếu</button>
             <button class="btn btn-outline" id="settingsExportDatabaseBtn" type="button" onclick="exportDatabaseZip()">🗂️ ZIP backup đầy đủ</button>
           </div>
-          <div class="export-note-inline">Excel dành cho mẹ/em gái mở xem số liệu. ZIP dành cho khôi phục khi có sự cố.</div>
-        </div>
-        <div class="card" style="max-width:900px">
-          <h3 class="settings-card-title">🗓️ Khung năm hoạt động</h3>
-          <div class="settings-card-note">Dùng để khóa sổ theo năm phục vụ quản trị và thuế. Năm đã đóng sẽ chuyển sang read-only, vẫn có thể mở khóa lại khi cần; khách đang ở cuối năm sẽ được carry forward sang năm kế tiếp.</div>
+          </div>
+        </details>
+
+        <details class="settings-section">
+          <summary>
+            <div>
+              <div class="settings-section-title">Khung năm</div>
+              <div class="settings-section-sub">Đóng/mở năm vận hành.</div>
+            </div>
+            <span class="settings-section-icon">⌄</span>
+          </summary>
+          <div class="settings-section-body">
           <div id="yearFrameSettingsBox" class="year-frame-grid"></div>
           <div id="yearFrameSettingsNote" class="year-frame-db-note" style="display:none"></div>
+          </div>
+        </details>
+        <div class="settings-actions-bar">
+          <button class="btn btn-primary" id="saveSettingsBtn" style="padding:14px 32px" onclick="saveSettings()">💾 Lưu cài đặt</button>
         </div>
-        <button class="btn btn-primary" id="saveSettingsBtn" style="padding:14px 32px;margin-top:8px" onclick="saveSettings()">💾 Lưu cài đặt</button>
       </div>
     </div>
   </main>
@@ -2850,14 +2919,14 @@ async function navigate(page, options = {}) {
   const pageProgressMap = {
     dashboard: ['Đang mở Tổng quan', 'Đang dựng bảng tiền tháng, tổng kết và snapshot đang dùng.'],
     rooms: ['Đang mở Quản lý phòng', 'Đang hiển thị nhanh tình trạng 9 phòng hiện tại.'],
-    roomMap: ['Đang mở giao diện 8BIT', 'Đang dựng bản đồ vui của nhà trọ từ dữ liệu phòng hiện tại.'],
+    roomMap: ['Đang mở sơ đồ trọ', 'Đang dựng nhanh 9 phòng từ dữ liệu hiện tại.'],
     billing: ['Đang mở Tính tiền', 'Đang lấy bill, số nước và trạng thái thu tiền của kỳ đang chọn.'],
     waterEntry: ['Đang mở Nhập số nước', 'Đang lấy số nước và snapshot của kỳ đang chọn.'],
     newTenant: ['Đang mở Khách mới', 'Đang nạp phòng trống và mốc nước nền gần nhất.'],
     checkout: ['Đang mở Trả phòng', 'Đang lấy phòng đang có khách để chuẩn bị tất toán.'],
     documents: ['Đang mở Kho giấy tờ', 'Đang nạp danh sách file chung của nhà trọ.'],
     archived: ['Đang mở Khách cũ', 'Đang nạp hồ sơ lưu trữ và lịch sử theo tháng.'],
-    settings: ['Đang mở Cài đặt', 'Đang nạp cấu hình nền, giá phòng và rule popup đăng nhập.']
+    settings: ['Đang mở Cài đặt', 'Đang nạp cấu hình nền, giá phòng và nhắc việc.']
   };
   const runPageLoad = async () => {
     switch(page) {
@@ -2875,6 +2944,7 @@ async function navigate(page, options = {}) {
   };
   const [progressTitle, progressMeta] = pageProgressMap[page] || ['Đang chuyển trang', 'Đang tải dữ liệu cần thiết cho trang này.'];
   await withTransientProgress(progressTitle, progressMeta, runPageLoad);
+  enhanceFileInputs(document.getElementById('page-' + page) || document);
   updateMobileNavState();
   updateSidebarStatusPanel();
 }
@@ -3972,7 +4042,6 @@ function buildDepositMetricDetailsHtml(totalHeldDeposit = 0) {
       <summary>Chi tiết</summary>
       <div class="overview-metric-details-body">
         <div><strong>Tổng tiền cọc đang giữ:</strong> ${fmt(totalHeldDeposit)}</div>
-        <div>Tiền cọc là line riêng, không cộng vào doanh thu hoặc lợi nhuận.</div>
       </div>
     </details>
   `;
@@ -4892,6 +4961,7 @@ function buildDashboardTaskRow(label, values = [], tone = '') {
 function buildDashboardCommandCenterHtml({
   month,
   monthSummary = {},
+  monthBundle = {},
   activeRooms = 0,
   totalPeople = 0,
   monthFullOccupancyBase = 0,
@@ -4902,7 +4972,9 @@ function buildDashboardCommandCenterHtml({
   const paidText = expectedCount ? `${workState.paidCount || 0}/${expectedCount}` : '0/0';
   const actionCount = Number(workState.actionCount || 0);
   const profitGap = Number(monthSummary.profit || 0) - Number(monthFullOccupancyBase || 0);
-  const gapText = profitGap === 0 ? 'Đúng mốc full phòng' : `${profitGap > 0 ? '+' : ''}${fmt(profitGap)}`;
+  const gapText = profitGap === 0 ? 'Đúng mốc tiền phòng' : `Lệch mốc ${profitGap > 0 ? '+' : ''}${fmt(profitGap)}`;
+  const vacancyDays = Number(monthBundle?.vacancy?.days || 0);
+  const turnoverText = vacancyDays > 0 ? `${vacancyDays} ngày trống` : 'Không phát sinh ra/vào';
   const taskHtml = [
     buildDashboardTaskRow('Thiếu số nước', workState.missingWater || [], 'danger'),
     buildDashboardTaskRow('Chưa tick Đã thu', workState.unpaid || [], 'danger'),
@@ -4912,42 +4984,46 @@ function buildDashboardCommandCenterHtml({
   const doneHtml = `
     <div class="overview-command-task done">
       <span class="overview-command-task-dot"></span>
-      <span><strong>Tháng này đã gọn:</strong> đủ số nước, bill đã PAID hoặc không còn việc treo.</span>
+      <span><strong>Tháng này đã hoàn thành:</strong> đủ số nước, bill đã PAID hoặc không còn việc cần xử lý.</span>
     </div>
   `;
 
   return `
     <section class="overview-section overview-command-center">
       <div class="overview-command-hero">
-        <div>
-          <div class="overview-command-eyebrow">Màn chính</div>
-          <div class="overview-command-title">${esc(monthTitle)}</div>
-          <div class="overview-command-subtitle">Nhìn nhanh tháng này: còn phòng nào cần nhập nước, bill nào chưa Đã thu, và lợi nhuận giữ lại đang lệch mốc full phòng ra sao.</div>
+        <div class="overview-command-head">
+          <div>
+            <div class="overview-command-eyebrow">Đối soát tháng</div>
+            <div class="overview-command-title">${esc(monthTitle)}</div>
+          </div>
+          <div class="overview-command-chiprow">
+            <span class="overview-command-chip"><strong>${activeRooms}</strong> phòng</span>
+            <span class="overview-command-chip"><strong>${totalPeople}</strong> người</span>
+            <span class="overview-command-chip"><strong>${paidText}</strong> đã thu</span>
+          </div>
         </div>
         <div class="overview-command-metrics">
           <div class="overview-command-metric">
+            <div class="overview-command-metric-value">${fmt(monthSummary.revenue || 0)}</div>
+            <div class="overview-command-metric-label">Tổng khách trả</div>
+          </div>
+          <div class="overview-command-metric">
+            <div class="overview-command-metric-value">${fmt(monthSummary.expense || 0)}</div>
+            <div class="overview-command-metric-label">Thu hộ / đóng hộ</div>
+          </div>
+          <div class="overview-command-metric primary">
             <div class="overview-command-metric-value">${fmt(monthSummary.profit || 0)}</div>
-            <div class="overview-command-metric-label">Lợi nhuận giữ lại</div>
-          </div>
-          <div class="overview-command-metric">
-            <div class="overview-command-metric-value">${paidText}</div>
-            <div class="overview-command-metric-label">Phòng đã tick Đã thu</div>
-          </div>
-          <div class="overview-command-metric">
-            <div class="overview-command-metric-value">${actionCount}</div>
-            <div class="overview-command-metric-label">Việc còn phải xử lý</div>
+            <div class="overview-command-metric-label">Tiền giữ lại</div>
           </div>
         </div>
-        <div class="overview-command-subtitle">${activeRooms} phòng có khách, ${totalPeople} người đang ở. So với mốc full phòng: ${esc(gapText)}.</div>
-        <div class="overview-command-actions">
-          <button class="btn btn-primary" type="button" onclick="navigate('waterEntry');setWaterPageMode('entry')">Nhập số nước</button>
-          <button class="btn btn-outline" type="button" onclick="navigate('billing')">Tính tiền</button>
-          <button class="btn btn-attention" type="button" onclick="openExportFrameModal('management')">Xuất Excel</button>
-          <button class="btn btn-outline" type="button" onclick="navigate('settings')">Cài đặt</button>
+        <div class="overview-command-chiprow">
+          <span class="overview-command-chip"><strong>${actionCount}</strong> việc cần xử lý</span>
+          <span class="overview-command-chip">${esc(gapText)}</span>
+          <span class="overview-command-chip">${esc(turnoverText)}</span>
         </div>
       </div>
       <aside class="overview-command-card">
-        <div class="overview-command-card-title">Cần làm trong tháng</div>
+        <div class="overview-command-card-title">Cần kiểm tra</div>
         <div class="overview-command-list">
           ${taskHtml || doneHtml}
         </div>
@@ -5012,7 +5088,6 @@ async function renderDashboard(skipReload = false) {
     ));
     const allSummary = getFinanceSummary(allBills, allMoveIns, allCheckouts);
     const allSummaryBreakdown = getFinanceSummaryBreakdown(allBills, allMoveIns, allCheckouts);
-    const monthSummaryBreakdown = getFinanceSummaryBreakdown(monthBills, monthMoveIns, monthCheckouts);
     const depositRows = buildDepositSummaryRows();
     const totalHeldDeposit = depositRows.reduce((sum, row) => sum + (row.deposit_amount || 0), 0);
     const activeRooms = financeRows.filter(row => row.full_name).length;
@@ -5047,6 +5122,7 @@ async function renderDashboard(skipReload = false) {
       ${buildDashboardCommandCenterHtml({
         month,
         monthSummary,
+        monthBundle,
         activeRooms,
         totalPeople,
         monthFullOccupancyBase,
@@ -5059,7 +5135,6 @@ async function renderDashboard(skipReload = false) {
             <div>
               <div class="overview-kicker">Toàn thời gian</div>
               <div class="overview-section-title">Lũy kế vận hành</div>
-              <div class="overview-section-note">Xem doanh thu, chi phí, lợi nhuận và tiền cọc đang giữ từ đầu tới hiện tại.</div>
             </div>
             <div class="overview-toggle-hint">Mở chi tiết</div>
           </summary>
@@ -5095,7 +5170,6 @@ async function renderDashboard(skipReload = false) {
         <div class="overview-section-head">
           <div>
             <div class="overview-section-title overview-section-title-emphasis">${getPeriodMonthTitle(month).replace('THÁNG ', 'BẢNG TIỀN THÁNG ')}</div>
-            <div class="overview-section-note">Nhập số điện và ghi chú nếu cần, lưu lại rồi mới xuất Excel.</div>
           </div>
           <div class="overview-actions">
             <button class="btn btn-outline" type="button" onclick="toggleOverviewFinanceDetailColumns()">${isOverviewFinanceDetailExpanded() ? '▾ Ẩn cột phụ' : '▸ Hiện cột phụ'}</button>
@@ -5109,43 +5183,6 @@ async function renderDashboard(skipReload = false) {
         ${buildOverviewMonthlyTableHtml(financeRows)}
       </section>
 
-      <section class="overview-section overview-month-shell">
-        <div class="overview-section-head">
-          <div>
-            <div class="overview-section-title">${getPeriodMonthTitle(month).replace('THÁNG ', 'BẢNG TỔNG KẾT THÁNG ')}</div>
-            <div class="overview-section-note">Rà xong từng dòng bill ở bảng trên rồi hãy nhìn khối tổng kết này.</div>
-          </div>
-        </div>
-        <div class="overview-summary-grid overview-summary-grid-month overview-summary-grid-5">
-          <div class="overview-stat">
-            <div class="overview-stat-label">Số phòng đang có khách</div>
-            <div class="overview-stat-value">${activeRooms}</div>
-            <div class="overview-stat-meta">${totalPeople} người đang ở hiện tại</div>
-          </div>
-          <div class="overview-stat">
-            <div class="overview-stat-label">Doanh thu vận hành</div>
-            <div class="overview-stat-value">${fmt(monthSummary.revenue)}</div>
-            ${buildFinanceMetricDetailsHtml('revenue', monthSummaryBreakdown, monthSummary)}
-          </div>
-          <div class="overview-stat">
-            <div class="overview-stat-label">Chi phí vận hành</div>
-            <div class="overview-stat-value">${fmt(monthSummary.expense)}</div>
-            ${buildFinanceMetricDetailsHtml('expense', monthSummaryBreakdown, monthSummary)}
-          </div>
-          <div class="overview-stat">
-            <div class="overview-stat-label">Lợi nhuận vận hành</div>
-            <div class="overview-stat-value">${fmt(monthSummary.profit)}</div>
-            ${buildFinanceMetricDetailsHtml('profit', monthSummaryBreakdown, monthSummary)}
-          </div>
-          <div class="overview-stat overview-stat-focus overview-stat-centered">
-            <div class="overview-stat-label">Mốc full phòng / tháng</div>
-            <div class="overview-stat-value">${fmt(monthFullOccupancyBase)}</div>
-            <div class="overview-stat-meta">${getFullOccupancyReferenceNote(monthFullOccupancyBase)}</div>
-          </div>
-        </div>
-        ${buildTurnoverBriefHtml(monthBundle)}
-      </section>
-
       <section class="overview-section overview-deposit-section">
         <details class="overview-collapsible">
           <summary>
@@ -5153,7 +5190,6 @@ async function renderDashboard(skipReload = false) {
             <span>Mở chi tiết</span>
           </summary>
           <div class="overview-collapsible-body">
-            <div class="overview-section-note" style="margin:2px 0 12px">Tiền cọc là line riêng, không cộng vào doanh thu hay lợi nhuận.</div>
             <div class="overview-split-grid">
               <div>
                 <div class="overview-block-title">Cọc đang giữ hiện tại</div>
@@ -7021,6 +7057,181 @@ async function removeStorageFiles(fileRefs = [], options = {}) {
   return { removedCount, warnings };
 }
 
+function clearFileInput(inputId, shouldMarkUnsaved = false) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  clearFileInputElement(input, shouldMarkUnsaved);
+}
+
+function clearFileInputElement(input, shouldMarkUnsaved = false) {
+  if (!input) return;
+  input.value = '';
+  renderSelectedFilePreview(input);
+  if (input.id?.startsWith('bEvn-')) {
+    const roomId = input.id.replace('bEvn-', '');
+    const clearFlag = document.getElementById(`bClearEvn-${roomId}`);
+    if (clearFlag) clearFlag.value = '0';
+    const preview = document.getElementById(`bEvnPreview-${roomId}`);
+    if (preview) preview.innerHTML = '<div style="font-size:12px;color:var(--text2)">Đã bỏ file vừa chọn. Ảnh EVN đang lưu, nếu có, vẫn giữ nguyên.</div>';
+  }
+  if (shouldMarkUnsaved || input.closest('.occ-card') || input.closest('.room-head-inputs')) markUnsaved();
+}
+
+function getSelectedFileLabel(input) {
+  const files = Array.from(input?.files || []);
+  if (!files.length) return '';
+  const names = files.slice(0, 2).map(file => file.name || 'file').join(', ');
+  return files.length > 2 ? `${names} +${files.length - 2} file` : names;
+}
+
+function renderSelectedFilePreview(input) {
+  if (!input || input.type !== 'file') return;
+  const label = getSelectedFileLabel(input);
+  let preview = input.nextElementSibling;
+  if (!preview || !preview.classList?.contains('file-selected-preview')) {
+    if (!label) return;
+    preview = document.createElement('div');
+    preview.className = 'file-selected-preview';
+    input.insertAdjacentElement('afterend', preview);
+  }
+  if (!label) {
+    preview.remove();
+    return;
+  }
+  preview.innerHTML = `<strong>${esc(label)}</strong><button class="file-selected-remove" type="button" aria-label="Bỏ file đã chọn">×</button>`;
+  preview.querySelector('button')?.addEventListener('click', () => clearFileInputElement(input));
+}
+
+function enhanceFileInputs(root = document) {
+  root.querySelectorAll('input[type="file"]').forEach(input => {
+    if (input.dataset.fileUiReady === '1') {
+      renderSelectedFilePreview(input);
+      return;
+    }
+    input.dataset.fileUiReady = '1';
+    input.addEventListener('change', () => renderSelectedFilePreview(input));
+    renderSelectedFilePreview(input);
+  });
+}
+
+async function deleteTenantCccdFile(side = 'front') {
+  const tenantId = roomModalCtx.tenantId;
+  const roomId = roomModalCtx.roomId;
+  const field = side === 'back' ? 'cccd_back_url' : 'cccd_front_url';
+  const label = side === 'back' ? 'CCCD mặt sau' : 'CCCD mặt trước';
+  if (!tenantId) return;
+  if (!confirm(`Xóa ảnh ${label} đang lưu của chủ hộ?`)) return;
+  await withTransientProgress('Đang xóa ảnh CCCD', `Đang xóa ${label} của chủ hộ.`, async () => {
+    const currentRes = await sb.from('tenants').select(field).eq('id', tenantId).maybeSingle();
+    if (currentRes.error) { toast('Không tải được ảnh hiện tại: ' + currentRes.error.message, 'error'); return; }
+    const fileUrl = currentRes.data?.[field] || '';
+    if (!fileUrl) { toast('Không có ảnh đang lưu.', 'warning'); return; }
+    const updates = {};
+    updates[field] = null;
+    const updateRes = await sb.from('tenants').update(updates).eq('id', tenantId);
+    if (updateRes.error) { toast('Xóa ảnh trong DB thất bại: ' + updateRes.error.message, 'error'); return; }
+    await removeStorageFiles([fileUrl]);
+    toast(`Đã xóa ${label}.`);
+    invalidateDataCache();
+    await loadAllData(true);
+    await openRoomDetail(roomId, 'people');
+  });
+}
+
+async function deleteOccupantCccdFile(occupantId, side = 'front') {
+  const roomId = roomModalCtx.roomId;
+  const field = side === 'back' ? 'cccd_back_url' : 'cccd_front_url';
+  const label = side === 'back' ? 'CCCD mặt sau' : 'CCCD mặt trước';
+  if (!occupantId) return;
+  if (!confirm(`Xóa ảnh ${label} đang lưu của người nhà này?`)) return;
+  await withTransientProgress('Đang xóa ảnh CCCD', `Đang xóa ${label} của người nhà.`, async () => {
+    const currentRes = await sb.from('room_occupants').select(field).eq('id', occupantId).maybeSingle();
+    if (currentRes.error) { toast('Không tải được ảnh hiện tại: ' + currentRes.error.message, 'error'); return; }
+    const fileUrl = currentRes.data?.[field] || '';
+    if (!fileUrl) { toast('Không có ảnh đang lưu.', 'warning'); return; }
+    const updates = {};
+    updates[field] = null;
+    const updateRes = await sb.from('room_occupants').update(updates).eq('id', occupantId);
+    if (updateRes.error) { toast('Xóa ảnh trong DB thất bại: ' + updateRes.error.message, 'error'); return; }
+    await removeStorageFiles([fileUrl]);
+    toast(`Đã xóa ${label}.`);
+    invalidateDataCache();
+    await loadAllData(true);
+    await openRoomDetail(roomId, 'people');
+  });
+}
+
+async function deleteDocFileById(id) {
+  if (!id || !confirm('Xóa file giấy tờ này?')) return;
+  await withTransientProgress('Đang xóa file giấy tờ', 'Đang xóa file đã lưu khỏi hồ sơ phòng.', async () => {
+    const rowRes = await sb.from('tenant_documents').select('file_url').eq('id', id).maybeSingle();
+    if (rowRes.error) { toast('Không tải được file trước khi xóa: ' + rowRes.error.message, 'error'); return; }
+    const deleteRes = await sb.from('tenant_documents').delete().eq('id', id);
+    if (deleteRes.error) { toast('Xóa file giấy tờ thất bại: ' + deleteRes.error.message, 'error'); return; }
+    await removeStorageFiles([rowRes.data?.file_url || '']);
+    toast('Đã xóa file giấy tờ.');
+    await openRoomDetail(roomModalCtx.roomId, 'docs');
+  });
+}
+
+async function deletePhotoFileById(id) {
+  if (!id || !confirm('Xóa file hiện trạng này?')) return;
+  await withTransientProgress('Đang xóa file hiện trạng', 'Đang xóa file đã lưu khỏi hồ sơ phòng.', async () => {
+    const rowRes = await sb.from('room_photos').select('photo_url').eq('id', id).maybeSingle();
+    if (rowRes.error) { toast('Không tải được file trước khi xóa: ' + rowRes.error.message, 'error'); return; }
+    const deleteRes = await sb.from('room_photos').delete().eq('id', id);
+    if (deleteRes.error) { toast('Xóa file hiện trạng thất bại: ' + deleteRes.error.message, 'error'); return; }
+    await removeStorageFiles([rowRes.data?.photo_url || '']);
+    toast('Đã xóa file hiện trạng.');
+    await openRoomDetail(roomModalCtx.roomId, 'notes');
+  });
+}
+
+async function deleteBillingEvnAttachment(roomId, tenantId, month) {
+  clearFileInput(`bEvn-${roomId}`);
+  const clearFlag = document.getElementById(`bClearEvn-${roomId}`);
+  if (clearFlag) clearFlag.value = '1';
+  if (!tenantId || !month) return;
+  if (!confirm('Xóa ảnh bill EVN đang lưu của phòng-tháng này?')) return;
+  await withTransientProgress('Đang xóa ảnh EVN', 'Đang xóa ảnh bill EVN khỏi bill tháng này.', async () => {
+    const billRes = await sb.from('monthly_bills').select('evn_bill_image_url').eq('tenant_id', tenantId).eq('billing_month', month).maybeSingle();
+    if (billRes.error) { toast('Không tải được bill hiện tại: ' + billRes.error.message, 'error'); return; }
+    const fileUrl = billRes.data?.evn_bill_image_url || '';
+    if (!fileUrl) {
+      const preview = document.getElementById(`bEvnPreview-${roomId}`);
+      if (preview) preview.innerHTML = '<div style="font-size:12px;color:var(--text2)">Chưa có ảnh EVN đang lưu.</div>';
+      toast('Chưa có ảnh EVN đang lưu.', 'warning');
+      return;
+    }
+    const updateRes = await sb.from('monthly_bills').update({ evn_bill_image_url: null }).eq('tenant_id', tenantId).eq('billing_month', month);
+    if (updateRes.error) { toast('Xóa ảnh EVN trong DB thất bại: ' + updateRes.error.message, 'error'); return; }
+    await removeStorageFiles([fileUrl]);
+    toast('Đã xóa ảnh bill EVN.');
+    await loadBillingMonth();
+  });
+}
+
+async function deleteSettingsQrImage() {
+  clearFileInput('setQRImage');
+  const oldQrPath = appData.settings?.qr_image_url || '';
+  if (!oldQrPath) { toast('Chưa có QR đang lưu.', 'warning'); return; }
+  if (!confirm('Xóa ảnh QR thanh toán đang lưu?')) return;
+  await withBusyState('delete-settings-qr', {
+    title: 'Đang xóa QR thanh toán',
+    meta: 'Đang xóa ảnh QR khỏi cài đặt và kho lưu trữ.',
+    selectors: ['#removeSettingsQrBtn'],
+    busyText: 'Đang xóa...'
+  }, async () => {
+    const updateRes = await sb.from('settings').update({ qr_image_url: null }).eq('id', appData.settings.id);
+    if (updateRes.error) { toast('Xóa QR trong DB thất bại: ' + updateRes.error.message, 'error'); return; }
+    await removeStorageFiles([oldQrPath]);
+    toast('Đã xóa QR thanh toán.');
+    invalidateDataCache();
+    await loadAllData(true);
+    await loadSettings();
+  });
+}
+
 function buildZipSummaryText(lines = []) {
   return lines.filter(Boolean).join('\n');
 }
@@ -7849,7 +8060,7 @@ async function loadRoomMapPage() {
         <div class="roomgame-stage ${scene.phase} ${scene.weather}">
           <div class="roomgame-scene-hud">
             <div class="roomgame-scene-left">
-              <div class="roomgame-mini-chip"><strong>NHATROVUIVE</strong></div>
+              <div class="roomgame-mini-chip"><strong>NHÀ TRỌ ĐẶNG ĐƯỢC</strong></div>
               <div class="roomgame-mini-chip">${scene.phaseLabel} · ${scene.clockLabel}</div>
               <div class="roomgame-mini-chip">${scene.weatherLabel}</div>
             </div>
@@ -7992,7 +8203,7 @@ function setRoomHeadLockState(unlocked = false) {
   const btn = document.getElementById('roomHeadUnlockBtn');
   document.querySelectorAll('.room-head-inputs').forEach(wrap => {
     wrap.classList.toggle('is-locked', !unlocked);
-    wrap.querySelectorAll('input, textarea, select').forEach(el => {
+    wrap.querySelectorAll('input, textarea, select, button').forEach(el => {
       el.disabled = !unlocked;
     });
   });
@@ -8027,8 +8238,8 @@ function occupantCardHtml(o = {}, idx = 0) {
       <div></div>
     </div>
     <div class="grid-2">
-      <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input occ-front" accept="image/*" onchange="markUnsaved()">${o.cccd_front_preview ? `<a href="#" onclick="openStorageFile(${jsArg(o.cccd_front_url)});return false"><img src="${esc(o.cccd_front_preview)}" style="width:74px;height:54px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
-      <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input occ-back" accept="image/*" onchange="markUnsaved()">${o.cccd_back_preview ? `<a href="#" onclick="openStorageFile(${jsArg(o.cccd_back_url)});return false"><img src="${esc(o.cccd_back_preview)}" style="width:74px;height:54px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
+      <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input occ-front" accept="image/*" onchange="markUnsaved()">${o.cccd_front_preview ? `<div class="file-current-preview"><a href="#" onclick="openStorageFile(${jsArg(o.cccd_front_url)});return false"><img src="${esc(o.cccd_front_preview)}" alt="CCCD mặt trước"></a><button class="btn btn-danger btn-sm" type="button" onclick="deleteOccupantCccdFile(${jsArg(id)},'front')">Xóa ảnh đang lưu</button></div>`:''}</div>
+      <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input occ-back" accept="image/*" onchange="markUnsaved()">${o.cccd_back_preview ? `<div class="file-current-preview"><a href="#" onclick="openStorageFile(${jsArg(o.cccd_back_url)});return false"><img src="${esc(o.cccd_back_preview)}" alt="CCCD mặt sau"></a><button class="btn btn-danger btn-sm" type="button" onclick="deleteOccupantCccdFile(${jsArg(id)},'back')">Xóa ảnh đang lưu</button></div>`:''}</div>
     </div>
     <div style="display:flex;justify-content:flex-end"><button class="btn btn-danger btn-sm" type="button" onclick="removeOccupantCard(this,${jsArg(id)})">🗑️ Xóa người nhà</button></div>
   </div>`;
@@ -8104,6 +8315,7 @@ async function openRoomDetail(roomId, initialSection = 'room') {
             </button>
             <div class="doc-file-name">${esc(getFileNameFromPath(x.file_url) || x.document_name || 'Tài liệu')}</div>
             <button class="btn btn-outline btn-sm" type="button" onclick="openStorageFile(${jsArg(x.file_url)})">Mở</button>
+            <button class="btn btn-danger btn-sm" type="button" onclick="deleteDocFileById(${jsArg(x.id)})">Xóa file</button>
           </div>
         `).join('')}
       </div>
@@ -8236,8 +8448,8 @@ async function openRoomDetail(roomId, initialSection = 'room') {
         ${baselineFloor.hot > 0 || baselineFloor.cold > 0 ? `<div style="font-size:12px;line-height:1.55;color:var(--warning);background:rgba(201,120,23,.08);border:1px solid rgba(201,120,23,.18);border-radius:12px;padding:10px 12px;margin-bottom:12px">Mốc nước ban đầu của khách hiện tại không được thấp hơn mốc gần nhất của phòng: <strong>N${esc(baselineFloor.hot)}</strong> | <strong>L${esc(baselineFloor.cold)}</strong>${baselineFloor.sourceText ? ` (${esc(baselineFloor.sourceText)})` : ''}. Nếu muốn reset xuống thấp hơn, phải dùng <strong>HARD DELETE</strong>.</div>` : ''}
         <div id="roomHeadInputsFiles" class="room-head-inputs is-locked">
           <div class="grid-2">
-            <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input" id="tnCCCDFront" accept="image/*" onchange="markUnsaved()">${cccdFrontSigned ? `<a href="${esc(cccdFrontSigned)}" target="_blank"><img src="${esc(cccdFrontSigned)}" style="width:86px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
-            <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input" id="tnCCCDBack" accept="image/*" onchange="markUnsaved()">${cccdBackSigned ? `<a href="${esc(cccdBackSigned)}" target="_blank"><img src="${esc(cccdBackSigned)}" style="width:86px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
+            <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input" id="tnCCCDFront" accept="image/*" onchange="markUnsaved()">${cccdFrontSigned ? `<div class="file-current-preview"><a href="${esc(cccdFrontSigned)}" target="_blank"><img src="${esc(cccdFrontSigned)}" alt="CCCD mặt trước"></a><button class="btn btn-danger btn-sm" type="button" onclick="deleteTenantCccdFile('front')">Xóa ảnh đang lưu</button></div>`:''}</div>
+            <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input" id="tnCCCDBack" accept="image/*" onchange="markUnsaved()">${cccdBackSigned ? `<div class="file-current-preview"><a href="${esc(cccdBackSigned)}" target="_blank"><img src="${esc(cccdBackSigned)}" alt="CCCD mặt sau"></a><button class="btn btn-danger btn-sm" type="button" onclick="deleteTenantCccdFile('back')">Xóa ảnh đang lưu</button></div>`:''}</div>
           </div>
           <div class="form-group"><label>Ghi chú chủ hộ</label><input class="form-input" id="tnNotes" value="${esc(tenant.notes || '')}" onchange="markUnsaved()"></div>
         </div>
@@ -8292,6 +8504,7 @@ async function openRoomDetail(roomId, initialSection = 'room') {
                     </button>
                     <div class="doc-file-name">${esc(getFileNameFromPath(x.photo_url) || x.description || 'Hiện trạng phòng')}</div>
                     <button class="btn btn-outline btn-sm" type="button" onclick="openStorageFile(${jsArg(x.photo_url)})">Mở</button>
+                    <button class="btn btn-danger btn-sm" type="button" onclick="deletePhotoFileById(${jsArg(x.id)})">Xóa file</button>
                   </div>
                 `).join('')}
               </div>
@@ -8357,6 +8570,7 @@ async function openRoomDetail(roomId, initialSection = 'room') {
   openModal('roomModal');
   initDocUploadSections();
   initPhotoUploadSections();
+  enhanceFileInputs(document.getElementById('roomModalContent') || document);
   if (tenant) {
     setRoomHeadLockState(false);
     await loadRoomCheckoutForm(roomId);
@@ -8540,7 +8754,7 @@ function docUploadSectionHtml(id) {
     <summary style="cursor:pointer;font-weight:700">Mục giấy tờ</summary>
     <div class="grid-2" style="margin-top:8px">
       <div class="form-group"><label>Ghi chú/tên nhóm giấy tờ</label><input class="form-input" id="docLabel-${id}" placeholder="VD: CCCD + tạm trú tháng 4"></div>
-      <div class="form-group"><label>Choose files</label><input type="file" class="form-input" id="docFiles-${id}" multiple></div>
+      <div class="form-group"><label>File</label><input type="file" class="form-input" id="docFiles-${id}" multiple></div>
     </div>
     <div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" type="button" onclick="uploadDocSection(${id})">📤 Upload mục này</button><button class="btn btn-danger btn-sm" type="button" onclick="this.closest('details').remove()">🗑️ Bỏ mục này</button></div>
   </details>`;
@@ -8561,6 +8775,7 @@ function addDocUploadSection() {
   if (!box) return;
   docSectionCounter += 1;
   box.insertAdjacentHTML('beforeend', docUploadSectionHtml(docSectionCounter));
+  enhanceFileInputs(box);
 }
 
 async function uploadDocSection(id) {
@@ -8600,7 +8815,7 @@ function photoUploadSectionHtml(id) {
     <summary style="cursor:pointer;font-weight:700">Mục hiện trạng</summary>
     <div class="grid-2" style="margin-top:8px">
       <div class="form-group"><label>Ghi chú mục hiện trạng</label><input class="form-input" id="photoLabel-${id}" placeholder="VD: Hiện trạng sau sửa điện"></div>
-      <div class="form-group"><label>Choose files</label><input type="file" class="form-input" id="photoFiles-${id}" multiple></div>
+      <div class="form-group"><label>File ảnh</label><input type="file" class="form-input" id="photoFiles-${id}" multiple></div>
     </div>
     <div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" type="button" onclick="uploadPhotoSection(${id})">📤 Upload mục này</button><button class="btn btn-danger btn-sm" type="button" onclick="this.closest('details').remove()">🗑️ Bỏ mục này</button></div>
   </details>`;
@@ -8621,6 +8836,7 @@ function addPhotoUploadSection() {
   if (!box) return;
   photoSectionCounter += 1;
   box.insertAdjacentHTML('beforeend', photoUploadSectionHtml(photoSectionCounter));
+  enhanceFileInputs(box);
 }
 
 async function uploadPhotoSection(id) {
@@ -9481,7 +9697,7 @@ async function saveBillingCollectionStatus(month) {
   }
 }
 
-async function renderBillingEvnPreview(roomId, fileUrl = '') {
+async function renderBillingEvnPreview(roomId, fileUrl = '', tenantId = '', month = '') {
   const el = document.getElementById(`bEvnPreview-${roomId}`);
   if (!el) return;
   if (!fileUrl) {
@@ -9493,7 +9709,7 @@ async function renderBillingEvnPreview(roomId, fileUrl = '') {
     el.innerHTML = '<div style="font-size:12px;color:var(--text2)">Không tải được ảnh bill EVN.</div>';
     return;
   }
-  el.innerHTML = `<img src="${signedUrl}" alt="Bill EVN" style="width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid var(--border)">`;
+  el.innerHTML = `<div class="file-current-preview"><img src="${signedUrl}" alt="Bill EVN" style="width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid var(--border)"><button class="btn btn-danger btn-sm" type="button" onclick="deleteBillingEvnAttachment(${jsArg(roomId)},${jsArg(tenantId)},${jsArg(month)})">Xóa ảnh đang lưu</button></div>`;
 }
 
 function previewBillingEvnSelection(roomId) {
@@ -9831,8 +10047,9 @@ async function loadBillingMonth() {
       loadBillingDraft(ctx.room.id, month);
     }
     calcBillRoom(ctx.room.id);
-    renderBillingEvnPreview(ctx.room.id, ctx.bill?.evn_bill_image_url || '');
+    renderBillingEvnPreview(ctx.room.id, ctx.bill?.evn_bill_image_url || '', ctx.tenant?.persisted_tenant_id || ctx.tenant?.id || '', month);
   });
+  enhanceFileInputs(document.getElementById('billingContent') || document);
 }
 
 function calcBillRoom(roomId) {
@@ -10617,6 +10834,152 @@ function getWaterTurnoverNotes(checkout = null, moveIn = null, options = {}) {
   return buildWaterOverviewNoteLines(checkout, moveIn, options.readingDate || '', options);
 }
 
+function getWaterReadingReferenceLabel(reading = null) {
+  if (!reading) return '';
+  if (reading.reading_source === 'move_in_baseline') {
+    return `mốc vào ở ${fmtDate(reading.reading_date)}`;
+  }
+  const month = reading.billing_month || reading.reading_date || '';
+  const monthText = month ? getPeriodMonthTitle(month).replace('THÁNG', 'Tháng') : 'kỳ trước';
+  const closeText = month ? `chốt ${fmtDate(getNextCycleStart(month))}` : fmtDate(reading.reading_date);
+  return `${monthText} (${closeText})${reading.is_water_debt ? ' · nợ nước' : ''}`;
+}
+
+function getWaterReadingSortKey(reading = {}) {
+  return `${reading.billing_month || reading.reading_date || ''}|${getReadingActualEventDate(reading) || ''}|${reading.reading_source || ''}`;
+}
+
+function getWaterReadingValueText(reading = null) {
+  if (!reading) return '—';
+  return `N${reading.hot_water_current ?? '—'} | L${reading.cold_water_current ?? '—'}`;
+}
+
+function getWaterOverviewCycleStartsForYear(selectedCycleStart = '') {
+  const selectedYear = Number(String(selectedCycleStart || BUSINESS_START_DATE).slice(0, 4)) || getCycleStartYear(BUSINESS_START_DATE);
+  const trackedCycleStarts = getTrackedMonths()
+    .map(monthValueToCycleStart)
+    .filter(cycleStart => getCycleStartYear(cycleStart) === selectedYear)
+    .sort();
+  const fallbackCycleStart = `${selectedYear}-01-01`;
+  return {
+    selectedYear,
+    trackedCycleStarts: trackedCycleStarts.length ? trackedCycleStarts : [fallbackCycleStart]
+  };
+}
+
+function buildWaterOverviewPeriodCell(reading = null, cycleStart = '') {
+  const label = `T${Number(String(cycleStart || '').slice(5, 7)) || '?'}`;
+  if (!reading) {
+    return { label, text: '—', sub: 'Chưa có', tone: 'empty' };
+  }
+  const hotCurrent = reading.hot_water_current ?? '—';
+  const coldCurrent = reading.cold_water_current ?? '—';
+  if (reading.reading_source === 'move_in_baseline') {
+    return { label, text: `N${hotCurrent} / L${coldCurrent}`, sub: 'Mốc vào ở', tone: 'baseline' };
+  }
+  if (reading.is_water_debt) {
+    return { label, text: `N${hotCurrent} / L${coldCurrent}`, sub: 'Nợ nước', tone: 'debt' };
+  }
+  const hotUsed = Math.max(0, Number(reading.hot_water_current || 0) - Number(reading.hot_water_previous || 0));
+  const coldUsed = Math.max(0, Number(reading.cold_water_current || 0) - Number(reading.cold_water_previous || 0));
+  return { label, text: `N${hotCurrent} / L${coldCurrent}`, sub: `Dùng N${hotUsed} / L${coldUsed}`, tone: 'done' };
+}
+
+function buildWaterYearOverviewRows({
+  rooms = [],
+  readings = [],
+  moveIns = [],
+  checkouts = [],
+  selectedCycleStart = ''
+} = {}) {
+  const { selectedYear, trackedCycleStarts } = getWaterOverviewCycleStartsForYear(selectedCycleStart);
+  const yearStart = `${selectedYear}-01-01`;
+  const yearEndCycle = trackedCycleStarts[trackedCycleStarts.length - 1] || `${selectedYear}-12-01`;
+  const rangeText = trackedCycleStarts.length > 1
+    ? `${getPeriodMonthTitle(trackedCycleStarts[0]).replace('THÁNG', 'Tháng')} - ${getPeriodMonthTitle(yearEndCycle).replace('THÁNG', 'Tháng')}`
+    : getPeriodMonthTitle(yearEndCycle).replace('THÁNG', 'Tháng');
+  const tenantNameById = new Map((appData.tenants || []).map(tenant => [tenant.id, tenant.full_name || '']));
+  const moveInByRoom = new Map();
+  const checkoutByRoom = new Map();
+  (moveIns || [])
+    .filter(row => row?.billing_month >= yearStart && row?.billing_month <= yearEndCycle)
+    .forEach(row => {
+      if (!moveInByRoom.has(row.room_id)) moveInByRoom.set(row.room_id, []);
+      moveInByRoom.get(row.room_id).push({ ...row, event_meta: safeJsonParse(row.note, {}) || {} });
+      if (row.tenant_id && row.tenant_name_snapshot) tenantNameById.set(row.tenant_id, row.tenant_name_snapshot);
+    });
+  (checkouts || [])
+    .filter(row => row?.billing_month >= yearStart && row?.billing_month <= yearEndCycle)
+    .forEach(row => {
+      if (!checkoutByRoom.has(row.room_id)) checkoutByRoom.set(row.room_id, []);
+      checkoutByRoom.get(row.room_id).push({ ...row, event_meta: safeJsonParse(row.notes, {}) || {} });
+      if (row.tenant_id && row.tenant_name_snapshot) tenantNameById.set(row.tenant_id, row.tenant_name_snapshot);
+    });
+
+  return (rooms || []).map(room => {
+    const roomReadings = (readings || [])
+      .filter(row => row.room_id === room.id && String(row.billing_month || row.reading_date || '') <= yearEndCycle)
+      .sort((a, b) => getWaterReadingSortKey(a).localeCompare(getWaterReadingSortKey(b)));
+    const yearReadings = roomReadings.filter(row => {
+      const month = row.billing_month || row.reading_date || '';
+      return month >= yearStart && month <= yearEndCycle;
+    });
+    const beforeYear = roomReadings.filter(row => String(row.billing_month || row.reading_date || '') < yearStart).slice(-1)[0] || null;
+    const firstYear = yearReadings[0] || null;
+    const latest = yearReadings.slice(-1)[0] || beforeYear || null;
+    const startHot = beforeYear?.hot_water_current ?? firstYear?.hot_water_previous ?? null;
+    const startCold = beforeYear?.cold_water_current ?? firstYear?.cold_water_previous ?? null;
+    const latestHot = latest?.hot_water_current ?? null;
+    const latestCold = latest?.cold_water_current ?? null;
+    const totalHot = yearReadings.reduce((sum, row) => {
+      if (row.reading_source === 'move_in_baseline' || row.is_water_debt) return sum;
+      return sum + Math.max(0, Number(row.hot_water_current || 0) - Number(row.hot_water_previous || 0));
+    }, 0);
+    const totalCold = yearReadings.reduce((sum, row) => {
+      if (row.reading_source === 'move_in_baseline' || row.is_water_debt) return sum;
+      return sum + Math.max(0, Number(row.cold_water_current || 0) - Number(row.cold_water_previous || 0));
+    }, 0);
+    const roomMoveIns = moveInByRoom.get(room.id) || [];
+    const roomCheckouts = checkoutByRoom.get(room.id) || [];
+    const activeTenant = getTenantForRoom(room.id);
+    const monthCells = trackedCycleStarts.map(cycleStart => {
+      const monthReading = pickPreferredMonthReading(roomReadings, cycleStart, room.id, null);
+      return buildWaterOverviewPeriodCell(monthReading, cycleStart);
+    });
+    const tenantNames = [
+      ...new Set([
+        activeTenant?.full_name || '',
+        ...roomMoveIns.map(row => row.tenant_name_snapshot || ''),
+        ...roomCheckouts.map(row => row.tenant_name_snapshot || ''),
+        ...yearReadings.map(row => tenantNameById.get(row.tenant_id) || '')
+      ].filter(Boolean))
+    ];
+    const notes = [];
+    if (latest?.is_water_debt) {
+      notes.push(`${getWaterReadingReferenceLabel(latest)} đang bật nợ nước.`);
+    }
+    roomCheckouts.forEach(row => notes.push(`${fmtDate(row.checkout_date)}: ${row.tenant_name_snapshot || 'Khách cũ'} rời tại N${row.event_meta?.hot_current ?? '—'} | L${row.event_meta?.cold_current ?? '—'}.`));
+    roomMoveIns.forEach(row => notes.push(`${fmtDate(row.move_in_date)}: ${row.tenant_name_snapshot || 'Khách mới'} vào tại N${row.event_meta?.initial_hot_water ?? '—'} | L${row.event_meta?.initial_cold_water ?? '—'}.`));
+    if (!yearReadings.length && !beforeYear) notes.push('Chưa có dữ liệu nước.');
+
+    return {
+      roomNumber: room.room_number,
+      tenantName: tenantNames.length ? tenantNames.join(' / ') : 'Phòng trống',
+      periodText: `Năm ${selectedYear} · ${rangeText}`,
+      startText: `N${startHot ?? '—'} | L${startCold ?? '—'}`,
+      startSource: beforeYear ? getWaterReadingReferenceLabel(beforeYear) : (firstYear ? `mốc đầu ${getPeriodMonthTitle(firstYear.billing_month || firstYear.reading_date).replace('THÁNG', 'Tháng')}` : ''),
+      latestText: getWaterReadingValueText(latest),
+      latestSource: getWaterReadingReferenceLabel(latest),
+      totalText: yearReadings.length ? `N${totalHot} | L${totalCold}` : '—',
+      monthCells,
+      noteLines: notes,
+      noteText: notes.length ? notes.join('\n') : '—',
+      hasTurnover: !!(roomMoveIns.length || roomCheckouts.length),
+      hasDebt: yearReadings.some(row => row.is_water_debt)
+    };
+  });
+}
+
 async function loadWaterEntry() {
   let readingDate = getSelectedWaterCycleStart();
   if (!readingDate) return;
@@ -10639,6 +11002,7 @@ async function loadWaterEntry() {
   await materializeDashboardMonth(readingDate);
   const tbody = document.getElementById('waterRows');
   const overviewBody = document.getElementById('waterOverviewRows');
+  const summaryEl = document.getElementById('waterEntrySummary');
   const noticeEl = document.getElementById('waterLockNotice');
   const saveAllBtn = document.getElementById('waterSaveAllBtn');
   if (!tbody) return;
@@ -10659,26 +11023,38 @@ async function loadWaterEntry() {
     sheetRowsRes,
     moveInsRes,
     checkoutsRes,
-    billsRes
+    billsRes,
+    allReadingsRes,
+    allMoveInsRes,
+    allCheckoutsRes
   ] = await Promise.all([
     sb.from('water_readings').select('*').eq('reading_date', readingDate),
     sb.from('monthly_room_sheet_data').select('*').eq('billing_month', readingDate),
     sb.from('move_in_records').select('*').eq('billing_month', readingDate),
     sb.from('checkout_records').select('*').eq('billing_month', readingDate),
-    sb.from('monthly_bills').select('id, room_id, status').eq('billing_month', readingDate)
+    sb.from('monthly_bills').select('id, room_id, status').eq('billing_month', readingDate),
+    sb.from('water_readings').select('*'),
+    sb.from('move_in_records').select('*'),
+    sb.from('checkout_records').select('*')
   ]);
   const rowsToday = rowsTodayRes.data || [];
   const sheetRows = sheetRowsRes.data || [];
   const moveIns = moveInsRes.data || [];
   const checkouts = checkoutsRes.data || [];
   const bills = billsRes.data || [];
+  const allReadings = allReadingsRes.data || [];
+  const allMoveIns = allMoveInsRes.data || [];
+  const allCheckouts = allCheckoutsRes.data || [];
   const sheetMap = new Map(sheetRows.map(row => [row.room_id, row]));
   const moveInMap = new Map(moveIns.map(row => [row.room_id, { ...row, event_meta: safeJsonParse(row.note, {}) || {} }]));
   const checkoutMap = new Map(checkouts.map(row => [row.room_id, { ...row, event_meta: safeJsonParse(row.notes, {}) || {} }]));
   const billMap = new Map(bills.map(row => [row.room_id, row]));
 
   let html = '';
-  const overviewRows = [];
+  let expectedCount = 0;
+  let savedCount = 0;
+  let debtCount = 0;
+  let paidLockedCount = 0;
   for (const room of appData.rooms) {
     const monthRow = sheetMap.get(room.id) || null;
     const bill = billMap.get(room.id) || null;
@@ -10699,8 +11075,21 @@ async function loadWaterEntry() {
     const finalHotForNote = today ? hotCur : undefined;
     const finalColdForNote = today ? coldCur : undefined;
     const debt = !!today?.is_water_debt;
+    if (tenant) expectedCount += 1;
+    if (today) savedCount += 1;
+    if (debt) debtCount += 1;
+    if (isPaidLocked) paidLockedCount += 1;
+    const prevBeforeDebt = prev?.is_water_debt && effectiveTenantId && !String(effectiveTenantId).startsWith('snapshot-')
+      ? await getPreviousReading(effectiveTenantId, prev.reading_date)
+      : null;
     const carryoverText = (!debt && prev?.is_water_debt) ? 'Kỳ này đang tính dồn tiền nước do kỳ trước bật nợ nước.' : '';
     const latestReference = `Nóng ${hotPrev} | Lạnh ${coldPrev}`;
+    const referenceSourceText = prev?.is_water_debt
+      ? `Kỳ trước nợ nước; mốc giữ theo ${getWaterReadingReferenceLabel(prevBeforeDebt) || getWaterReadingReferenceLabel(prev)}`
+      : (getWaterReadingReferenceLabel(prev) || (monthRowMatchesTenant && monthRow ? 'snapshot bảng tháng' : 'hồ sơ khách'));
+    const referenceDebtText = prev?.is_water_debt
+      ? `Kỳ ${getPeriodMonthTitle(prev.billing_month || prev.reading_date).replace('THÁNG', 'Tháng')} đã bật nợ nước nên số này không phải mốc mới; kỳ này sẽ tính dồn từ mốc trên.`
+      : '';
     const checkout = checkoutMap.get(room.id) || null;
     const moveIn = moveInMap.get(room.id) || null;
     const activeTenant = getTenantForRoom(room.id);
@@ -10725,118 +11114,107 @@ async function loadWaterEntry() {
         <td>${esc(tenant.full_name)}${noteHtml}</td>
         <td><input class="form-input ${missingInputClass}" type="number" id="wrHotCur-${esc(effectiveTenantId)}" value="${esc(hotCur)}" placeholder="Nhập số hiện tại" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
         <td><input class="form-input ${missingInputClass}" type="number" id="wrColdCur-${esc(effectiveTenantId)}" value="${esc(coldCur)}" placeholder="Nhập số hiện tại" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
-        <td><div style="font-size:12px;color:var(--text2)">Lần gần nhất: <strong>${latestReference}</strong></div></td>
+        <td>
+          <div class="water-reference-main"><strong>${latestReference}</strong></div>
+          <div class="water-reference-sub">${esc(referenceSourceText)}</div>
+          ${referenceDebtText ? `<div class="water-reference-debt">${esc(referenceDebtText)}</div>` : ''}
+        </td>
         <td><div class="water-message-cell"><button class="btn btn-outline btn-sm" onclick="openZaloModalByTenant(${jsArg(effectiveTenantId)})" ${canMessage ? '' : 'disabled'}>💬 Nhắn</button></div></td>
         <td><div class="water-action-cell"><button class="btn btn-sm ${debt?'btn-danger':'btn-outline'}" onclick="toggleWaterDebt(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>${debt?'Đang bật nợ nước':'Nợ nước'}</button><button class="btn btn-primary btn-sm" id="waterSave-${esc(room.id)}" data-room-id="${esc(room.id)}" data-tenant-id="${esc(effectiveTenantId)}" onclick="saveWaterRow(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>💾 Lưu</button></div></td>
       </tr>`;
     }
-
-    const cycleLabel = `${fmtDate(readingDate)} → ${fmtDate(getNextCycleStart(readingDate))}`;
-    const summaryOwner = tenant?.full_name || monthRow?.full_name || '';
-    const hasWaterNumbers = today && [hotPrev, hotCur, coldPrev, coldCur].some(value => value !== '' && value !== null && value !== undefined);
-    const hasWaterData = !!(
-      summaryOwner ||
-      checkout ||
-      moveIn ||
-      today ||
-      hasWaterNumbers
-    );
-    const waterSummary = today
-      ? formatWaterOverviewSummary(hotPrev, hotCur, coldPrev, coldCur, summaryOwner)
-      : (hasWaterData ? 'Chưa nhập số nước kỳ này' : '—');
-    const snapshotText = today
-      ? `Đã chốt kỳ ${cycleLabel}${today?.is_water_debt ? ' · Đang bật nợ nước' : ''}`
-      : hasWaterData
-      ? `Chưa có snapshot cuối kỳ`
-      : '—';
-    const overviewNoteLines = [];
-    if (!today && isWritable) overviewNoteLines.push('Cần nhập số nước kỳ này.');
-    if (carryoverText) overviewNoteLines.push(carryoverText);
-    overviewNoteLines.push(...buildWaterOverviewNoteLines(checkout, moveIn, readingDate, {
-      paidLock: isPaidLocked,
-      shortPaidLock: true,
-      cycleClosed: !!today || canEditWaterCycle(readingDate),
-      finalHot: finalHotForNote,
-      finalCold: finalColdForNote
-    }));
-    if (debt) {
-      overviewNoteLines.unshift('Kỳ này đang bật nợ nước.');
-    }
-
-    overviewRows.push({
-      monthLabel: getPeriodMonthTitle(readingDate).replace('THÁNG', 'Tháng'),
-      roomNumber: room.room_number,
-      tenantName: summaryOwner || 'Phòng trống',
-      cycleLabel,
-      waterSummary,
-      snapshotText,
-      noteLines: overviewNoteLines,
-      noteText: overviewNoteLines.length ? overviewNoteLines.join('\n') : '—',
-      hasTurnover: !!(checkout || moveIn),
-      isPaidLocked
-    });
   }
 
   tbody.innerHTML = html || '<tr><td colspan="7" style="color:var(--text2);text-align:center">Kỳ này chưa có phòng nào cần nhập số nước.</td></tr>';
+  if (summaryEl) {
+    summaryEl.innerHTML = `
+      <span class="water-summary-chip"><strong>${savedCount}/${expectedCount}</strong> phòng đã nhập</span>
+      <span class="water-summary-chip"><strong>${Math.max(0, expectedCount - savedCount)}</strong> phòng còn thiếu</span>
+      <span class="water-summary-chip"><strong>${debtCount}</strong> nợ nước</span>
+      <span class="water-summary-chip"><strong>${paidLockedCount}</strong> đã PAID/khóa</span>
+    `;
+  }
+  const overviewCycleInfo = getWaterOverviewCycleStartsForYear(readingDate);
+  const overviewRows = buildWaterYearOverviewRows({
+    rooms: appData.rooms,
+    readings: allReadings,
+    moveIns: allMoveIns,
+    checkouts: allCheckouts,
+    selectedCycleStart: readingDate
+  });
   window._waterOverviewMonth = readingDate;
   window._waterOverviewExportRows = overviewRows.map(row => ({
-    monthLabel: row.monthLabel,
+    monthLabel: row.periodText,
     roomNumber: `P${row.roomNumber}`,
     tenantName: row.tenantName,
-    waterSummary: row.waterSummary,
-    snapshotText: row.snapshotText,
+    waterSummary: `Tổng dùng ${row.totalText}`,
+    snapshotText: `Đầu ${row.startText}${row.startSource ? ` (${row.startSource})` : ''} → Mới nhất ${row.latestText}${row.latestSource ? ` (${row.latestSource})` : ''}`,
     noteText: row.noteText,
     hasTurnover: row.hasTurnover
   }));
   if (overviewBody) {
-    const overviewTableRows = overviewRows.map(row => `
-      <tr class="${row.hasTurnover ? 'has-events' : ''} ${row.isPaidLocked ? 'is-paid' : ''}">
+    const overviewTableRows = overviewRows.map(row => {
+      const timelineHtml = (row.monthCells || []).map(cell => `
+        <div class="water-overview-period ${esc(cell.tone || '')}">
+          <div class="water-overview-period-label">${esc(cell.label)}</div>
+          <div class="water-overview-period-value">${esc(cell.text)}</div>
+          <div class="water-overview-period-sub">${esc(cell.sub || '')}</div>
+        </div>
+      `).join('');
+      return `
+      <tr class="${row.hasTurnover ? 'has-events' : ''} ${row.hasDebt ? 'has-debt' : ''}">
         <td>
           <div class="water-overview-cell-main">P${row.roomNumber}</div>
           ${row.hasTurnover ? '<div class="water-overview-cell-tag">Có biến động</div>' : ''}
         </td>
         <td>
           <div class="water-overview-cell-main">${esc(row.tenantName)}</div>
-          <div class="water-overview-cell-sub">${esc(row.cycleLabel)}</div>
+          <div class="water-overview-cell-sub">${esc(row.periodText)}</div>
         </td>
-        <td><div class="water-overview-summary">${esc(row.waterSummary)}</div></td>
-        <td><div class="water-overview-cell-sub">${esc(row.snapshotText)}</div></td>
+        <td>
+          <div class="water-overview-summary">${esc(row.startText)}</div>
+          ${row.startSource ? `<div class="water-overview-cell-sub">${esc(row.startSource)}</div>` : ''}
+        </td>
+        <td><div class="water-overview-timeline">${timelineHtml}</div></td>
+        <td>
+          <div class="water-overview-summary">${esc(row.latestText)}</div>
+          ${row.latestSource ? `<div class="water-overview-cell-sub">${esc(row.latestSource)}</div>` : ''}
+        </td>
+        <td><div class="water-overview-summary">${esc(row.totalText)}</div></td>
         <td>
           ${row.noteLines.length
-            ? `<div class="water-overview-note-list">${row.noteLines.map(text => `<div class="water-overview-note ${text.includes('ĐÃ THANH TOÁN') ? 'locked' : text.includes('rời đi') || text.includes(' vào ') ? 'turnover' : text.includes('dồn tiền nước') || text.includes('nợ nước') ? 'warning' : ''}">${esc(text)}</div>`).join('')}</div>`
-            : '<div class="water-overview-cell-sub">Không có biến động trong kỳ.</div>'}
+            ? `<div class="water-overview-note-list">${row.noteLines.map(text => `<div class="water-overview-note ${text.includes('rời') || text.includes('vào') ? 'turnover' : text.includes('nợ nước') ? 'warning' : ''}">${esc(text)}</div>`).join('')}</div>`
+            : '<div class="water-overview-cell-sub">Không có biến động.</div>'}
         </td>
       </tr>
-    `).join('');
+    `;
+    }).join('');
+    const overviewRangeText = overviewCycleInfo.trackedCycleStarts.length > 1
+      ? `${getPeriodMonthTitle(overviewCycleInfo.trackedCycleStarts[0]).replace('THÁNG', 'Tháng')} - ${getPeriodMonthTitle(overviewCycleInfo.trackedCycleStarts[overviewCycleInfo.trackedCycleStarts.length - 1]).replace('THÁNG', 'Tháng')}`
+      : getPeriodMonthTitle(overviewCycleInfo.trackedCycleStarts[0]).replace('THÁNG', 'Tháng');
     overviewBody.innerHTML = overviewRows.length ? `
-      <details class="overview-collapsible" open>
-        <summary>
-          <span>${getPeriodMonthTitle(readingDate).replace('THÁNG', 'Tháng')} - Bảng tổng quan số nước</span>
-          <span>${fmtDate(readingDate)} → ${fmtDate(getNextCycleStart(readingDate))}</span>
-        </summary>
-        <div class="overview-collapsible-body">
-          <div class="water-overview-toolbar">
-            <div class="water-overview-toolbar-copy">
-              <div class="water-overview-toolbar-title">Giữ dạng bảng để nhìn như Excel và đối soát nhanh 9 phòng</div>
-            </div>
-          </div>
-          <div class="overview-table-wrap">
-            <table class="data-table water-overview-table">
-              <thead>
-                <tr>
-                  <th>Phòng</th>
-                  <th>Người đang ghi nhận</th>
-                  <th>Nước tổng trong kỳ</th>
-                  <th>Trạng thái kỳ</th>
-                  <th>Ghi chú / biến động</th>
-                </tr>
-              </thead>
-              <tbody>${overviewTableRows}</tbody>
-            </table>
-          </div>
+      <div class="water-overview-head">
+        <div>
+          <div class="water-overview-title">Tổng quan số nước năm ${overviewCycleInfo.selectedYear}</div>
         </div>
-      </details>
-    ` : '<div class="water-overview-empty">Chưa có dữ liệu số nước trong kỳ này.</div>';
+      </div>
+      <div class="overview-table-wrap">
+        <table class="data-table water-overview-table">
+          <thead>
+            <tr>
+              <th>Phòng</th>
+              <th>Khách / giai đoạn</th>
+              <th>Mốc đầu</th>
+              <th>Chuỗi kỳ</th>
+              <th>Mốc mới nhất</th>
+              <th>Tổng đã dùng</th>
+              <th>Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody>${overviewTableRows}</tbody>
+        </table>
+      </div>
+    ` : '<div class="water-overview-empty">Chưa có dữ liệu số nước.</div>';
   }
   updateWaterModeUi();
 }
@@ -11970,7 +12348,7 @@ async function closeOperationalYear(year) {
     toast(`Năm ${targetYear} chưa thể đóng sổ vì kỳ 1/12/${targetYear} → 1/1/${targetYear + 1} chưa kết thúc.`, 'warning');
     return;
   }
-  if (!confirm(`Đóng sổ năm ${targetYear}?\n\nNăm này sẽ chuyển sang read-only để quản trị và thuế. Khách đang ở cuối năm sẽ được ghi nhận carry forward sang ${targetYear + 1}.`)) return;
+  if (!confirm(`Đóng sổ năm ${targetYear}?\n\nNăm này sẽ chuyển sang read-only. Khách đang ở cuối năm sẽ được ghi nhận carry forward sang ${targetYear + 1}.`)) return;
   try {
     await withBusyState(`close-year-${targetYear}`, {
       title: `Đang đóng sổ năm ${targetYear}`,
@@ -12060,7 +12438,9 @@ async function loadSettings() {
   
   if (s.qr_image_url) {
     const qrSigned = await resolveFileUrl(s.qr_image_url);
-    document.getElementById('qrPreview').innerHTML = qrSigned ? `<img src="${qrSigned}" style="max-width:160px;border-radius:8px">` : '';
+    document.getElementById('qrPreview').innerHTML = qrSigned ? `<div class="file-current-preview"><img src="${qrSigned}" style="width:120px;height:120px;object-fit:contain;border-radius:12px;background:#fff"><button class="btn btn-danger btn-sm" id="removeSettingsQrBtn" type="button" onclick="deleteSettingsQrImage()">Xóa QR đang lưu</button></div>` : '';
+  } else {
+    document.getElementById('qrPreview').innerHTML = '<div style="font-size:12px;color:var(--text2)">Chưa có QR đang lưu.</div>';
   }
   const reminderConfig = getLoginReminderConfig();
   document.getElementById('setReminderWaterEnabled').checked = !!reminderConfig.waterEnabled;
@@ -12074,6 +12454,7 @@ async function loadSettings() {
   updateSettingsRoomPriceTotal();
   renderReminderSettingsControls();
   renderYearFrameSettings();
+  enhanceFileInputs(document.getElementById('page-settings') || document);
 }
 
 function renderSettingsRoomConfigRows() {
