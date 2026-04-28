@@ -2500,6 +2500,14 @@ async function withBusyState(key, options = {}, task) {
     clearActionProgress(options.keepVisibleMs || 700);
   }
 }
+
+function requireSupabaseOk(result, label = 'Thao tác database') {
+  if (result?.error) {
+    throw new Error(`${label}: ${result.error.message}`);
+  }
+  return result;
+}
+
 let hasUnsavedChanges = false;
 let unsavedReason = '';
 
@@ -2868,6 +2876,10 @@ function esc(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
+}
+
+function jsArg(value) {
+  return esc(JSON.stringify(String(value ?? '')));
 }
 
 function fmtDate(d) {
@@ -3827,8 +3839,32 @@ function buildTurnoverAutoNote(row = {}) {
   return lines.join('\n');
 }
 
+function buildBillStatusExportNote(row = {}) {
+  const status = row.bill_status || '';
+  if (status === 'paid') return '';
+  const hasRoomActivity = !!(
+    row.full_name ||
+    row.has_turnover ||
+    status ||
+    row.total_amount ||
+    row.electricity_amount ||
+    row.hot_water_amount ||
+    row.cold_water_amount ||
+    row.electricity_current ||
+    row.hot_water_current ||
+    row.cold_water_current
+  );
+  if (!hasRoomActivity) return '';
+  if (status) return 'CHƯA PAID: chưa tính vào tổng thu/lợi nhuận kỳ này.';
+  return 'CHƯA LẬP BILL / CHƯA TÍNH TIỀN KỲ NÀY.';
+}
+
 function buildCombinedSheetNote(row = {}) {
-  return [buildTurnoverAutoNote(row), row.sheet_note || ''].filter(Boolean).join('\n');
+  return [
+    buildBillStatusExportNote(row),
+    buildTurnoverAutoNote(row),
+    row.sheet_note || ''
+  ].filter(Boolean).join('\n');
 }
 
 function getCheckoutOperatingRevenue(checkout) {
@@ -3892,7 +3928,7 @@ function buildFinanceMetricDetailsHtml(kind, breakdown = {}, totals = {}) {
     lines.push(`<strong>Thu thêm lúc checkout:</strong> ${fmt(breakdown.checkoutRevenue || 0)} <span style="color:var(--text2)">(hư hỏng + khấu trừ)</span>`);
     lines.push(`<strong>Tổng doanh thu vận hành:</strong> ${fmt(totals.revenue || 0)}`);
   } else if (kind === 'expense') {
-    lines.push(`<strong>Điện, nước, wifi, rác, phụ phí trong bill PAID:</strong> ${fmt(breakdown.billExpense || 0)}`);
+    lines.push(`<strong>Điện, nước, wifi, rác trong bill PAID:</strong> ${fmt(breakdown.billExpense || 0)}`);
     lines.push(`<strong>Hoàn tiền phòng khi khách rời:</strong> ${fmt(breakdown.checkoutExpense || 0)}`);
     lines.push(`<strong>Tổng chi phí vận hành:</strong> ${fmt(totals.expense || 0)}`);
   } else {
@@ -4076,6 +4112,10 @@ async function materializeDashboardMonth(month) {
     sb.from('monthly_bills').select('*').eq('billing_month', month),
     sb.from('water_readings').select('*').eq('billing_month', month)
   ]);
+  const loadError = [existingRes, billsRes, readingsRes].find(result => result?.error);
+  if (loadError?.error) {
+    throw new Error('Không materialize được bảng tháng: ' + loadError.error.message);
+  }
   const existingIds = new Set((existingRes.data || []).map(row => row.room_id));
   const missingRooms = appData.rooms.filter(room => !existingIds.has(room.id));
   if (!missingRooms.length) return;
@@ -4096,7 +4136,10 @@ async function materializeDashboardMonth(month) {
   ])];
   const monthTenantMap = new Map();
   if (tenantIds.length) {
-    const { data: monthTenants } = await sb.from('tenants').select('*').in('id', tenantIds);
+    const { data: monthTenants, error: monthTenantsError } = await sb.from('tenants').select('*').in('id', tenantIds);
+    if (monthTenantsError) {
+      throw new Error('Không tải được tenant theo tháng: ' + monthTenantsError.message);
+    }
     (monthTenants || []).forEach(tenant => monthTenantMap.set(tenant.id, tenant));
   }
 
@@ -4109,7 +4152,11 @@ async function materializeDashboardMonth(month) {
       { onConflict: 'room_id,billing_month' }
     );
   });
-  await Promise.all(upserts);
+  const upsertResults = await Promise.all(upserts);
+  const failedUpsert = upsertResults.find(result => result?.error);
+  if (failedUpsert?.error) {
+    throw new Error('Không tạo được snapshot bảng tháng: ' + failedUpsert.error.message);
+  }
 }
 
 async function reconcileMonthlySheetIdentity(month, rows = [], bills = [], readings = []) {
@@ -4175,7 +4222,7 @@ async function reconcileMonthlySheetIdentity(month, rows = [], bills = [], readi
 
 async function upsertMonthlyRoomSheetRow(roomId, billingMonth, patch = {}, options = {}) {
   const room = appData.rooms.find(item => item.id === roomId);
-  if (!room || !billingMonth) return;
+  if (!room || !billingMonth) return { error: null };
   const { data: existing } = await sb.from('monthly_room_sheet_data').select('*').eq('room_id', roomId).eq('billing_month', billingMonth).maybeSingle();
   const tenant = patch.tenant || (patch.tenant_id ? await fetchTenantById(patch.tenant_id) : null) || (existing?.tenant_id ? await fetchTenantById(existing.tenant_id) : null) || (options.useActiveTenant === false ? null : getTenantForRoom(roomId));
   const payload = {
@@ -4214,6 +4261,7 @@ async function upsertMonthlyRoomSheetRow(roomId, billingMonth, patch = {}, optio
   };
   const { error } = await sb.from('monthly_room_sheet_data').upsert(payload, { onConflict: 'room_id,billing_month' });
   if (error) console.warn('upsertMonthlyRoomSheetRow:', error.message);
+  return { error };
 }
 
 async function createResidentSnapshot(reason = 'cap_nhat_bang_live', rowsOverride = null) {
@@ -4234,8 +4282,8 @@ async function createResidentSnapshot(reason = 'cap_nhat_bang_live', rowsOverrid
 }
 
 async function syncMonthlySheetFromWater(roomId, billingMonth, tenant, reading) {
-  if (!roomId || !billingMonth || !reading) return;
-  await upsertMonthlyRoomSheetRow(roomId, billingMonth, {
+  if (!roomId || !billingMonth || !reading) return { error: null };
+  return upsertMonthlyRoomSheetRow(roomId, billingMonth, {
     tenant,
     tenant_id: tenant?.id || null,
     hot_water_previous: reading.hot_water_previous ?? null,
@@ -4246,8 +4294,8 @@ async function syncMonthlySheetFromWater(roomId, billingMonth, tenant, reading) 
 }
 
 async function syncMonthlySheetFromBill(roomId, billingMonth, tenant, bill) {
-  if (!roomId || !billingMonth || !bill) return;
-  await upsertMonthlyRoomSheetRow(roomId, billingMonth, {
+  if (!roomId || !billingMonth || !bill) return { error: null };
+  return upsertMonthlyRoomSheetRow(roomId, billingMonth, {
     tenant,
     tenant_id: tenant?.id || null,
     room_price: bill.room_price ?? 0,
@@ -4266,11 +4314,11 @@ function findReadingForMonth(readings = [], tenantId, month, roomId = null) {
 }
 
 async function recordMoveInForDashboard(room, tenant, moveInDate, depositAmount, initialHotWater = 0, initialColdWater = 0) {
-  if (!room?.id || !tenant?.id || !moveInDate) return;
-  if (isBeforeBusinessStart(moveInDate)) return;
+  if (!room?.id || !tenant?.id || !moveInDate) return { error: null };
+  if (isBeforeBusinessStart(moveInDate)) return { error: null };
   const roomPrice = tenant.room_price_override || room.room_price || 0;
   const chargeInfo = getMoveInChargeInfo(moveInDate, roomPrice);
-  await sb.from('move_in_records').upsert({
+  const moveInRes = await sb.from('move_in_records').upsert({
     tenant_id: tenant.id,
     room_id: room.id,
     tenant_name_snapshot: tenant.full_name || '',
@@ -4284,8 +4332,9 @@ async function recordMoveInForDashboard(room, tenant, moveInDate, depositAmount,
       initial_cold_water: parseInt(initialColdWater) || 0
     })
   }, { onConflict: 'tenant_id,move_in_date' });
+  if (moveInRes.error) return { error: moveInRes.error };
 
-  await upsertMonthlyRoomSheetRow(room.id, chargeInfo.cycleStart, {
+  return upsertMonthlyRoomSheetRow(room.id, chargeInfo.cycleStart, {
     tenant,
     tenant_id: tenant.id,
     full_name: tenant.full_name || '',
@@ -4301,9 +4350,9 @@ async function recordMoveInForDashboard(room, tenant, moveInDate, depositAmount,
 }
 
 async function recordCheckoutForDashboard(room, tenant, checkoutDate, refundRoom, depositAmount, waterCharge, electricityCharge, damageCharge, deductionCharge = 0) {
-  if (!room?.id || !tenant?.id || !checkoutDate) return;
+  if (!room?.id || !tenant?.id || !checkoutDate) return { error: null };
   const billingMonth = `${checkoutDate.slice(0, 7)}-01`;
-  await upsertMonthlyRoomSheetRow(room.id, billingMonth, {
+  return upsertMonthlyRoomSheetRow(room.id, billingMonth, {
     tenant,
     tenant_id: tenant.id,
     full_name: tenant.full_name || '',
@@ -4723,8 +4772,8 @@ function buildResidentSnapshotHistoryHtml(rows = []) {
             <div class="overview-history-meta">${formatSnapshotMoment(row.snapshot_taken_at)} · ${esc(row.snapshot_reason || 'Cập nhật')}</div>
           </div>
           <div class="overview-history-actions">
-            <button class="btn btn-outline btn-sm" type="button" onclick="exportResidentSnapshotExcel('${row.id}')">Tải Excel bản sao lưu</button>
-            <button class="btn btn-danger btn-sm" type="button" onclick="deleteResidentSnapshot('${row.id}')">Xóa</button>
+            <button class="btn btn-outline btn-sm" type="button" onclick="exportResidentSnapshotExcel(${jsArg(row.id)})">Tải Excel bản sao lưu</button>
+            <button class="btn btn-danger btn-sm" type="button" onclick="deleteResidentSnapshot(${jsArg(row.id)})">Xóa</button>
           </div>
         </div>
       `).join('')}
@@ -5249,22 +5298,25 @@ function buildWaterOverviewExportRowsFromBundles(monthBundles = []) {
       return (bundle.rows || []).map(row => {
         const hasWaterNumbers = [row.hot_water_previous, row.hot_water_current, row.cold_water_previous, row.cold_water_current]
           .some(value => value !== null && value !== undefined && value !== '');
+        const hasCurrentWaterNumbers = [row.hot_water_current, row.cold_water_current]
+          .some(value => value !== null && value !== undefined && value !== '');
         const hasWaterData = !!(
           row.full_name ||
           row.has_turnover ||
           hasWaterNumbers
         );
-        const waterSummary = hasWaterData
+        const waterSummary = hasCurrentWaterNumbers
           ? formatWaterOverviewSummary(row.hot_water_previous, row.hot_water_current, row.cold_water_previous, row.cold_water_current, row.full_name || '')
-          : '—';
-        const snapshotText = hasWaterData
+          : (hasWaterData ? 'Chưa nhập số nước kỳ này' : '—');
+        const snapshotText = hasCurrentWaterNumbers
           ? `Đã chốt kỳ ${fmtDate(bundle.month)} → ${fmtDate(getNextCycleStart(bundle.month))}`
-          : '—';
-        const noteLines = buildWaterOverviewNoteLines(row.turnover_checkout || null, row.turnover_move_in || null, bundle.month, {
-          cycleClosed: true,
-          finalHot: row.hot_water_current,
-          finalCold: row.cold_water_current
-        });
+          : (hasWaterData ? 'Chưa nhập số nước kỳ này' : '—');
+        const noteOptions = {
+          cycleClosed: hasCurrentWaterNumbers,
+          finalHot: hasCurrentWaterNumbers ? row.hot_water_current : undefined,
+          finalCold: hasCurrentWaterNumbers ? row.cold_water_current : undefined
+        };
+        const noteLines = buildWaterOverviewNoteLines(row.turnover_checkout || null, row.turnover_move_in || null, bundle.month, noteOptions);
         if (row.bill_status === 'paid') {
           noteLines.push(getWaterPaidLockGuidance(true));
         }
@@ -5418,6 +5470,7 @@ function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ
     'ĐĂNG KÝ NGÀY',
     'THỜI HẠN TẠM TRÚ',
     'NƠI TẠM TRÚ',
+    'PHÒNG',
     'NOTE'
   ];
   const aoa = [
@@ -5425,7 +5478,7 @@ function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ
     [],
     headers
   ];
-  const merges = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 12 } }];
+  const merges = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 13 } }];
   const headerRowIndex = 2;
   const roomTitleRows = [];
 
@@ -5437,7 +5490,7 @@ function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ
       const titleRowIndex = aoa.length;
       const roomLabel = roomKey === 'CHUA_XEP' ? 'CHƯA XẾP PHÒNG' : `PHÒNG ${formatRoomTwoDigits(roomKey)}`;
       aoa.push([roomLabel]);
-      merges.push({ s: { r: titleRowIndex, c: 0 }, e: { r: titleRowIndex, c: 12 } });
+      merges.push({ s: { r: titleRowIndex, c: 0 }, e: { r: titleRowIndex, c: 13 } });
       roomTitleRows.push(titleRowIndex);
     }
     aoa.push([
@@ -5453,6 +5506,7 @@ function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ
       asInputDate(row.temp_registration_date),
       row.temp_registration_term || '',
       row.temp_residence_address || '',
+      row.room_number ? formatRoomTwoDigits(row.room_number) : '',
       row.note || ''
     ]);
   });
@@ -5461,7 +5515,7 @@ function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ
   sheet['!cols'] = [
     { wch: 8 }, { wch: 24 }, { wch: 14 }, { wch: 12 }, { wch: 28 }, { wch: 22 },
     { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 18 }, { wch: 28 },
-    { wch: 22 }
+    { wch: 8 }, { wch: 22 }
   ];
   sheet['!merges'] = merges;
   for (let col = 0; col < headers.length; col += 1) {
@@ -5887,6 +5941,10 @@ async function collectMonthBundlesForExport(cycleStarts = []) {
     sb.from('move_in_records').select('*').in('billing_month', uniqueCycleStarts).order('billing_month'),
     sb.from('checkout_records').select('*').in('billing_month', uniqueCycleStarts).order('billing_month')
   ]);
+  const loadError = [sheetRes, billsRes, readingsRes, moveInRes, checkoutRes].find(result => result?.error);
+  if (loadError?.error) {
+    throw new Error('Không tải đủ dữ liệu để xuất Excel: ' + loadError.error.message);
+  }
   const sheetRows = sheetRes.data || [];
   const bills = billsRes.data || [];
   const readings = readingsRes.data || [];
@@ -5942,6 +6000,10 @@ async function fetchAllManagementArchiveData() {
     fetchDashboardResidentRows(),
     fetchDashboardResidentSnapshots()
   ]);
+  const archiveLoadError = [tenantsRes, archivedRes, occupantsRes, docsRes, photosRes, generalDocsRes].find(result => result?.error);
+  if (archiveLoadError?.error) {
+    throw new Error('Không tải đủ dữ liệu archive: ' + archiveLoadError.error.message);
+  }
   return {
     ...monthlyData,
     rooms: (appData.rooms || []).slice().sort((a, b) => Number(a.room_number) - Number(b.room_number)),
@@ -5976,7 +6038,46 @@ function buildArchiveGuideRows(dataset = {}) {
     ['2', 'Mở Bang_tien_thang và Bang_nuoc để đối chiếu tiền, điện, nước theo từng kỳ.'],
     ['3', 'Mở Nguoi_dang_o, Khach_dang_o, Khach_cu, Nguoi_nha để tra hồ sơ cư trú.'],
     ['4', 'Mở Khach_vao, Khach_ra, Lich_su_bill, Lich_su_nuoc để tra lịch sử vận hành.'],
-    ['5', 'Mở Giay_to_lien_quan, Hien_trang_phong, Tai_lieu_chung để tra file scan và ảnh lưu trữ.']
+    ['5', 'Mở Giay_to_lien_quan, Hien_trang_phong, Tai_lieu_chung để tra file scan và ảnh lưu trữ.'],
+    [''],
+    ['Quy ước số tiền'],
+    ['Tổng cộng tiền tháng', 'Chỉ hiện tiền của phòng đã PAID. Nếu chưa PAID, Bang_tien_thang sẽ ghi rõ trong cột Ghi chú.'],
+    ['Chi phí vận hành', 'Chỉ gồm điện + nước + wifi + rác trong bill đã PAID. Đây là phần thu hộ/chi hộ.'],
+    ['Lợi nhuận vận hành', 'Theo cách quản lý nhà trọ: tổng thu đã PAID trừ chi phí vận hành, nên lõi chính là tiền phòng + chi phí khác - khấu trừ.'],
+    ['Chi phí khác', 'Nếu có thu thêm và bill đã PAID thì tính vào lợi nhuận.'],
+    ['Khấu trừ', 'Khoản trừ lại cho khách, làm giảm lợi nhuận một lần.'],
+    ['Tiền cọc', 'Theo dõi riêng, không cộng vào doanh thu/lợi nhuận.']
+  ];
+}
+
+function buildScopedWorkbookGuideRows(payload = {}, options = {}) {
+  const cycleStarts = payload.cycleStarts || [];
+  const includeLiveResidents = options.includeLiveResidents !== false;
+  return [
+    ['NHÀ TRỌ ĐẶNG ĐƯỢC - HƯỚNG DẪN ĐỌC FILE EXCEL'],
+    ['Ngày xuất', `${getTodayIsoLocal()} ${new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`],
+    ['Phạm vi xuất', getExportFrameSummaryText(cycleStarts)],
+    ['Số kỳ trong file', String(cycleStarts.length || 0)],
+    [''],
+    ['Đọc nhanh cho người nhà'],
+    ['1', 'Tong_quan: xem tổng thu, chi phí, lợi nhuận, tiền cọc và hụt tiền phòng theo từng tháng.'],
+    ['2', 'Bang_tien_thang: bảng giống sổ thu tiền hàng tháng, dùng để đối chiếu từng phòng.'],
+    ['3', 'Bang_nuoc: bảng kiểm số nước theo kỳ, đặc biệt hữu ích khi phòng có người ra/vào.'],
+    ['4', includeLiveResidents ? 'Nguoi_dang_o: danh sách người đang ở, có cột PHÒNG để lọc và đối chiếu.' : 'File theo từng năm cũ không kèm Nguoi_dang_o live; xem các bản sao lưu cư trú nếu có.'],
+    ['5', 'Khung_nam: kiểm tra năm nào đang vận hành, năm nào đã khóa sổ.'],
+    [''],
+    ['Quy ước số tiền'],
+    ['Tổng cộng tiền tháng', 'Chỉ hiện tiền của phòng đã PAID. Phòng chưa PAID/chưa lập bill sẽ được ghi rõ ở cột Ghi chú.'],
+    ['Chi phí vận hành', 'Chỉ gồm điện + nước + wifi + rác trong bill đã PAID. Đây là khoản thu hộ/chi hộ.'],
+    ['Lợi nhuận vận hành', 'Tổng thu đã PAID trừ chi phí vận hành. Theo flow đã chốt: tiền phòng + chi phí khác - khấu trừ.'],
+    ['Chi phí khác', 'Nếu có thu thêm và bill đã PAID thì xem là tiền vào túi, tính vào lợi nhuận.'],
+    ['Khấu trừ', 'Khoản trừ lại cho khách, làm giảm lợi nhuận một lần.'],
+    ['Tiền cọc', 'Theo dõi riêng, không cộng vào doanh thu/lợi nhuận.'],
+    [''],
+    ['Dấu hiệu cần kiểm tra'],
+    ['CHƯA PAID', 'Phòng đã có bill nhưng chưa tick PAID, chưa tính vào tổng thu/lợi nhuận.'],
+    ['CHƯA LẬP BILL', 'Phòng/kỳ chưa được tính tiền trong sổ.'],
+    ['Chưa nhập số nước kỳ này', 'Kỳ đó chưa có snapshot số nước hiện tại, không dùng số cũ làm số mới.']
   ];
 }
 
@@ -6435,6 +6536,7 @@ function createScopedManagementWorkbook(payload = {}, options = {}) {
   const workbook = XLSX.utils.book_new();
   const residentRows = Array.isArray(options.residentRows) ? options.residentRows : [];
   const residentSnapshots = Array.isArray(options.residentSnapshots) ? options.residentSnapshots : [];
+  appendWorkbookAoaSheet(workbook, 'Huong_dan', buildScopedWorkbookGuideRows(payload, options), [{ wch: 22 }, { wch: 92 }]);
   XLSX.utils.book_append_sheet(workbook, buildOverviewSummaryExportSheet(payload.monthBundles || [], payload.totals || {}), 'Tong_quan');
   XLSX.utils.book_append_sheet(workbook, buildFinanceExportSheet(payload.monthBundles || [], payload.totals || {}), 'Bang_tien_thang');
   XLSX.utils.book_append_sheet(workbook, buildWaterOverviewExportSheet(buildWaterOverviewExportRowsFromBundles(payload.monthBundles || [])), 'Bang_nuoc');
@@ -6904,7 +7006,8 @@ async function exportWorkbookZipByYear(kind = 'management') {
   }
   const busyKey = kind === 'water' ? 'export-water-zip-year' : 'export-management-zip-year';
   const selectors = kind === 'water' ? ['#waterExportAllBtn'] : ['#dashboardExportWorkbookBtn'];
-  await withBusyState(busyKey, {
+  try {
+    await withBusyState(busyKey, {
     title: kind === 'water' ? 'Đang gom ZIP bảng nước theo năm' : 'Đang gom ZIP sổ trọ theo năm',
     meta: 'Mỗi năm sẽ là một file Excel riêng nằm trong cùng một file ZIP.',
     selectors,
@@ -6943,7 +7046,11 @@ async function exportWorkbookZipByYear(kind = 'management') {
     downloadBlobFile(zipBlob, kind === 'water' ? 'BANG_NUOC_CHIA_THEO_NAM.zip' : 'SO_TRO_CHIA_THEO_NAM.zip');
     toast(kind === 'water' ? 'Đã xuất ZIP bảng nước chia theo năm.' : 'Đã xuất ZIP sổ trọ chia theo năm.');
     clearExportProgress(1200);
-  });
+    });
+  } catch (error) {
+    clearExportProgress();
+    toast('Lỗi xuất ZIP theo năm: ' + (error?.message || 'Không rõ lỗi'), 'error');
+  }
 }
 
 async function exportOverviewWorkbook(options = {}) {
@@ -6962,7 +7069,8 @@ async function exportOverviewWorkbook(options = {}) {
     toast('Không có kỳ phù hợp với phạm vi xuất đã chọn.', 'warning');
     return;
   }
-  await withBusyState('export-management-workbook', {
+  try {
+    await withBusyState('export-management-workbook', {
     title: 'Đang xuất Excel thông tin Đặng Được',
     meta: `Phạm vi: ${getExportFrameSummaryText(cycleStarts)}.`,
     selectors: ['#dashboardExportWorkbookBtn', '#settingsExportWorkbookBtn'],
@@ -6978,7 +7086,11 @@ async function exportOverviewWorkbook(options = {}) {
     });
     XLSX.writeFile(workbook, buildWorkbookFilename('NHÀ TRỌ ĐẶNG ĐƯỢC - SỔ TRỌ', cycleStarts));
     toast(`Đã xuất Excel thông tin Đặng Được (${getExportFrameSummaryText(cycleStarts)}).`);
-  });
+    });
+  } catch (error) {
+    clearExportProgress();
+    toast('Lỗi xuất Excel sổ trọ: ' + (error?.message || 'Không rõ lỗi'), 'error');
+  }
 }
 
 async function exportManagementWorkbook(options = {}) {
@@ -7001,7 +7113,8 @@ async function exportAllWaterOverviewPeriods(options = {}) {
     toast('Không có kỳ nước phù hợp với phạm vi xuất đã chọn.', 'warning');
     return;
   }
-  await withBusyState('export-all-water-overview', {
+  try {
+    await withBusyState('export-all-water-overview', {
     title: 'Đang xuất Excel tất cả kỳ nước',
     meta: `Phạm vi: ${getExportFrameSummaryText(cycleStarts)}.`,
     selectors: ['#waterExportAllBtn'],
@@ -7016,7 +7129,11 @@ async function exportAllWaterOverviewPeriods(options = {}) {
     const workbook = createWaterOverviewWorkbook(rows, `NHÀ TRỌ ĐẶNG ĐƯỢC - BẢNG TỔNG QUAN SỐ NƯỚC ${getExportFrameSummaryText(cycleStarts)}`);
     XLSX.writeFile(workbook, buildWorkbookFilename('BẢNG TỔNG QUAN SỐ NƯỚC', cycleStarts));
     toast(`Đã xuất Excel bảng tổng quan số nước (${getExportFrameSummaryText(cycleStarts)}).`);
-  });
+    });
+  } catch (error) {
+    clearExportProgress();
+    toast('Lỗi xuất Excel bảng nước: ' + (error?.message || 'Không rõ lỗi'), 'error');
+  }
 }
 
 async function exportCompleteManagementWorkbook() {
@@ -7024,7 +7141,8 @@ async function exportCompleteManagementWorkbook() {
     toast('Thiếu thư viện xuất Excel.', 'error');
     return;
   }
-  await withBusyState('export-complete-management', {
+  try {
+    await withBusyState('export-complete-management', {
     title: 'Đang xuất toàn bộ dữ liệu quản lý',
     meta: 'Đang gom tất cả dữ liệu phòng, khách, nước, bill, khách cũ, giấy tờ và bản sao lưu vào một workbook all-time.',
     selectors: ['#settingsExportWorkbookBtn'],
@@ -7038,7 +7156,10 @@ async function exportCompleteManagementWorkbook() {
     const filename = buildWorkbookFilename('NHÀ TRỌ ĐẶNG ĐƯỢC - FULL ARCHIVE', dataset.cycleStarts || [BUSINESS_START_DATE]);
     XLSX.writeFile(workbook, filename);
     toast('Đã xuất Excel all-time toàn bộ dữ liệu quản lý.');
-  });
+    });
+  } catch (error) {
+    toast('Lỗi xuất Excel toàn bộ dữ liệu: ' + (error?.message || 'Không rõ lỗi'), 'error');
+  }
 }
 
 async function exportDatabaseZip() {
@@ -7303,9 +7424,9 @@ function renderRooms() {
     const tenant = getTenantForRoom(room.id);
     const people = getPeopleCountForRoom(room.id);
     html += `
-      <div class="room-card" onclick="openRoomDetail('${room.id}')">
-        <div class="room-number">P${room.room_number}</div>
-        <div class="tenant-name">${tenant ? tenant.full_name : 'Phòng trống'}</div>
+      <div class="room-card" onclick="openRoomDetail(${jsArg(room.id)})">
+        <div class="room-number">P${esc(room.room_number)}</div>
+        <div class="tenant-name">${tenant ? esc(tenant.full_name) : 'Phòng trống'}</div>
         <div class="room-price">${fmt(room.room_price)}/tháng</div>
         <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
           ${tenant ? '<span class="badge badge-paid">Đang ở</span>' : '<span class="badge badge-empty">Trống</span>'}
@@ -7490,7 +7611,7 @@ async function loadRoomMapPage() {
         <div class="roomgame-door"><span class="roomgame-knob"></span></div>
         <div class="roomgame-ac"></div>
         <div class="roomgame-lantern"></div>
-        <div class="roomgame-sign">P${room.room_number}</div>
+        <div class="roomgame-sign">P${esc(room.room_number)}</div>
         <div class="roomgame-rent">${fmt(rent).replace('đ', '')}</div>
         <div class="roomgame-name">${esc(name)}</div>
         <div class="roomgame-status ${occupied ? 'on' : 'off'}">${occupied ? `${people} người` : 'Trống'}</div>
@@ -7670,25 +7791,25 @@ function toggleRoomHeadLock() {
 
 function occupantCardHtml(o = {}, idx = 0) {
   const id = o.id || '';
-  return `<div class="card occ-card" data-occ-id="${id}" style="padding:12px;margin-bottom:10px">
+  return `<div class="card occ-card" data-occ-id="${esc(id)}" style="padding:12px;margin-bottom:10px">
     <div class="grid-2">
-      <div class="form-group"><label>Họ tên</label><input class="form-input occ-full-name" value="${o.full_name||''}" onchange="markUnsaved()"></div>
-      <div class="form-group"><label>SĐT</label><input class="form-input occ-phone" value="${o.phone||''}" onchange="markUnsaved()"></div>
+      <div class="form-group"><label>Họ tên</label><input class="form-input occ-full-name" value="${esc(o.full_name || '')}" onchange="markUnsaved()"></div>
+      <div class="form-group"><label>SĐT</label><input class="form-input occ-phone" value="${esc(o.phone || '')}" onchange="markUnsaved()"></div>
     </div>
     <div class="grid-2">
-      <div class="form-group"><label>Số CCCD</label><input class="form-input occ-cccd" value="${o.cccd_number||''}" onchange="markUnsaved()"></div>
-      <div class="form-group"><label>Quê quán</label><input class="form-input occ-hometown" value="${o.place_of_origin||o.hometown||''}" onchange="markUnsaved()"></div>
+      <div class="form-group"><label>Số CCCD</label><input class="form-input occ-cccd" value="${esc(o.cccd_number || '')}" onchange="markUnsaved()"></div>
+      <div class="form-group"><label>Quê quán</label><input class="form-input occ-hometown" value="${esc(o.place_of_origin || o.hometown || '')}" onchange="markUnsaved()"></div>
     </div>
-    <div class="form-group"><label>Nơi thường trú</label><input class="form-input occ-permanent" value="${o.permanent_address||''}" onchange="markUnsaved()"></div>
+    <div class="form-group"><label>Nơi thường trú</label><input class="form-input occ-permanent" value="${esc(o.permanent_address || '')}" onchange="markUnsaved()"></div>
     <div class="grid-2">
-      <div class="form-group"><label>Vai trò trong hộ</label><input class="form-input occ-role" placeholder="Vợ/Chồng/Con/Người nhà" value="${o.relationship||''}" onchange="markUnsaved()"></div>
+      <div class="form-group"><label>Vai trò trong hộ</label><input class="form-input occ-role" placeholder="Vợ/Chồng/Con/Người nhà" value="${esc(o.relationship || '')}" onchange="markUnsaved()"></div>
       <div></div>
     </div>
     <div class="grid-2">
-      <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input occ-front" accept="image/*" onchange="markUnsaved()">${o.cccd_front_preview ? `<a href="#" onclick="openStorageFile('${o.cccd_front_url}');return false"><img src="${o.cccd_front_preview}" style="width:74px;height:54px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
-      <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input occ-back" accept="image/*" onchange="markUnsaved()">${o.cccd_back_preview ? `<a href="#" onclick="openStorageFile('${o.cccd_back_url}');return false"><img src="${o.cccd_back_preview}" style="width:74px;height:54px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
+      <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input occ-front" accept="image/*" onchange="markUnsaved()">${o.cccd_front_preview ? `<a href="#" onclick="openStorageFile(${jsArg(o.cccd_front_url)});return false"><img src="${esc(o.cccd_front_preview)}" style="width:74px;height:54px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
+      <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input occ-back" accept="image/*" onchange="markUnsaved()">${o.cccd_back_preview ? `<a href="#" onclick="openStorageFile(${jsArg(o.cccd_back_url)});return false"><img src="${esc(o.cccd_back_preview)}" style="width:74px;height:54px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
     </div>
-    <div style="display:flex;justify-content:flex-end"><button class="btn btn-danger btn-sm" type="button" onclick="removeOccupantCard(this,'${id}')">🗑️ Xóa người nhà</button></div>
+    <div style="display:flex;justify-content:flex-end"><button class="btn btn-danger btn-sm" type="button" onclick="removeOccupantCard(this,${jsArg(id)})">🗑️ Xóa người nhà</button></div>
   </div>`;
 }
 
@@ -7752,16 +7873,16 @@ async function openRoomDetail(roomId, initialSection = 'room') {
           <div class="doc-group-title">${esc(arr[0].document_name || 'Tài liệu')}</div>
           <div class="doc-group-count">${arr.length} file</div>
         </div>
-        <button class="btn btn-danger btn-sm" type="button" onclick="deleteDocGroupByIds('${encodeURIComponent(arr.map(item => item.id).join(','))}','${encodeURIComponent(arr[0].document_name || 'Tài liệu')}')">🗑️ Xóa mục</button>
+        <button class="btn btn-danger btn-sm" type="button" onclick="deleteDocGroupByIds(${jsArg(encodeURIComponent(arr.map(item => item.id).join(',')))},${jsArg(encodeURIComponent(arr[0].document_name || 'Tài liệu'))})">🗑️ Xóa mục</button>
       </div>
       <div class="doc-group-grid">
         ${arr.map(x => `
           <div class="doc-file-card">
-            <button class="doc-file-thumb" type="button" onclick="openStorageFile('${x.file_url}')">
-              ${x.preview_url ? `<img src="${x.preview_url}" alt="${esc(x.document_name || 'Ảnh giấy tờ')}">` : `<div class="doc-file-fallback">${esc(getFileExtensionLabel(x.file_type, x.file_url))}</div>`}
+            <button class="doc-file-thumb" type="button" onclick="openStorageFile(${jsArg(x.file_url)})">
+              ${x.preview_url ? `<img src="${esc(x.preview_url)}" alt="${esc(x.document_name || 'Ảnh giấy tờ')}">` : `<div class="doc-file-fallback">${esc(getFileExtensionLabel(x.file_type, x.file_url))}</div>`}
             </button>
             <div class="doc-file-name">${esc(getFileNameFromPath(x.file_url) || x.document_name || 'Tài liệu')}</div>
-            <button class="btn btn-outline btn-sm" type="button" onclick="openStorageFile('${x.file_url}')">Mở</button>
+            <button class="btn btn-outline btn-sm" type="button" onclick="openStorageFile(${jsArg(x.file_url)})">Mở</button>
           </div>
         `).join('')}
       </div>
@@ -7805,8 +7926,8 @@ async function openRoomDetail(roomId, initialSection = 'room') {
   }
 
   let html = `
-    <div style="text-align:center;margin-bottom:10px">
-      <div style="font-size:30px;font-weight:900;color:var(--gold);letter-spacing:1px">PHÒNG ${room.room_number}</div>
+      <div style="text-align:center;margin-bottom:10px">
+        <div style="font-size:30px;font-weight:900;color:var(--gold);letter-spacing:1px">PHÒNG ${esc(room.room_number)}</div>
       <div style="font-size:12px;color:var(--text2)">Quản lý theo hộ gia đình</div>
     </div>
 
@@ -7856,7 +7977,7 @@ async function openRoomDetail(roomId, initialSection = 'room') {
             <div class="room-static-sub">Chỉnh tại Cài đặt</div>
           </div>
         </div>
-        <div class="form-group"><label>Ghi chú phòng</label><textarea class="form-input" id="rmNotes" onchange="markUnsaved()">${room.notes||''}</textarea></div>
+        <div class="form-group"><label>Ghi chú phòng</label><textarea class="form-input" id="rmNotes" onchange="markUnsaved()">${esc(room.notes || '')}</textarea></div>
       </div>
     </div>
 
@@ -7871,17 +7992,17 @@ async function openRoomDetail(roomId, initialSection = 'room') {
           <button class="btn btn-outline btn-sm" id="roomHeadUnlockBtn" type="button" onclick="toggleRoomHeadLock()">🔓 Mở khóa sửa chủ hộ</button>
         </div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Thông tin chủ hộ bên dưới lấy từ luồng Khách mới vào. Hệ thống khóa mặc định để tránh sửa nhầm hồ sơ gốc.</div>
-        ${baselineIntro ? `<div class="room-baseline-note">${baselineIntro}</div>` : ''}
+        ${baselineIntro ? `<div class="room-baseline-note">${esc(baselineIntro)}</div>` : ''}
         <div id="roomHeadInputs" class="room-head-inputs is-locked">
           <div class="grid-2">
-            <div class="form-group"><label>Họ tên chủ hộ</label><input class="form-input" id="tnName" value="${tenant.full_name||''}" onchange="markUnsaved()"></div>
-            <div class="form-group"><label>SĐT</label><input class="form-input" id="tnPhone" value="${tenant.phone||''}" onchange="markUnsaved()"></div>
+            <div class="form-group"><label>Họ tên chủ hộ</label><input class="form-input" id="tnName" value="${esc(tenant.full_name || '')}" onchange="markUnsaved()"></div>
+            <div class="form-group"><label>SĐT</label><input class="form-input" id="tnPhone" value="${esc(tenant.phone || '')}" onchange="markUnsaved()"></div>
           </div>
           <div class="grid-2">
-            <div class="form-group"><label>Số CCCD</label><input class="form-input" id="tnCccdNumber" value="${tenant.cccd_number||''}" onchange="markUnsaved()"></div>
-            <div class="form-group"><label>Quê quán</label><input class="form-input" id="tnHometown" value="${tenant.place_of_origin||tenant.hometown||''}" onchange="markUnsaved()"></div>
+            <div class="form-group"><label>Số CCCD</label><input class="form-input" id="tnCccdNumber" value="${esc(tenant.cccd_number || '')}" onchange="markUnsaved()"></div>
+            <div class="form-group"><label>Quê quán</label><input class="form-input" id="tnHometown" value="${esc(tenant.place_of_origin || tenant.hometown || '')}" onchange="markUnsaved()"></div>
           </div>
-          <div class="form-group"><label>Nơi thường trú</label><input class="form-input" id="tnPermanentAddress" value="${tenant.permanent_address||''}" onchange="markUnsaved()"></div>
+          <div class="form-group"><label>Nơi thường trú</label><input class="form-input" id="tnPermanentAddress" value="${esc(tenant.permanent_address || '')}" onchange="markUnsaved()"></div>
           <div class="grid-2">
             <div class="form-group"><label>Ngày vào</label><input type="date" class="form-input" id="tnMoveIn" value="${tenant.move_in_date||''}" onchange="markUnsaved()"></div>
             <div class="form-group"><label>Tiền cọc</label><input type="number" class="form-input" id="tnDeposit" value="${tenant.deposit_amount||0}" onchange="markUnsaved()"></div>
@@ -7891,13 +8012,13 @@ async function openRoomDetail(roomId, initialSection = 'room') {
             <div class="form-group"><label>Số nước lạnh khởi điểm</label><input type="number" class="form-input" id="tnColdBaseline" value="${baselineCold}" onchange="markUnsaved()"></div>
           </div>
         </div>
-        ${baselineFloor.hot > 0 || baselineFloor.cold > 0 ? `<div style="font-size:12px;line-height:1.55;color:var(--warning);background:rgba(201,120,23,.08);border:1px solid rgba(201,120,23,.18);border-radius:12px;padding:10px 12px;margin-bottom:12px">Mốc nước ban đầu của khách hiện tại không được thấp hơn mốc gần nhất của phòng: <strong>N${baselineFloor.hot}</strong> | <strong>L${baselineFloor.cold}</strong>${baselineFloor.sourceText ? ` (${baselineFloor.sourceText})` : ''}. Nếu muốn reset xuống thấp hơn, phải dùng <strong>HARD DELETE</strong>.</div>` : ''}
+        ${baselineFloor.hot > 0 || baselineFloor.cold > 0 ? `<div style="font-size:12px;line-height:1.55;color:var(--warning);background:rgba(201,120,23,.08);border:1px solid rgba(201,120,23,.18);border-radius:12px;padding:10px 12px;margin-bottom:12px">Mốc nước ban đầu của khách hiện tại không được thấp hơn mốc gần nhất của phòng: <strong>N${esc(baselineFloor.hot)}</strong> | <strong>L${esc(baselineFloor.cold)}</strong>${baselineFloor.sourceText ? ` (${esc(baselineFloor.sourceText)})` : ''}. Nếu muốn reset xuống thấp hơn, phải dùng <strong>HARD DELETE</strong>.</div>` : ''}
         <div id="roomHeadInputsFiles" class="room-head-inputs is-locked">
           <div class="grid-2">
-            <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input" id="tnCCCDFront" accept="image/*" onchange="markUnsaved()">${cccdFrontSigned ? `<a href="${cccdFrontSigned}" target="_blank"><img src="${cccdFrontSigned}" style="width:86px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
-            <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input" id="tnCCCDBack" accept="image/*" onchange="markUnsaved()">${cccdBackSigned ? `<a href="${cccdBackSigned}" target="_blank"><img src="${cccdBackSigned}" style="width:86px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
+            <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input" id="tnCCCDFront" accept="image/*" onchange="markUnsaved()">${cccdFrontSigned ? `<a href="${esc(cccdFrontSigned)}" target="_blank"><img src="${esc(cccdFrontSigned)}" style="width:86px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
+            <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input" id="tnCCCDBack" accept="image/*" onchange="markUnsaved()">${cccdBackSigned ? `<a href="${esc(cccdBackSigned)}" target="_blank"><img src="${esc(cccdBackSigned)}" style="width:86px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;margin-top:6px"></a>`:''}</div>
           </div>
-          <div class="form-group"><label>Ghi chú chủ hộ</label><input class="form-input" id="tnNotes" value="${tenant.notes||''}" onchange="markUnsaved()"></div>
+          <div class="form-group"><label>Ghi chú chủ hộ</label><input class="form-input" id="tnNotes" value="${esc(tenant.notes || '')}" onchange="markUnsaved()"></div>
         </div>
       </div>
       <div class="card" style="padding:12px;margin-top:10px">
@@ -7940,16 +8061,16 @@ async function openRoomDetail(roomId, initialSection = 'room') {
                   <div class="doc-group-title">${esc(arr[0].description || 'Hiện trạng phòng')}</div>
                   <div class="doc-group-count">${arr.length} file</div>
                 </div>
-                <button class="btn btn-danger btn-sm" type="button" onclick="deletePhotoGroupByKey('${encodeURIComponent(arr[0].description || '')}')">🗑️ Xóa mục</button>
+                <button class="btn btn-danger btn-sm" type="button" onclick="deletePhotoGroupByKey(${jsArg(encodeURIComponent(arr[0].description || ''))})">🗑️ Xóa mục</button>
               </div>
               <div class="doc-group-grid">
                 ${arr.map(x => `
                   <div class="doc-file-card">
-                    <button class="doc-file-thumb" type="button" onclick="openStorageFile('${x.photo_url}')">
-                      ${x.preview_url ? `<img src="${x.preview_url}" alt="${esc(x.description || 'Ảnh hiện trạng')}">` : `<div class="doc-file-fallback">${esc(getFileExtensionLabel('', x.photo_url))}</div>`}
+                    <button class="doc-file-thumb" type="button" onclick="openStorageFile(${jsArg(x.photo_url)})">
+                      ${x.preview_url ? `<img src="${esc(x.preview_url)}" alt="${esc(x.description || 'Ảnh hiện trạng')}">` : `<div class="doc-file-fallback">${esc(getFileExtensionLabel('', x.photo_url))}</div>`}
                     </button>
                     <div class="doc-file-name">${esc(getFileNameFromPath(x.photo_url) || x.description || 'Hiện trạng phòng')}</div>
-                    <button class="btn btn-outline btn-sm" type="button" onclick="openStorageFile('${x.photo_url}')">Mở</button>
+                    <button class="btn btn-outline btn-sm" type="button" onclick="openStorageFile(${jsArg(x.photo_url)})">Mở</button>
                   </div>
                 `).join('')}
               </div>
@@ -7994,7 +8115,7 @@ async function openRoomDetail(roomId, initialSection = 'room') {
           <p class="amount" id="roomCoResultAmount"></p>
           <div class="checkout-result-breakdown" id="roomCoResultBreakdown"></div>
         </div>
-        <button class="btn btn-danger" id="roomConfirmCheckoutBtn" type="button" style="width:100%;justify-content:center;margin-top:16px;padding:14px" onclick="confirmRoomCheckout('${roomId}')">🚪 Xác nhận tất toán phòng này</button>
+        <button class="btn btn-danger" id="roomConfirmCheckoutBtn" type="button" style="width:100%;justify-content:center;margin-top:16px;padding:14px" onclick="confirmRoomCheckout(${jsArg(roomId)})">🚪 Xác nhận tất toán phòng này</button>
       </div>
       ` : `<div class="card" style="text-align:center;padding:20px">Phòng trống — không có khách để trả phòng.</div>`}
     </div>
@@ -8002,7 +8123,7 @@ async function openRoomDetail(roomId, initialSection = 'room') {
     <div class="room-modal-footer">
       <div class="room-footer-side">
         <button class="btn btn-attention btn-sm btn-room-danger-lite" type="button" onclick="switchRoomSection('checkout')" ${tenant ? '' : 'disabled'}>🚪 Trả phòng</button>
-        <button class="btn btn-danger btn-sm btn-room-danger-lite" id="roomHardDeleteBtn" type="button" style="background:#7F1D1D;border-color:#B91C1C" onclick="hardDeleteTenant('${tenant?.id||''}','${roomId}')">HARD DELETE</button>
+        <button class="btn btn-danger btn-sm btn-room-danger-lite" id="roomHardDeleteBtn" type="button" style="background:#7F1D1D;border-color:#B91C1C" onclick="hardDeleteTenant(${jsArg(tenant?.id || '')},${jsArg(roomId)})">HARD DELETE</button>
         <div class="room-danger-note-inline">Hard delete sẽ xóa sạch lịch sử vận hành của phòng này và tải 1 file ZIP mini backup đầy đủ của riêng phòng trước khi xóa.</div>
       </div>
       <div class="room-footer-actions">
@@ -8102,7 +8223,11 @@ async function saveRoomProfile(fromClose = false) {
     await upsertTenantWaterBaseline(tenantId, roomId, updates.move_in_date, hotBaseline, coldBaseline);
     await sb.from('move_in_records').delete().eq('tenant_id', tenantId);
     if (!isBeforeBusinessStart(updates.move_in_date)) {
-      await recordMoveInForDashboard(room, { ...tenant, ...updates, id: tenantId }, updates.move_in_date, updates.deposit_amount, hotBaseline, coldBaseline);
+      const moveInDashboardRes = await recordMoveInForDashboard(room, { ...tenant, ...updates, id: tenantId }, updates.move_in_date, updates.deposit_amount, hotBaseline, coldBaseline);
+      if (moveInDashboardRes?.error) {
+        toast('Lỗi cập nhật snapshot tháng khi sửa ngày vào: ' + moveInDashboardRes.error.message, 'error');
+        return false;
+      }
     }
   }
 
@@ -8813,11 +8938,6 @@ async function hardDeleteTenant(tenantId, roomId) {
       busyText: '⛔ Đang xóa...',
       keepVisibleMs: 1100
     }, async () => {
-      const roomTenantRes = await sb.from('tenants').select('id').eq('room_id', roomId);
-      if (roomTenantRes.error) {
-        throw new Error('Không tải được danh sách tenant của phòng: ' + roomTenantRes.error.message);
-      }
-      const roomTenantIds = (roomTenantRes.data || []).map(row => row.id).filter(Boolean);
       const [tenantFilesRes, occupantFilesRes, docFilesRes, photoFilesRes, billFilesRes, archivedFilesRes] = await Promise.all([
         sb.from('tenants').select('cccd_front_url,cccd_back_url').eq('room_id', roomId),
         sb.from('room_occupants').select('cccd_front_url,cccd_back_url').eq('room_id', roomId),
@@ -8844,33 +8964,12 @@ async function hardDeleteTenant(tenantId, roomId) {
         ])
       ];
 
-      const deleteTasks = [
-        sb.from('monthly_bills').delete().eq('room_id', roomId),
-        sb.from('water_readings').delete().eq('room_id', roomId),
-        sb.from('move_in_records').delete().eq('room_id', roomId),
-        sb.from('checkout_records').delete().eq('room_id', roomId),
-        sb.from('tenant_documents').delete().eq('room_id', roomId),
-        sb.from('monthly_room_sheet_data').delete().eq('room_id', roomId),
-        sb.from('room_photos').delete().eq('room_id', roomId),
-        sb.from('room_occupants').delete().eq('room_id', roomId),
-        sb.from('archived_tenants').delete().eq('room_number', room.room_number)
-      ];
-      const results = await Promise.all(deleteTasks);
-      const failedDelete = results.find(item => item?.error);
-      if (failedDelete?.error) {
-        throw new Error('Không xóa được dữ liệu liên quan: ' + failedDelete.error.message);
-      }
-
-      if (roomTenantIds.length) {
-        const tenantDelete = await sb.from('tenants').delete().in('id', roomTenantIds);
-        if (tenantDelete.error) {
-          throw new Error('Không xóa được tenant của phòng: ' + tenantDelete.error.message);
-        }
-      }
-
-      const roomReset = await sb.from('rooms').update({ notes: '' }).eq('id', roomId);
-      if (roomReset.error) {
-        throw new Error('Không reset được ghi chú phòng: ' + roomReset.error.message);
+      const rpcRes = await sb.rpc('hard_delete_room_data', { p_room_id: roomId });
+      if (rpcRes.error) {
+        const hint = /function .*hard_delete_room_data|Could not find the function|schema cache/i.test(rpcRes.error.message || '')
+          ? ' Chạy file supabase_rpc_hard_delete_room_data.sql trong Supabase SQL Editor trước rồi thử lại.'
+          : '';
+        throw new Error('Không xóa được dữ liệu phòng bằng transaction RPC: ' + rpcRes.error.message + hint);
       }
 
       await removeStorageFiles(storagePaths);
@@ -9114,9 +9213,7 @@ function getBillingExpenseAmount(bill) {
     + (bill.cold_water_amount || 0)
     + (bill.electricity_amount || 0)
     + (bill.wifi_amount || 0)
-    + (bill.trash_fee || 0)
-    + (bill.extra_fee || 0)
-    + (bill.deduction_amount || 0);
+    + (bill.trash_fee || 0);
 }
 
 async function saveBillingCollectionStatus(month) {
@@ -9219,15 +9316,15 @@ function renderBillingSummary(month, contexts = [], fullOccupancyBase = getFullO
         <input
           type="checkbox"
           class="billing-collect-check"
-          data-room-id="${room.id}"
-          data-bill-id="${bill?.id || ''}"
-          data-status="${bill?.status || ''}"
+          data-room-id="${esc(room.id)}"
+          data-bill-id="${esc(bill?.id || '')}"
+          data-status="${esc(bill?.status || '')}"
           ${bill?.status === 'paid' ? 'checked disabled' : ''}
           ${bill && canEditBilling ? '' : 'disabled'}
         >
         <div>
-          <div class="collection-room">P${room.room_number}</div>
-          <div class="collection-name">${tenant.full_name}</div>
+          <div class="collection-room">P${esc(room.room_number)}</div>
+          <div class="collection-name">${esc(tenant.full_name)}</div>
 <div class="collection-state">${bill ? (bill.status === 'paid' ? 'Đã thu tiền và đã khóa' : 'Chưa thu tiền') : 'Chưa có bill để đánh dấu'}</div>
         </div>
       </label>
@@ -9256,7 +9353,7 @@ function renderBillingSummary(month, contexts = [], fullOccupancyBase = getFullO
         <div class="report-stat">
           <div class="report-stat-value">${fmt(expenseTotal)}</div>
           <div class="report-stat-label">Chi phí tháng</div>
-          <div class="report-stat-meta">Chỉ cộng điện + nước + wifi + rác + phụ phí + khấu trừ của các bill đã thu.</div>
+          <div class="report-stat-meta">Chỉ cộng điện + nước + wifi + rác của các bill đã thu.</div>
         </div>
         <div class="report-stat">
           <div class="report-stat-value">${fmt(profitTotal)}</div>
@@ -9383,14 +9480,14 @@ async function loadBillingMonth() {
       : (monthRow?.has_turnover ? 'Tháng này có biến động khách vào/ra nên dữ liệu đang bám theo snapshot của tháng.' : '');
 
     html += `
-      <div class="billing-room ${isPaidLocked ? 'is-paid-locked' : 'is-editable-open'}" id="bill-room-${room.id}" data-tenant-id="${persistedTenantId}" data-room-price="${roomPrice}" data-wifi-amt="${wifiAmt}">
+      <div class="billing-room ${isPaidLocked ? 'is-paid-locked' : 'is-editable-open'}" id="bill-room-${esc(room.id)}" data-tenant-id="${esc(persistedTenantId)}" data-room-price="${roomPrice}" data-wifi-amt="${wifiAmt}">
         <div class="billing-room-header" onclick="this.parentElement.classList.toggle('expanded')">
           <div class="billing-room-main">
             <div class="billing-room-title">
-              <span class="collection-room">P${room.room_number}</span>
-              <span class="billing-room-name">${tenant.full_name}</span>
+              <span class="collection-room">P${esc(room.room_number)}</span>
+              <span class="billing-room-name">${esc(tenant.full_name)}</span>
               <span class="billing-state-chip ${isPaidLocked ? 'locked' : 'editable'}">${isPaidLocked ? 'ĐANG KHÓA' : 'ĐANG MỞ'}</span>
-              <span id="bHeaderStatus-${room.id}">${billingUiBadge(uiStatus)}</span>
+              <span id="bHeaderStatus-${esc(room.id)}">${billingUiBadge(uiStatus)}</span>
             </div>
             ${snapshotNote ? `<div class="billing-room-history">${esc(snapshotNote)}</div>` : ''}
           </div>
@@ -9401,28 +9498,28 @@ async function loadBillingMonth() {
             </div>
             <div class="billing-kpi">
               <div class="billing-kpi-label">Tiền nước</div>
-              <div class="billing-kpi-value" id="bWaterHeader-${room.id}">${waterAmount === null ? '—' : fmt(waterAmount)}</div>
+              <div class="billing-kpi-value" id="bWaterHeader-${esc(room.id)}">${waterAmount === null ? '—' : fmt(waterAmount)}</div>
             </div>
             <div class="billing-kpi">
               <div class="billing-kpi-label">Tiền điện</div>
-              <div class="billing-kpi-value" id="bElecHeader-${room.id}">${bill ? fmt(elecAmount) : '—'}</div>
+              <div class="billing-kpi-value" id="bElecHeader-${esc(room.id)}">${bill ? fmt(elecAmount) : '—'}</div>
             </div>
             <div class="billing-kpi">
               <div class="billing-kpi-label">Khác</div>
-              <div class="billing-kpi-value" id="bOtherHeader-${room.id}">${bill ? fmt(otherAmount) : fmt(trashFee)}</div>
+              <div class="billing-kpi-value" id="bOtherHeader-${esc(room.id)}">${bill ? fmt(otherAmount) : fmt(trashFee)}</div>
             </div>
           </div>
           <div class="billing-room-total">
-            <div class="billing-total-amount" id="bHeaderTotal-${room.id}">${bill ? fmt(bill.total_amount) : 'Chưa lưu'}</div>
+            <div class="billing-total-amount" id="bHeaderTotal-${esc(room.id)}">${bill ? fmt(bill.total_amount) : 'Chưa lưu'}</div>
             <span class="billing-chevron">▾</span>
           </div>
         </div>
         <div class="billing-room-body">
-          <input type="hidden" id="bHotPrev-${room.id}" value="${hotPrev}">
-          <input type="hidden" id="bHotCur-${room.id}" value="${hotCur}">
-          <input type="hidden" id="bColdPrev-${room.id}" value="${coldPrev}">
-          <input type="hidden" id="bColdCur-${room.id}" value="${coldCur}">
-          <input type="hidden" id="bClearEvn-${room.id}" value="0">
+          <input type="hidden" id="bHotPrev-${esc(room.id)}" value="${esc(hotPrev)}">
+          <input type="hidden" id="bHotCur-${esc(room.id)}" value="${esc(hotCur)}">
+          <input type="hidden" id="bColdPrev-${esc(room.id)}" value="${esc(coldPrev)}">
+          <input type="hidden" id="bColdCur-${esc(room.id)}" value="${esc(coldCur)}">
+          <input type="hidden" id="bClearEvn-${esc(room.id)}" value="0">
 
           <div class="billing-detail-grid">
             <div class="billing-detail-box">
@@ -9437,13 +9534,13 @@ async function loadBillingMonth() {
               <div class="grid-2">
                 <div class="form-group">
                   <label>Tiền điện (VNĐ)</label>
-                  <input type="number" class="form-input" id="bElec-${room.id}" value="${bill?.electricity_amount ?? ''}" placeholder="Ví dụ: 300000" oninput="calcBillRoom('${room.id}')" ${lockDisabledAttr}>
+                  <input type="number" class="form-input" id="bElec-${esc(room.id)}" value="${esc(bill?.electricity_amount ?? '')}" placeholder="Ví dụ: 300000" oninput="calcBillRoom(${jsArg(room.id)})" ${lockDisabledAttr}>
                 </div>
                 <div class="form-group">
                   <label>Upload Bill EVN (proof)</label>
-                  <input type="file" class="form-input" id="bEvn-${room.id}" accept="image/*" onchange="previewBillingEvnSelection('${room.id}')" ${lockDisabledAttr}>
+                  <input type="file" class="form-input" id="bEvn-${esc(room.id)}" accept="image/*" onchange="previewBillingEvnSelection(${jsArg(room.id)})" ${lockDisabledAttr}>
                   <div class="billing-file-preview">
-                    <div id="bEvnPreview-${room.id}"></div>
+                    <div id="bEvnPreview-${esc(room.id)}"></div>
                     <div class="billing-file-hint">Chỉ 1 ảnh duy nhất. Nên dùng ảnh chụp màn hình bill EVN từ iPhone.</div>
                   </div>
                 </div>
@@ -9452,27 +9549,27 @@ async function loadBillingMonth() {
                 <div class="billing-field-card">
                   <div class="form-group">
                     <label>Chi phí khác (VNĐ)</label>
-                    <input type="number" class="form-input" id="bExtra-${room.id}" value="${bill?.extra_fee ?? ''}" placeholder="Ví dụ: 50000" oninput="calcBillRoom('${room.id}')" ${lockDisabledAttr}>
+                    <input type="number" class="form-input" id="bExtra-${esc(room.id)}" value="${esc(bill?.extra_fee ?? '')}" placeholder="Ví dụ: 50000" oninput="calcBillRoom(${jsArg(room.id)})" ${lockDisabledAttr}>
                   </div>
                   <div class="form-group">
                     <label>Ghi chú phụ phí</label>
-                    <input type="text" class="form-input" id="bExtraNote-${room.id}" value="${bill?.extra_fee_note ?? ''}" placeholder="Ví dụ: sửa ổ khóa, mua bóng đèn..." oninput="saveBillingDraft('${room.id}','${month}')" ${lockDisabledAttr}>
+                    <input type="text" class="form-input" id="bExtraNote-${esc(room.id)}" value="${esc(bill?.extra_fee_note ?? '')}" placeholder="Ví dụ: sửa ổ khóa, mua bóng đèn..." oninput="saveBillingDraft(${jsArg(room.id)},${jsArg(month)})" ${lockDisabledAttr}>
                   </div>
                 </div>
                 <div class="billing-field-card">
                   <div class="form-group">
                     <label>Khấu trừ cho phòng (VNĐ)</label>
-                    <input type="number" class="form-input" id="bDeduct-${room.id}" value="${deductionDisplay}" placeholder="Ví dụ: 100000" oninput="calcBillRoom('${room.id}')" ${lockDisabledAttr}>
+                    <input type="number" class="form-input" id="bDeduct-${esc(room.id)}" value="${esc(deductionDisplay)}" placeholder="Ví dụ: 100000" oninput="calcBillRoom(${jsArg(room.id)})" ${lockDisabledAttr}>
                   </div>
                   <div class="form-group">
                     <label>Ghi chú khấu trừ</label>
-                    <input type="text" class="form-input" id="bDeductNote-${room.id}" value="${bill?.deduction_note ?? ''}" placeholder="Ví dụ: giảm giá hỗ trợ, hoàn tiền..." oninput="saveBillingDraft('${room.id}','${month}')" ${lockDisabledAttr}>
+                    <input type="text" class="form-input" id="bDeductNote-${esc(room.id)}" value="${esc(bill?.deduction_note ?? '')}" placeholder="Ví dụ: giảm giá hỗ trợ, hoàn tiền..." oninput="saveBillingDraft(${jsArg(room.id)},${jsArg(month)})" ${lockDisabledAttr}>
                   </div>
                 </div>
               </div>
               <div class="form-group" style="margin-bottom:0">
                 <label>Lời nhắn cho khách</label>
-                <textarea class="form-input" id="bNote-${room.id}" placeholder="Ví dụ: anh/chị vui lòng chuyển khoản trước ngày..., hoặc ghi chú thêm nếu cần." oninput="saveBillingDraft('${room.id}','${month}')" ${lockDisabledAttr}>${bill?.note_to_tenant||''}</textarea>
+                <textarea class="form-input" id="bNote-${esc(room.id)}" placeholder="Ví dụ: anh/chị vui lòng chuyển khoản trước ngày..., hoặc ghi chú thêm nếu cần." oninput="saveBillingDraft(${jsArg(room.id)},${jsArg(month)})" ${lockDisabledAttr}>${esc(bill?.note_to_tenant || '')}</textarea>
               </div>
             </div>
 
@@ -9484,23 +9581,23 @@ async function loadBillingMonth() {
               </div>
               <div class="billing-quick-list" style="margin-top:14px">
                 <div class="billing-quick-row"><span>Tiền phòng</span><span>${fmt(roomPrice)}</span></div>
-                <div class="billing-quick-row" id="bHotLine-${room.id}"><span>Nước nóng</span><span>—</span></div>
-                <div class="billing-quick-row" id="bColdLine-${room.id}"><span>Nước lạnh</span><span>—</span></div>
-                <div class="billing-quick-row"><span>Tiền điện</span><span id="bElecLine-${room.id}">—</span></div>
+                <div class="billing-quick-row" id="bHotLine-${esc(room.id)}"><span>Nước nóng</span><span>—</span></div>
+                <div class="billing-quick-row" id="bColdLine-${esc(room.id)}"><span>Nước lạnh</span><span>—</span></div>
+                <div class="billing-quick-row"><span>Tiền điện</span><span id="bElecLine-${esc(room.id)}">—</span></div>
                 <div class="billing-quick-row"><span>Wifi</span><span>${wifiAmt ? fmt(wifiAmt) : 'Không'}</span></div>
                 <div class="billing-quick-row"><span>Rác cố định</span><span id="bTrashLine-${room.id}">${fmt(trashFee)}</span></div>
-                <div class="billing-quick-row" id="bExtraLine-${room.id}"><span>Chi phí khác</span><span>—</span></div>
-                <div class="billing-quick-row" id="bDeductLine-${room.id}"><span>Khấu trừ</span><span>—</span></div>
+                <div class="billing-quick-row" id="bExtraLine-${esc(room.id)}"><span>Chi phí khác</span><span>—</span></div>
+                <div class="billing-quick-row" id="bDeductLine-${esc(room.id)}"><span>Khấu trừ</span><span>—</span></div>
               </div>
-              <div class="billing-total" id="bTotal-${room.id}">TỔNG: ${bill ? fmt(bill.total_amount) : '—'}</div>
+              <div class="billing-total" id="bTotal-${esc(room.id)}">TỔNG: ${bill ? fmt(bill.total_amount) : '—'}</div>
             </div>
           </div>
 
           <div class="billing-action-row">
-            ${bill?.status === 'paid' ? `<button class="btn btn-attention" type="button" onclick="reopenRoomMonthForEditing('${room.id}','${month}')">🔓 Mở khóa chỉnh sửa</button>` : ''}
-            <button class="btn btn-primary" id="billSave-${room.id}" onclick="saveBillRoom('${room.id}','${persistedTenantId}','${month}')" ${lockDisabledAttr}>💾 Lưu bill</button>
-            <button class="btn btn-outline" type="button" onclick="resetBillForm('${room.id}','${month}')" ${lockDisabledAttr}>↺ Làm mới bill</button>
-            <button class="btn btn-success" onclick="exportBillImage('${room.id}','${persistedTenantId}','${month}')" ${persistedTenantId ? '' : 'disabled'}>📸 Xuất bill</button>
+            ${bill?.status === 'paid' ? `<button class="btn btn-attention" type="button" onclick="reopenRoomMonthForEditing(${jsArg(room.id)},${jsArg(month)})">🔓 Mở khóa chỉnh sửa</button>` : ''}
+            <button class="btn btn-primary" id="billSave-${esc(room.id)}" onclick="saveBillRoom(${jsArg(room.id)},${jsArg(persistedTenantId)},${jsArg(month)})" ${lockDisabledAttr}>💾 Lưu bill</button>
+            <button class="btn btn-outline" type="button" onclick="resetBillForm(${jsArg(room.id)},${jsArg(month)})" ${lockDisabledAttr}>↺ Làm mới bill</button>
+            <button class="btn btn-success" onclick="exportBillImage(${jsArg(room.id)},${jsArg(persistedTenantId)},${jsArg(month)})" ${persistedTenantId ? '' : 'disabled'}>📸 Xuất bill</button>
           </div>
         </div>
       </div>`;
@@ -9674,6 +9771,10 @@ async function saveBillRoom(roomId, tenantId, month) {
   }, async () => {
     const total = roomPrice + hotAmt + coldAmt + elec + wifiAmt + trash + extra - deduct;
     const existingBillRes = await sb.from('monthly_bills').select('status,evn_bill_image_url').eq('tenant_id', tenantId).eq('billing_month', month).maybeSingle();
+    if (existingBillRes.error) {
+      toast('Không kiểm tra được bill cũ: ' + existingBillRes.error.message, 'error');
+      return;
+    }
     const existingBill = existingBillRes.data || null;
     const clearEvn = document.getElementById(`bClearEvn-${roomId}`)?.value === '1';
 
@@ -9681,6 +9782,10 @@ async function saveBillRoom(roomId, tenantId, month) {
     const evnFile = document.getElementById(`bEvn-${roomId}`).files[0];
     if (evnFile) {
       evnUrl = await uploadFile('nhatro-docs', `evn/${roomId}_${month}_${Date.now()}.jpg`, evnFile);
+      if (!evnUrl) {
+        toast('Upload ảnh EVN thất bại nên chưa lưu bill.', 'error');
+        return;
+      }
     }
 
     const billData = {
@@ -9714,7 +9819,11 @@ async function saveBillRoom(roomId, tenantId, month) {
       evnUrl && existingBill?.evn_bill_image_url && existingBill.evn_bill_image_url !== evnUrl ? existingBill.evn_bill_image_url : '',
       clearEvn && existingBill?.evn_bill_image_url ? existingBill.evn_bill_image_url : ''
     ], { silent: true });
-    await syncMonthlySheetFromBill(roomId, month, tenant, billData);
+    const sheetSyncRes = await syncMonthlySheetFromBill(roomId, month, tenant, billData);
+    if (sheetSyncRes?.error) {
+      toast('Bill đã lưu nhưng snapshot bảng tháng chưa cập nhật được: ' + sheetSyncRes.error.message, 'error');
+      return;
+    }
     const clearFlag = document.getElementById(`bClearEvn-${roomId}`);
     if (clearFlag) clearFlag.value = '0';
 
@@ -9727,7 +9836,11 @@ async function saveBillRoom(roomId, tenantId, month) {
 async function markPaid(roomId, month) {
   const tenant = getTenantForRoom(roomId);
   if (!tenant) return;
-  await sb.from('monthly_bills').update({ status: 'paid' }).eq('tenant_id', tenant.id).eq('billing_month', month);
+  const paidRes = await sb.from('monthly_bills').update({ status: 'paid' }).eq('tenant_id', tenant.id).eq('billing_month', month);
+  if (paidRes.error) {
+    toast('Lỗi đánh dấu thanh toán: ' + paidRes.error.message, 'error');
+    return;
+  }
   toast('Đã đánh dấu thanh toán!');
   loadBillingMonth();
 }
@@ -10360,8 +10473,10 @@ async function loadWaterEntry() {
 
     const hotPrev = today?.hot_water_previous ?? (monthRowMatchesTenant ? monthRow?.hot_water_previous : null) ?? prev?.hot_water_current ?? tenant?.last_hot_water_reading ?? '';
     const coldPrev = today?.cold_water_previous ?? (monthRowMatchesTenant ? monthRow?.cold_water_previous : null) ?? prev?.cold_water_current ?? tenant?.last_cold_water_reading ?? '';
-    const hotCur = today?.hot_water_current ?? (monthRowMatchesTenant ? monthRow?.hot_water_current : null) ?? hotPrev ?? '';
-    const coldCur = today?.cold_water_current ?? (monthRowMatchesTenant ? monthRow?.cold_water_current : null) ?? coldPrev ?? '';
+    const hotCur = today?.hot_water_current ?? '';
+    const coldCur = today?.cold_water_current ?? '';
+    const finalHotForNote = today ? hotCur : undefined;
+    const finalColdForNote = today ? coldCur : undefined;
     const debt = !!today?.is_water_debt;
     const carryoverText = (!debt && prev?.is_water_debt) ? 'Kỳ này đang tính dồn tiền nước do kỳ trước bật nợ nước.' : '';
     const latestReference = `Nóng ${hotPrev} | Lạnh ${coldPrev}`;
@@ -10373,8 +10488,8 @@ async function loadWaterEntry() {
     const noteParts = buildWaterOverviewNoteLines(checkout, moveIn, readingDate, {
       paidLock: isPaidLocked,
       cycleClosed: !!today || canEditWaterCycle(readingDate),
-      finalHot: hotCur,
-      finalCold: coldCur
+      finalHot: finalHotForNote,
+      finalCold: finalColdForNote
     });
     if (!today && isWritable) {
       noteParts.unshift('Cần nhập số nước kỳ này.');
@@ -10385,19 +10500,19 @@ async function loadWaterEntry() {
     if (tenant) {
       const missingInputClass = !today && isWritable ? 'water-missing-input' : '';
       html += `<tr class="${isPaidLocked ? 'water-row-locked' : (isWritable ? 'water-row-editable' : '')}">
-        <td><strong>P${room.room_number}</strong></td>
-        <td>${tenant.full_name}${noteHtml}</td>
-        <td><input class="form-input ${missingInputClass}" type="number" id="wrHotCur-${effectiveTenantId}" value="${hotCur}" placeholder="Nhập số hiện tại" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
-        <td><input class="form-input ${missingInputClass}" type="number" id="wrColdCur-${effectiveTenantId}" value="${coldCur}" placeholder="Nhập số hiện tại" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
+        <td><strong>P${esc(room.room_number)}</strong></td>
+        <td>${esc(tenant.full_name)}${noteHtml}</td>
+        <td><input class="form-input ${missingInputClass}" type="number" id="wrHotCur-${esc(effectiveTenantId)}" value="${esc(hotCur)}" placeholder="Nhập số hiện tại" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
+        <td><input class="form-input ${missingInputClass}" type="number" id="wrColdCur-${esc(effectiveTenantId)}" value="${esc(coldCur)}" placeholder="Nhập số hiện tại" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
         <td><div style="font-size:12px;color:var(--text2)">Lần gần nhất: <strong>${latestReference}</strong></div></td>
-        <td><div class="water-message-cell"><button class="btn btn-outline btn-sm" onclick="openZaloModalByTenant('${effectiveTenantId}')" ${canMessage ? '' : 'disabled'}>💬 Nhắn</button></div></td>
-        <td><div class="water-action-cell"><button class="btn btn-sm ${debt?'btn-danger':'btn-outline'}" onclick="toggleWaterDebt('${room.id}','${effectiveTenantId}','${readingDate}')" ${isWritable ? '' : 'disabled'}>${debt?'Đang bật nợ nước':'Nợ nước'}</button><button class="btn btn-primary btn-sm" id="waterSave-${room.id}" onclick="saveWaterRow('${room.id}','${effectiveTenantId}','${readingDate}')" ${isWritable ? '' : 'disabled'}>💾 Lưu</button></div></td>
+        <td><div class="water-message-cell"><button class="btn btn-outline btn-sm" onclick="openZaloModalByTenant(${jsArg(effectiveTenantId)})" ${canMessage ? '' : 'disabled'}>💬 Nhắn</button></div></td>
+        <td><div class="water-action-cell"><button class="btn btn-sm ${debt?'btn-danger':'btn-outline'}" onclick="toggleWaterDebt(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>${debt?'Đang bật nợ nước':'Nợ nước'}</button><button class="btn btn-primary btn-sm" id="waterSave-${esc(room.id)}" data-room-id="${esc(room.id)}" data-tenant-id="${esc(effectiveTenantId)}" onclick="saveWaterRow(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>💾 Lưu</button></div></td>
       </tr>`;
     }
 
     const cycleLabel = `${fmtDate(readingDate)} → ${fmtDate(getNextCycleStart(readingDate))}`;
     const summaryOwner = tenant?.full_name || monthRow?.full_name || '';
-    const hasWaterNumbers = [hotPrev, hotCur, coldPrev, coldCur].some(value => value !== '' && value !== null && value !== undefined);
+    const hasWaterNumbers = today && [hotPrev, hotCur, coldPrev, coldCur].some(value => value !== '' && value !== null && value !== undefined);
     const hasWaterData = !!(
       summaryOwner ||
       checkout ||
@@ -10405,9 +10520,9 @@ async function loadWaterEntry() {
       today ||
       hasWaterNumbers
     );
-    const waterSummary = hasWaterData
+    const waterSummary = today
       ? formatWaterOverviewSummary(hotPrev, hotCur, coldPrev, coldCur, summaryOwner)
-      : '—';
+      : (hasWaterData ? 'Chưa nhập số nước kỳ này' : '—');
     const snapshotText = today
       ? `Đã chốt kỳ ${cycleLabel}${today?.is_water_debt ? ' · Đang bật nợ nước' : ''}`
       : hasWaterData
@@ -10420,8 +10535,8 @@ async function loadWaterEntry() {
       paidLock: isPaidLocked,
       shortPaidLock: true,
       cycleClosed: !!today || canEditWaterCycle(readingDate),
-      finalHot: hotCur,
-      finalCold: coldCur
+      finalHot: finalHotForNote,
+      finalCold: finalColdForNote
     }));
     if (debt) {
       overviewNoteLines.unshift('Kỳ này đang bật nợ nước.');
@@ -10539,10 +10654,13 @@ async function toggleWaterDebt(roomId, tenantId, readingDate) {
 
   const { error } = await sb.from('water_readings').upsert(payload, { onConflict: 'tenant_id,reading_date' });
   if (error) return toast('Lỗi NỢ NƯỚC: ' + error.message, 'error');
-  await syncMonthlySheetFromWater(roomId, payload.billing_month, tenant, payload);
+  const sheetSyncRes = await syncMonthlySheetFromWater(roomId, payload.billing_month, tenant, payload);
+  if (sheetSyncRes?.error) return toast('Đã lưu nợ nước nhưng snapshot bảng tháng chưa cập nhật được: ' + sheetSyncRes.error.message, 'error');
   if (!prev) {
-    await ensureTenantWaterBaseline(tenant, roomId, payload.hot_water_previous, payload.cold_water_previous);
-    await sb.from('tenants').update({ last_hot_water_reading: payload.hot_water_previous, last_cold_water_reading: payload.cold_water_previous }).eq('id', tenantId);
+    const baseline = await ensureTenantWaterBaseline(tenant, roomId, payload.hot_water_previous, payload.cold_water_previous);
+    if (!baseline) return toast('Đã lưu nợ nước nhưng chưa tạo được baseline nước ban đầu.', 'error');
+    const tenantUpdateRes = await sb.from('tenants').update({ last_hot_water_reading: payload.hot_water_previous, last_cold_water_reading: payload.cold_water_previous }).eq('id', tenantId);
+    if (tenantUpdateRes.error) return toast('Đã lưu nợ nước nhưng chưa cập nhật được mốc nước tenant: ' + tenantUpdateRes.error.message, 'error');
   }
   toast(nextDebt ? 'Đã bật NỢ NƯỚC (lock số)' : 'Đã tắt NỢ NƯỚC');
   await loadWaterEntry();
@@ -10618,11 +10736,14 @@ async function saveWaterRow(roomId, tenantId, readingDate, skipRefresh = false) 
     keepVisibleMs: 700
   }, async () => {
     const { error } = await sb.from('water_readings').upsert(payload, { onConflict: 'tenant_id,reading_date' });
-    if (error) return toast('Lỗi lưu số nước: ' + error.message, 'error');
-    await syncMonthlySheetFromWater(roomId, payload.billing_month, tenant, payload);
+    if (error) { toast('Lỗi lưu số nước: ' + error.message, 'error'); return false; }
+    const sheetSyncRes = await syncMonthlySheetFromWater(roomId, payload.billing_month, tenant, payload);
+    if (sheetSyncRes?.error) { toast('Đã lưu số nước nhưng snapshot bảng tháng chưa cập nhật được: ' + sheetSyncRes.error.message, 'error'); return false; }
     if (!prev) {
-      await ensureTenantWaterBaseline(tenant, roomId, payload.hot_water_previous, payload.cold_water_previous);
-      await sb.from('tenants').update({ last_hot_water_reading: payload.hot_water_previous, last_cold_water_reading: payload.cold_water_previous }).eq('id', tenantId);
+      const baseline = await ensureTenantWaterBaseline(tenant, roomId, payload.hot_water_previous, payload.cold_water_previous);
+      if (!baseline) { toast('Đã lưu số nước nhưng chưa tạo được baseline nước ban đầu.', 'error'); return false; }
+      const tenantUpdateRes = await sb.from('tenants').update({ last_hot_water_reading: payload.hot_water_previous, last_cold_water_reading: payload.cold_water_previous }).eq('id', tenantId);
+      if (tenantUpdateRes.error) { toast('Đã lưu số nước nhưng chưa cập nhật được mốc nước tenant: ' + tenantUpdateRes.error.message, 'error'); return false; }
     }
     if (!skipRefresh) {
       toast('Đã lưu số nước');
@@ -10651,9 +10772,9 @@ async function saveAllWaterReadings() {
     for (const row of rows) {
       const saveBtn = row.querySelector('button[id^="waterSave-"]');
       if (!saveBtn || saveBtn.disabled) continue;
-      const match = saveBtn.getAttribute('onclick')?.match(/saveWaterRow\('([^']+)','([^']+)','([^']+)'/);
-      if (!match) continue;
-      const [, roomId, tenantId] = match;
+      const roomId = saveBtn.dataset.roomId || '';
+      const tenantId = saveBtn.dataset.tenantId || '';
+      if (!roomId || !tenantId) continue;
       const ok = await saveWaterRow(roomId, tenantId, readingDate, true);
       if (ok === false) return;
     }
@@ -10688,7 +10809,7 @@ async function loadNewTenantForm() {
   appData.rooms.forEach(room => {
     const tenant = getTenantForRoom(room.id);
     if (!tenant) {
-      sel.innerHTML += `<option value="${room.id}" data-price="${room.room_price||0}">Phòng ${room.room_number} — ${fmt(room.room_price)}/tháng</option>`;
+      sel.innerHTML += `<option value="${esc(room.id)}" data-price="${room.room_price || 0}">Phòng ${esc(room.room_number)} — ${fmt(room.room_price)}/tháng</option>`;
     }
   });
   if (draft.roomId && [...sel.options].some(opt => opt.value === draft.roomId)) {
@@ -10894,17 +11015,43 @@ async function confirmNewTenant() {
       return;
     }
 
+    const rollbackNewTenant = async () => {
+      await Promise.allSettled([
+        sb.from('room_occupants').delete().eq('tenant_id', data.id),
+        sb.from('water_readings').delete().eq('tenant_id', data.id).eq('reading_source', 'move_in_baseline'),
+        sb.from('move_in_records').delete().eq('tenant_id', data.id),
+        sb.from('monthly_room_sheet_data').delete().eq('tenant_id', data.id).eq('billing_month', `${moveInDate.slice(0, 7)}-01`),
+        sb.from('tenants').delete().eq('id', data.id),
+        removeStorageFiles([frontPath, backPath], { silent: true })
+      ]);
+    };
+
     const coResidents = Math.max(0, parseInt(document.getElementById('ntPeople')?.value) || 0);
     if (coResidents > 0) {
       for (let i = 1; i <= coResidents; i++) {
-        await sb.from('room_occupants').insert({ room_id: roomId, tenant_id: data.id, full_name: `Người nhà ${i}`, is_active: true });
+        const occupantRes = await sb.from('room_occupants').insert({ room_id: roomId, tenant_id: data.id, full_name: `Người nhà ${i}`, is_active: true });
+        if (occupantRes.error) {
+          await rollbackNewTenant();
+          toast('Lỗi tạo người nhà nên đã rollback hồ sơ khách mới: ' + occupantRes.error.message, 'error');
+          return;
+        }
       }
     }
 
     if (data?.id && moveInDate) {
-      await ensureTenantWaterBaseline(data, roomId, initHotWater, initColdWater);
+      const baseline = await ensureTenantWaterBaseline(data, roomId, initHotWater, initColdWater);
+      if (!baseline) {
+        await rollbackNewTenant();
+        toast('Không tạo được mốc nước ban đầu nên đã rollback hồ sơ khách mới.', 'error');
+        return;
+      }
       if (!isInitialSeed) {
-        await recordMoveInForDashboard(room, data, moveInDate, depositAmount, initHotWater, initColdWater);
+        const moveInDashboardRes = await recordMoveInForDashboard(room, data, moveInDate, depositAmount, initHotWater, initColdWater);
+        if (moveInDashboardRes?.error) {
+          await rollbackNewTenant();
+          toast('Lỗi ghi nhận khách vào báo cáo tháng nên đã rollback hồ sơ khách mới: ' + moveInDashboardRes.error.message, 'error');
+          return;
+        }
       }
     }
 
@@ -11217,14 +11364,15 @@ async function executeCheckoutScope(roomId, scope = 'page') {
   }
   const net = (refundRoom + deposit) - (water + elec + damage + deduct);
 
-  await withBusyState(`confirm-checkout-${scope}-${roomId}`, {
+  try {
+    await withBusyState(`confirm-checkout-${scope}-${roomId}`, {
     title: `Đang tất toán Phòng ${room.room_number}`,
     meta: 'Đang chốt điện nước, hoàn tiền và chuyển hồ sơ sang Khách cũ.',
     selectors: [refs.cfg.confirmSelector],
     busyText: '🚪 Đang tất toán...',
     keepVisibleMs: 900
   }, async () => {
-    await sb.from('checkout_records').insert({
+    const checkoutInsertRes = await sb.from('checkout_records').insert({
       tenant_id: tenant.id,
       room_id: roomId,
       billing_month: `${coDate.slice(0, 7)}-01`,
@@ -11249,11 +11397,14 @@ async function executeCheckoutScope(roomId, scope = 'page') {
         deduction_charge: deduct
       })
     });
+    requireSupabaseOk(checkoutInsertRes, 'Không tạo được record trả phòng');
 
-    const { data: bills } = await sb.from('monthly_bills').select('*').eq('tenant_id', tenant.id);
-    const { data: docs } = await sb.from('tenant_documents').select('*').eq('tenant_id', tenant.id);
+    const billsRes = await sb.from('monthly_bills').select('*').eq('tenant_id', tenant.id);
+    requireSupabaseOk(billsRes, 'Không tải được lịch sử bill trước khi archive');
+    const docsRes = await sb.from('tenant_documents').select('*').eq('tenant_id', tenant.id);
+    requireSupabaseOk(docsRes, 'Không tải được giấy tờ trước khi archive');
 
-    await sb.from('archived_tenants').insert({
+    const archiveInsertRes = await sb.from('archived_tenants').insert({
       original_tenant_id: tenant.id,
       room_number: room.room_number,
       full_name: tenant.full_name,
@@ -11265,17 +11416,20 @@ async function executeCheckoutScope(roomId, scope = 'page') {
       cccd_front_url: tenant.cccd_front_url,
       cccd_back_url: tenant.cccd_back_url,
       notes: tenant.notes,
-      billing_history: bills || [],
-      documents: docs || []
+      billing_history: billsRes.data || [],
+      documents: docsRes.data || []
     });
+    requireSupabaseOk(archiveInsertRes, 'Không tạo được hồ sơ Khách cũ');
 
-    await recordCheckoutForDashboard(room, tenant, coDate, refundRoom, deposit, water, elec, damage, deduct);
+    const checkoutDashboardRes = await recordCheckoutForDashboard(room, tenant, coDate, refundRoom, deposit, water, elec, damage, deduct);
+    requireSupabaseOk(checkoutDashboardRes, 'Không cập nhật snapshot tháng khi trả phòng');
 
-    await sb.from('tenants').update({
+    const tenantUpdateRes = await sb.from('tenants').update({
       is_active: false,
       last_hot_water_reading: parseFloat(refs.hotCurrent?.value) || tenant.last_hot_water_reading || 0,
       last_cold_water_reading: parseFloat(refs.coldCurrent?.value) || tenant.last_cold_water_reading || 0
     }).eq('id', tenant.id);
+    requireSupabaseOk(tenantUpdateRes, 'Không deactivate được khách đang ở');
 
     clearCheckoutDraft();
     toast(`Đã tất toán phòng ${room.room_number}!`);
@@ -11290,6 +11444,9 @@ async function executeCheckoutScope(roomId, scope = 'page') {
       await navigate('dashboard');
     }
   });
+  } catch (error) {
+    toast('Tất toán chưa hoàn tất: ' + (error?.message || 'Không rõ lỗi'), 'error');
+  }
 }
 
 async function loadCheckoutForm() {
@@ -11301,7 +11458,7 @@ async function loadCheckoutForm() {
   appData.rooms.forEach(room => {
     const tenant = getTenantForRoom(room.id);
     if (tenant) {
-      sel.innerHTML += `<option value="${room.id}">Phòng ${room.room_number} — ${tenant.full_name}</option>`;
+      sel.innerHTML += `<option value="${esc(room.id)}">Phòng ${esc(room.room_number)} — ${esc(tenant.full_name)}</option>`;
     }
   });
   if (draft.roomId && [...sel.options].some(opt => opt.value === draft.roomId)) {
@@ -11371,11 +11528,11 @@ async function loadDocuments() {
   })));
   for (const d of docs) {
     tbody.innerHTML += `<tr>
-      <td>${d.document_name}</td>
+      <td>${esc(d.document_name)}</td>
       <td>${fmtDate(d.created_at)}</td>
       <td>
-        <a href="${d.signed || '#'}" target="_blank" class="btn btn-outline btn-sm">📥 Tải</a>
-        <button class="btn btn-danger btn-sm" onclick="deleteGenDoc('${d.id}')">🗑️</button>
+        <a href="${esc(d.signed || '#')}" target="_blank" class="btn btn-outline btn-sm">📥 Tải</a>
+        <button class="btn btn-danger btn-sm" onclick="deleteGenDoc(${jsArg(d.id)})">🗑️</button>
       </td>
     </tr>`;
   }
@@ -11452,7 +11609,7 @@ async function loadArchived() {
         <tr>
           <td>${getPeriodMonthTitle(b.billing_month || '').replace('THÁNG', 'Tháng')}</td>
           <td>${b.status === 'paid' ? 'PAID' : 'CHƯA THU'}</td>
-          <td>${meterText}</td>
+          <td>${esc(meterText)}</td>
           <td>${fmtSheetMoney(b.electricity_amount || 0)}</td>
           <td>${fmtSheetMoney((b.hot_water_amount || 0) + (b.cold_water_amount || 0))}</td>
           <td>${fmtSheetMoney(b.total_amount || 0)}</td>
@@ -11464,21 +11621,21 @@ async function loadArchived() {
       <div class="card">
         <div class="card-header">
           <div>
-            <h3>${a.full_name}</h3>
-            <p style="color:var(--text2);font-size:13px">Phòng ${a.room_number} | ${fmtDate(a.move_in_date)} → ${fmtDate(a.move_out_date)}</p>
+            <h3>${esc(a.full_name)}</h3>
+            <p style="color:var(--text2);font-size:13px">Phòng ${esc(a.room_number)} | ${fmtDate(a.move_in_date)} → ${fmtDate(a.move_out_date)}</p>
           </div>
           <div style="display:flex;gap:8px">
             <span style="font-size:13px;color:var(--text2)">Tổng đã thu: ${fmt(totalPaid)} | ${bills.length} tháng</span>
-            <button class="btn btn-danger btn-sm" onclick="deleteArchived('${a.id}')">🗑️ Xóa</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteArchived(${jsArg(a.id)})">🗑️ Xóa</button>
           </div>
         </div>
         <details>
           <summary style="cursor:pointer;color:var(--gold);font-size:13px">Xem chi tiết</summary>
           <div style="margin-top:12px;padding:12px;background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;font-size:13px">
-            <p>SĐT: ${a.phone || '—'} | Cọc: ${fmt(a.deposit_amount)} | Giá phòng: ${fmt(a.room_price)}</p>
+            <p>SĐT: ${esc(a.phone || '—')} | Cọc: ${fmt(a.deposit_amount)} | Giá phòng: ${fmt(a.room_price)}</p>
             ${checkout ? `<p>Tất toán cuối: ${fmtDate(checkout.checkout_date)} | Hoàn phòng: ${fmt(checkout.refund_room_amount || 0)} | Trả cọc: ${fmt(checkout.refund_deposit_amount || 0)} | Thu lại: nước ${fmt(checkout.water_charge || 0)}, điện ${fmt(checkout.electricity_charge || 0)}, hư hỏng ${fmt(checkout.damage_charge || 0)}, khấu trừ ${fmt(checkoutMeta.deduction_charge || 0)}</p>` : ''}
             ${checkout ? `<p>Snapshot nước khi rời: N${checkoutMeta.hot_previous ?? '—'} → ${checkoutMeta.hot_current ?? '—'} | L${checkoutMeta.cold_previous ?? '—'} → ${checkoutMeta.cold_current ?? '—'}</p>` : ''}
-            ${a.notes ? `<p>Ghi chú: ${a.notes}</p>` : ''}
+            ${a.notes ? `<p>Ghi chú: ${esc(a.notes)}</p>` : ''}
             <h4 style="margin-top:12px;margin-bottom:8px">Lịch sử theo tháng:</h4>
             ${bills.length ? `
               <div style="overflow:auto">
@@ -11515,9 +11672,11 @@ async function deleteArchived(id) {
       ? await sb.from('room_occupants').select('id,cccd_front_url,cccd_back_url').eq('tenant_id', archived.original_tenant_id)
       : { data: [], error: null };
     if (occRes.error) { toast('Không tải được người nhà trước khi xóa: ' + occRes.error.message, 'error'); return; }
-    await sb.from('archived_tenants').delete().eq('id', id);
+    const archivedDeleteRes = await sb.from('archived_tenants').delete().eq('id', id);
+    if (archivedDeleteRes.error) { toast('Không xóa được hồ sơ khách cũ: ' + archivedDeleteRes.error.message, 'error'); return; }
     if (archived?.original_tenant_id && (occRes.data || []).length) {
-      await sb.from('room_occupants').delete().eq('tenant_id', archived.original_tenant_id);
+      const occDeleteRes = await sb.from('room_occupants').delete().eq('tenant_id', archived.original_tenant_id);
+      if (occDeleteRes.error) { toast('Không xóa được người nhà của khách cũ: ' + occDeleteRes.error.message, 'error'); return; }
     }
     await removeStorageFiles([
       archived?.cccd_front_url || '',
