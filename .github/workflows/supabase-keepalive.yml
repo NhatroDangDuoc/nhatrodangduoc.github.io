@@ -2,8 +2,10 @@ name: Supabase keepalive
 
 on:
   schedule:
-    # 03:17 Vietnam time every 3 days. Enough to keep light activity without spam.
-    - cron: "17 20 */3 * *"
+    # Twice a day, off the top of the hour to reduce GitHub schedule delays.
+    # UTC 20:17 = 03:17 Vietnam time; UTC 08:47 = 15:47 Vietnam time.
+    - cron: "17 20 * * *"
+    - cron: "47 8 * * *"
   workflow_dispatch:
 
 jobs:
