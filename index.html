@@ -13,8 +13,8 @@
 :root{--bg:#F3F4F6;--card:#FFFFFF;--gold:#FF6A00;--gold-hover:#E55F00;--gold-light:#FFF1E7;--text:#111827;--text2:#6B7280;--success:#0F8A5F;--warning:#C97817;--danger:#CE4534;--border:#E5E7EB;--radius:12px;--radius-sm:8px;--shadow:0 1px 2px rgba(17,24,39,.05),0 10px 20px rgba(17,24,39,.04);--shadow-lg:0 20px 40px rgba(17,24,39,.08);--surface-soft:#F9FAFB;--surface-hover:#F5F7FA;--surface-raised:#FFFFFF;--surface-raised-2:#FFFFFF;--table-head:#F5F7FA;--table-hover:#FAFBFC;--input-bg:#FFFFFF;--sidebar-bg:#0B0F14;--sidebar-hover:#141A22;--sidebar-text:#9AA4B2;--sidebar-active:#171E27;--page-max:1680px;--page-medium:1320px;--page-narrow:980px;--card-border:rgba(17,24,39,.08)}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'Manrope',sans-serif;background:linear-gradient(180deg,#F8FAFC 0%,var(--bg) 100%);color:var(--text);min-height:100vh;display:flex;line-height:1.45;transition:background .25s ease,color .25s ease}
-body.dark-mode{--bg:#0F141A;--card:#151B22;--gold:#FF9A4D;--gold-hover:#FFAF69;--gold-light:#362011;--text:#F3F4F6;--text2:#9CA3AF;--border:#29313A;--shadow:0 1px 3px rgba(0,0,0,.22),0 10px 24px rgba(0,0,0,.18);--shadow-lg:0 20px 44px rgba(0,0,0,.28);--surface-soft:#11171E;--surface-hover:#182028;--surface-raised:#161D25;--surface-raised-2:#131920;--table-head:#182028;--table-hover:#1D2630;--input-bg:#0F141A;--sidebar-bg:#090C10;--sidebar-hover:#11171E;--sidebar-text:#8D99A8;--sidebar-active:#141B23}
+body{font-family:'Manrope',sans-serif;background:radial-gradient(circle at 18% -8%,rgba(255,154,77,.14),transparent 32%),radial-gradient(circle at 86% 4%,rgba(16,185,129,.08),transparent 34%),linear-gradient(180deg,#F8FAFC 0%,#F5F7FA 48%,var(--bg) 100%);background-attachment:fixed;color:var(--text);min-height:100vh;display:flex;line-height:1.45;transition:background .25s ease,color .25s ease}
+body.dark-mode{--bg:#0F141A;--card:#151B22;--gold:#FF9A4D;--gold-hover:#FFAF69;--gold-light:#362011;--text:#F3F4F6;--text2:#9CA3AF;--border:#29313A;--shadow:0 1px 3px rgba(0,0,0,.22),0 10px 24px rgba(0,0,0,.18);--shadow-lg:0 20px 44px rgba(0,0,0,.28);--surface-soft:#11171E;--surface-hover:#182028;--surface-raised:#161D25;--surface-raised-2:#131920;--table-head:#182028;--table-hover:#1D2630;--input-bg:#0F141A;--sidebar-bg:#090C10;--sidebar-hover:#11171E;--sidebar-text:#8D99A8;--sidebar-active:#141B23;background:radial-gradient(circle at 18% -8%,rgba(255,154,77,.14),transparent 32%),radial-gradient(circle at 86% 4%,rgba(20,184,166,.1),transparent 34%),linear-gradient(180deg,#090D12 0%,#0D1218 46%,#0F141A 100%)}
 /* SIDEBAR */
 .sidebar{width:214px;background:var(--sidebar-bg);color:#fff;height:100vh;position:fixed;left:0;top:0;z-index:100;display:flex;flex-direction:column;transition:transform .3s,background .25s ease;box-shadow:18px 0 36px rgba(15,23,42,.08)}
 .sidebar-header{padding:12px 12px 10px;border-bottom:1px solid rgba(255,255,255,.05)}
@@ -76,7 +76,7 @@ display:flex;align-items:center;justify-content:space-between;gap:12px;color:#F8
 .sidebar-cycle-main{font-size:12px;font-weight:800;color:#F8FAFC}
 .sidebar-cycle-range{font-size:10px;color:#C8D1DC;font-weight:600}
 /* MAIN */
-.main{margin-left:214px;flex:1;min-height:100vh;background:var(--bg)}
+.main{margin-left:214px;flex:1;min-height:100vh;background:transparent}
 .page-header{position:sticky;top:0;z-index:75;background:rgba(255,255,255,.78);backdrop-filter:blur(14px);border-bottom:1px solid rgba(17,24,39,.06);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px;flex-wrap:wrap}
 body.dark-mode .page-header{background:rgba(15,20,26,.82)}
 .page-header-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -116,13 +116,19 @@ body.dark-mode .page-header-focus .period-trigger{background:linear-gradient(180
 .room-card .room-number{font-size:34px;font-weight:700;color:var(--gold);letter-spacing:-.03em}
 .room-card .tenant-name{font-size:15px;font-weight:600;margin-top:8px}
 .room-card .room-price{font-size:13px;color:var(--text2);margin-top:4px}
+.room-card-badges{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 /* BADGES */
-.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
-.badge-paid{background:#D1FAE5;color:#065F46}
-.badge-water{background:var(--gold-light);color:#92600A}
-.badge-billed{background:#FEF3C7;color:#92400E}
-.badge-pending{background:#F3F4F6;color:#6B7280}
-.badge-empty{background:#F3F4F6;color:#9CA3AF}
+.badge{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:24px;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:850;line-height:1;white-space:nowrap;border:1px solid transparent}
+.badge-paid{background:rgba(16,185,129,.14);color:#047857;border-color:rgba(16,185,129,.28)}
+.badge-paid::before{content:'✓';display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:999px;background:#10B981;color:#fff;font-size:10px;font-weight:900;line-height:1}
+.badge-active{background:rgba(16,185,129,.11);color:#047857;border-color:rgba(16,185,129,.2)}
+.badge-water{background:rgba(255,154,77,.12);color:#B45309;border-color:rgba(245,158,11,.24)}
+.badge-billed{background:rgba(245,158,11,.14);color:#A16207;border-color:rgba(245,158,11,.32)}
+.badge-pending{background:rgba(239,68,68,.1);color:#B91C1C;border-color:rgba(239,68,68,.2)}
+.badge-debt{background:rgba(124,58,237,.11);color:#6D28D9;border-color:rgba(124,58,237,.24)}
+.badge-empty{background:rgba(148,163,184,.12);color:#64748B;border-color:rgba(148,163,184,.2)}
+.badge-people{background:rgba(99,102,241,.1);color:#4338CA;border-color:rgba(99,102,241,.18)}
+.badge-wifi{background:rgba(16,185,129,.1);color:#047857;border-color:rgba(16,185,129,.2)}
 /* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:14px;font-family:'Manrope',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .18s ease;min-height:44px}
 .btn-primary{background:var(--gold);color:#fff}
@@ -137,10 +143,15 @@ body.dark-mode .page-header-focus .period-trigger{background:linear-gradient(180
 .btn-attention:hover{border-color:var(--gold);color:#6A4D16;background:#F9E9BF;transform:translateY(-1px)}
 body.dark-mode .btn-attention{background:#2A2115;color:#F4E8D1;border-color:#5C4620}
 body.dark-mode .btn-attention:hover{background:#352817;color:#FFF2D8;border-color:#8C6B2F}
-body.dark-mode .badge-paid{background:#173A2F;color:#D1FAE5}
-body.dark-mode .badge-water{background:#3B2F1C;color:#F7D98B}
-body.dark-mode .badge-billed{background:#4A2F1E;color:#FED7AA}
-body.dark-mode .badge-pending,body.dark-mode .badge-empty{background:#2A241D;color:#D1D5DB}
+body.dark-mode .badge-paid{background:rgba(16,185,129,.18);color:#A7F3D0;border-color:rgba(16,185,129,.34)}
+body.dark-mode .badge-active{background:rgba(16,185,129,.13);color:#A7F3D0;border-color:rgba(16,185,129,.22)}
+body.dark-mode .badge-water{background:rgba(255,154,77,.16);color:#FDBA74;border-color:rgba(255,154,77,.28)}
+body.dark-mode .badge-billed{background:rgba(245,158,11,.16);color:#FDE68A;border-color:rgba(245,158,11,.3)}
+body.dark-mode .badge-pending{background:rgba(239,68,68,.14);color:#FCA5A5;border-color:rgba(239,68,68,.24)}
+body.dark-mode .badge-debt{background:rgba(124,58,237,.18);color:#DDD6FE;border-color:rgba(124,58,237,.32)}
+body.dark-mode .badge-empty{background:rgba(148,163,184,.12);color:#CBD5E1;border-color:rgba(148,163,184,.18)}
+body.dark-mode .badge-people{background:rgba(99,102,241,.16);color:#C7D2FE;border-color:rgba(99,102,241,.24)}
+body.dark-mode .badge-wifi{background:rgba(16,185,129,.13);color:#A7F3D0;border-color:rgba(16,185,129,.22)}
 .btn-sm{padding:6px 14px;font-size:13px}
 .btn-icon{width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm)}
 .theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.86);box-shadow:var(--shadow);color:var(--text);font-size:16px;font-weight:700;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease}
@@ -191,11 +202,20 @@ body.dark-mode .theme-toggle{background:rgba(15,20,26,.86)}
 .collection-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .collection-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:16px;background:var(--card);border:1px solid rgba(197,165,90,.16);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
 .collection-item:hover{transform:translateY(-1px);border-color:rgba(197,165,90,.45);box-shadow:var(--shadow)}
-.collection-item.disabled{opacity:.58;background:var(--surface-soft);border-style:dashed}
-.collection-item input{margin-top:3px}
+.collection-item.paid{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.32)}
+.collection-item.unpaid{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.3)}
+.collection-item.disabled{opacity:.7;background:rgba(148,163,184,.08);border-style:dashed}
+.collection-item input{margin-top:3px;accent-color:#10B981}
 .collection-room{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.02em}
 .collection-name{font-size:13px;font-weight:600;color:var(--text)}
-.collection-state{font-size:12px;color:var(--text2);margin-top:2px}
+.collection-state{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);margin-top:5px;font-weight:750;line-height:1.2}
+.collection-state-dot{width:7px;height:7px;border-radius:999px;background:var(--text2);flex:none}
+.collection-state.paid{color:#059669}
+.collection-state.paid .collection-state-dot{background:#10B981;box-shadow:0 0 0 4px rgba(16,185,129,.12)}
+.collection-state.unpaid{color:#D97706}
+.collection-state.unpaid .collection-state-dot{background:#F59E0B;box-shadow:0 0 0 4px rgba(245,158,11,.12)}
+.collection-state.missing{color:#DC2626}
+.collection-state.missing .collection-state-dot{background:#EF4444;box-shadow:0 0 0 4px rgba(239,68,68,.1)}
 .collection-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border)}
 .overview-shell{display:flex;flex-direction:column;gap:20px}
 .overview-shell > .overview-section{order:4}
@@ -207,21 +227,24 @@ body.dark-mode .overview-command-hero{background:var(--card)}
 .overview-command-eyebrow{font-size:11px;font-weight:900;letter-spacing:0;text-transform:uppercase;color:var(--gold)}
 .overview-command-title{font-size:26px;font-weight:850;letter-spacing:0;line-height:1.12}
 .overview-command-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.overview-command-metric{border:1px solid rgba(127,140,160,.14);border-radius:14px;background:rgba(255,255,255,.72);padding:13px 14px;min-width:0}
-body.dark-mode .overview-command-metric{background:rgba(17,23,30,.72)}
-.overview-command-metric.primary{border-color:rgba(255,154,77,.42);background:rgba(255,154,77,.08)}
+.overview-command-metric{border:1px solid rgba(127,140,160,.2);border-radius:14px;background:rgba(255,255,255,.84);padding:13px 14px;min-width:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+body.dark-mode .overview-command-metric{background:rgba(17,23,30,.82);border-color:rgba(148,163,184,.2)}
+.overview-command-metric.primary{border-color:rgba(255,154,77,.5);background:linear-gradient(180deg,rgba(255,154,77,.14),rgba(255,154,77,.05))}
 .overview-command-metric-value{font-size:24px;font-weight:850;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1}
 .overview-command-metric-label{font-size:11px;color:var(--text2);margin-top:6px;line-height:1.25}
 .overview-command-card-title{font-size:16px;font-weight:850;color:var(--text)}
 .overview-command-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .overview-command-task{display:flex;align-items:flex-start;gap:10px;padding:9px 11px;border-radius:12px;border:1px solid var(--border);background:var(--surface-soft);font-size:13px;line-height:1.42}
 .overview-command-task-dot{width:9px;height:9px;border-radius:999px;background:var(--gold);margin-top:5px;flex:none}
+.overview-command-task.done{border-color:rgba(16,185,129,.24);background:rgba(16,185,129,.07)}
 .overview-command-task.done .overview-command-task-dot{background:var(--success)}
+.overview-command-task.danger{border-color:rgba(239,68,68,.26);background:rgba(239,68,68,.07)}
 .overview-command-task.danger .overview-command-task-dot{background:var(--danger)}
 .overview-command-task strong{color:var(--text)}
 .overview-command-chiprow{display:flex;gap:8px;flex-wrap:wrap}
-.overview-command-chip{border:1px solid var(--border);border-radius:999px;background:var(--surface-soft);padding:7px 10px;font-size:12px;color:var(--text2);line-height:1}
-.overview-command-chip strong{color:var(--text)}
+.overview-command-chip{border:1px solid rgba(127,140,160,.22);border-radius:999px;background:rgba(255,255,255,.78);padding:8px 11px;font-size:12px;color:var(--text);line-height:1;font-weight:750;box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}
+.overview-command-chip strong{color:var(--gold);font-weight:900}
+body.dark-mode .overview-command-chip{background:rgba(17,23,30,.78);border-color:rgba(148,163,184,.22)}
 .overview-finance-workbook{order:2!important}
 .overview-month-shell{order:1!important}
 .overview-deposit-section{order:3!important}
@@ -350,10 +373,10 @@ body.dark-mode .overview-finance-table tbody tr:nth-child(even) td{background:rg
 .water-message-cell,.water-action-cell{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .water-message-cell .btn,.water-action-cell .btn{min-width:92px;justify-content:center;flex:1 1 96px}
 .water-inline-note{font-size:11px;line-height:1.45;margin-top:4px}
-.water-inline-note.warning{color:#D97706}
-.water-inline-note.locked{color:#10B981}
-.water-empty-warning{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:rgba(245,158,11,.12);color:#D97706;font-size:11px;font-weight:700;margin-top:4px}
-.water-missing-input{border-color:rgba(245,158,11,.55)!important;background:rgba(245,158,11,.06)!important}
+.water-inline-note.warning{color:#D97706;font-weight:750}
+.water-inline-note.locked{color:#059669;font-weight:800}
+.water-empty-warning{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:rgba(245,158,11,.14);color:#B45309;font-size:11px;font-weight:800;margin-top:4px;border:1px solid rgba(245,158,11,.22)}
+.water-missing-input{border-color:rgba(245,158,11,.78)!important;background:rgba(245,158,11,.1)!important;box-shadow:0 0 0 3px rgba(245,158,11,.1)!important}
 .overview-metric-details{margin-top:12px;border-top:1px dashed rgba(127,140,160,.18);padding-top:10px}
 .overview-metric-details summary{list-style:none;cursor:pointer;color:var(--gold);font-size:12px;font-weight:800}
 .overview-metric-details summary::-webkit-details-marker{display:none}
@@ -362,6 +385,11 @@ body.dark-mode .overview-finance-table tbody tr:nth-child(even) td{background:rg
 .room-person-lockbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface-soft);margin-bottom:12px}
 .room-lock-status{font-size:12px;color:var(--text2);line-height:1.55}
 .room-head-inputs.is-locked{opacity:.82}
+.room-head-switch-panel{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:11px 12px;margin-bottom:12px;border-radius:14px;border:1px solid rgba(255,154,77,.24);background:linear-gradient(180deg,rgba(255,154,77,.08),rgba(255,154,77,.03))}
+.room-head-switch-title{font-size:13px;font-weight:850;color:var(--text)}
+.room-head-switch-note{font-size:12px;color:var(--text2);line-height:1.55;margin-top:3px}
+.occ-card-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.occ-card-actions .btn{justify-content:center}
 .room-baseline-note{font-size:12px;line-height:1.6;color:var(--text2);background:var(--surface-soft);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px}
 .room-baseline-note strong{color:var(--text)}
 .room-footer-side{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -410,13 +438,16 @@ body.dark-mode .overview-finance-table tbody tr:nth-child(even) td{background:rg
 .checkout-result .money-breakdown-row.plus .money-breakdown-row-value,
 .checkout-result .money-breakdown-row.minus .money-breakdown-row-value,
 .checkout-result .money-breakdown-row.neutral .money-breakdown-row-value{color:inherit}
-.billing-room.is-paid-locked{border-color:rgba(16,185,129,.28);box-shadow:0 0 0 1px rgba(16,185,129,.12),var(--shadow)}
-.billing-room.is-editable-open{border-color:rgba(245,158,11,.28)}
-.billing-state-chip{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.02em}
-.billing-state-chip.locked{background:rgba(16,185,129,.12);color:#10B981}
-.billing-state-chip.editable{background:rgba(245,158,11,.12);color:#D97706}
-.water-row-locked td{background:rgba(16,185,129,.05)!important}
-.water-row-editable td{background:rgba(245,158,11,.035)!important}
+.billing-room.is-paid-locked{border-color:rgba(16,185,129,.34);box-shadow:0 0 0 1px rgba(16,185,129,.14),var(--shadow)}
+.billing-room.is-editable-open{border-color:rgba(245,158,11,.34)}
+.billing-state-chip{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:0;line-height:1;white-space:nowrap;border:1px solid transparent}
+.billing-state-chip::before{content:'';width:7px;height:7px;border-radius:999px;display:inline-block;flex:none}
+.billing-state-chip.locked{background:rgba(16,185,129,.14);color:#059669;border-color:rgba(16,185,129,.28)}
+.billing-state-chip.locked::before{background:#10B981;box-shadow:0 0 0 4px rgba(16,185,129,.12)}
+.billing-state-chip.editable{background:rgba(245,158,11,.14);color:#B45309;border-color:rgba(245,158,11,.3)}
+.billing-state-chip.editable::before{background:#F59E0B;box-shadow:0 0 0 4px rgba(245,158,11,.12)}
+.water-row-locked td{background:rgba(16,185,129,.08)!important;border-bottom-color:rgba(16,185,129,.18)!important}
+.water-row-editable td{background:rgba(245,158,11,.055)!important}
 .settings-fixed-wrap{overflow:auto;border:1px solid var(--border);border-radius:16px}
 .settings-fixed-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card)}
 .settings-fixed-table th,.settings-fixed-table td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:13px}
@@ -573,7 +604,7 @@ textarea.form-input{resize:vertical;min-height:108px}
 .save-float .btn.unsaved .unsaved-dot{display:block}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(197,165,90,.4)}50%{box-shadow:0 0 0 12px rgba(197,165,90,0)}}
 /* LOGIN */
-.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(180deg,#F8FAFC 0%,var(--bg) 100%);width:100vw}
+.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(circle at 20% -8%,rgba(255,154,77,.16),transparent 32%),linear-gradient(180deg,#F8FAFC 0%,#F5F7FA 52%,var(--bg) 100%);width:100vw}
 .login-box{background:var(--card);border-radius:18px;box-shadow:var(--shadow-lg);padding:40px;width:420px;max-width:90%;border:1px solid var(--card-border)}
 .login-box h1{text-align:center;margin-bottom:8px;font-size:30px;letter-spacing:-.03em}
 .login-box .subtitle{text-align:center;color:var(--text2);margin-bottom:32px;font-size:14px}
@@ -584,16 +615,19 @@ textarea.form-input{resize:vertical;min-height:108px}
 .billing-room{background:var(--card);border-radius:16px;box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden;border:1px solid var(--card-border);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
 .billing-room:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg);border-color:rgba(255,106,0,.2)}
 .billing-room.expanded{border-color:rgba(255,106,0,.28);box-shadow:var(--shadow-lg)}
-.billing-room-header{display:grid;grid-template-columns:minmax(180px,240px) 1fr minmax(120px,160px);align-items:center;gap:14px;padding:16px 18px;cursor:pointer;transition:background .2s}
+.billing-room-header{display:grid;grid-template-columns:minmax(180px,230px) 1fr minmax(120px,160px);align-items:center;gap:14px;padding:16px 18px;cursor:pointer;transition:background .2s}
 .billing-room-header:hover{background:var(--surface-hover)}
 .billing-room-main{display:flex;flex-direction:column;gap:8px}
-.billing-room-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.billing-room-name{font-size:17px;font-weight:800;color:var(--text)}
+.billing-room-title{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap}
+.billing-room-name{font-size:17px;font-weight:800;color:var(--text);line-height:1.25;min-width:0}
 .billing-room-subtitle{font-size:13px;color:var(--text2)}
-.billing-room-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.billing-kpi{background:var(--surface-soft);border:1px solid var(--border);border-radius:16px;padding:10px 12px;min-height:64px}
+.billing-room-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:8px}
+.billing-kpi{background:var(--surface-soft);border:1px solid var(--border);border-radius:14px;padding:8px 10px;min-height:58px}
 .billing-kpi-label{font-size:11px;color:var(--text2);letter-spacing:.01em}
-.billing-kpi-value{font-size:15px;font-weight:700;color:var(--text);margin-top:8px}
+.billing-kpi-value{font-size:14px;font-weight:800;color:var(--text);margin-top:7px;line-height:1.2}
+.billing-kpi-value.muted{color:var(--text2)}
+.billing-kpi-value.negative{color:#059669}
+.billing-kpi-value.warning{color:var(--warning)}
 .billing-room-total{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 .billing-total-amount{font-size:25px;font-weight:800;color:var(--gold)}
 .billing-chevron{font-size:18px;color:var(--gold);transition:transform .2s ease}
@@ -606,8 +640,9 @@ textarea.form-input{resize:vertical;min-height:108px}
 .billing-field-stack{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:2px}
 .billing-field-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px}
 .billing-field-card .form-group:last-child{margin-bottom:0}
-.billing-file-preview{margin-top:8px;display:flex;align-items:center;gap:10px}
+.billing-file-preview{margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .billing-file-hint{font-size:12px;color:var(--text2)}
+.money-input-preview{margin-top:6px;font-size:12px;color:var(--text2);font-weight:750;min-height:18px}
 .file-selected-preview{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-soft);font-size:12px;color:var(--text2)}
 .file-selected-preview strong{color:var(--text);font-weight:750;word-break:break-word}
 .file-selected-remove{width:24px;height:24px;border-radius:999px;border:1px solid var(--border);background:var(--surface-raised);color:var(--text2);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none}
@@ -615,6 +650,9 @@ textarea.form-input{resize:vertical;min-height:108px}
 .file-current-preview{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}
 .file-current-preview img{width:86px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
 .file-current-preview .btn{min-height:32px}
+.file-current-meta{display:flex;flex-direction:column;gap:6px;min-width:160px;max-width:280px}
+.file-current-name{font-size:12px;font-weight:800;color:var(--text);word-break:break-word;line-height:1.35}
+.file-current-sub{font-size:11px;color:var(--text2);line-height:1.35}
 .billing-water-note{font-size:13px;color:var(--text2);line-height:1.55}
 .billing-quick-list{display:flex;flex-direction:column;gap:10px}
 .billing-quick-row{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding-bottom:10px;border-bottom:1px dashed #E5E7EB}
@@ -623,7 +661,10 @@ textarea.form-input{resize:vertical;min-height:108px}
 .billing-total{font-size:24px;font-weight:800;color:var(--gold);text-align:right;padding-top:14px;border-top:2px solid var(--border);margin-top:16px}
 .billing-action-row{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px dashed #E5E7EB}
 .billing-room-history{font-size:12px;color:var(--text2);line-height:1.5}
-.billing-lock-note{margin-bottom:12px;padding:10px 12px;border-radius:12px;border:1px solid rgba(16,185,129,.25);background:rgba(16,185,129,.08);font-size:12px;color:#A7F3D0;line-height:1.55}
+.billing-lock-note{margin-bottom:12px;padding:10px 12px;border-radius:12px;border:1px solid rgba(16,185,129,.28);background:rgba(16,185,129,.09);font-size:12px;color:#047857;line-height:1.55;font-weight:750}
+body.dark-mode .billing-lock-note{color:#A7F3D0;background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.28)}
+.billing-edit-note{margin-bottom:12px;padding:10px 12px;border-radius:12px;border:1px solid rgba(245,158,11,.3);background:rgba(245,158,11,.09);font-size:12px;color:#B45309;line-height:1.55;font-weight:750}
+body.dark-mode .billing-edit-note{color:#FDE68A;background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.28)}
 @keyframes billingBodyIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 /* BILL TEMPLATE (for html2canvas) */
 .bill-template{position:absolute;left:-9999px;top:0;width:800px;background:#fff;padding:40px;font-family:'Inter',sans-serif}
@@ -723,7 +764,8 @@ textarea.form-input{resize:vertical;min-height:108px}
 .page.active{display:block}
 /* MOBILE-ONLY LAYER */
 .mobile-bottom-nav,.mobile-more-sheet,.mobile-more-backdrop{display:none}
-body.mobile-app{display:block;min-height:100svh;background:linear-gradient(180deg,#F4F6F9 0%,var(--bg) 100%)}
+body.mobile-app{display:block;min-height:100svh;background:radial-gradient(circle at 18% -8%,rgba(255,154,77,.14),transparent 34%),linear-gradient(180deg,#F4F6F9 0%,#F3F5F8 48%,var(--bg) 100%);background-attachment:fixed}
+body.dark-mode.mobile-app{background:radial-gradient(circle at 18% -8%,rgba(255,154,77,.13),transparent 34%),linear-gradient(180deg,#090D12 0%,#0D1218 46%,#0F141A 100%)}
 body.mobile-app #appContainer{display:block!important;width:100%}
 body.mobile-app .sidebar,
 body.mobile-app .hamburger,
@@ -1974,6 +2016,7 @@ const OVERVIEW_FINANCE_DETAIL_KEY = 'nhatro_overview_finance_detail_v1';
 const UI_STATE_KEY = 'nhatro_ui_state_v1';
 const NEW_TENANT_DRAFT_KEY = 'nhatro_new_tenant_draft_v1';
 const CHECKOUT_DRAFT_KEY = 'nhatro_checkout_draft_v1';
+const WATER_ENTRY_DRAFT_KEY = 'nhatro_water_entry_draft_v1';
 const AUTH_SESSION_STARTED_KEY = 'nhatro_auth_session_started_at_v1';
 const AUTH_SESSION_NOTICE_KEY = 'nhatro_auth_session_notice_v1';
 const LOGIN_REMINDER_SUPPRESS_KEY = 'nhatro_login_reminder_suppressed_v1';
@@ -2511,7 +2554,7 @@ function persistNewTenantDraft() {
   const payload = {
     roomId: document.getElementById('newTenantRoom')?.value || '',
     name: document.getElementById('ntName')?.value || '',
-    phone: document.getElementById('ntPhone')?.value || '',
+    phone: normalizePhoneDigits(document.getElementById('ntPhone')?.value || ''),
     cccdNumber: document.getElementById('ntCccdNumber')?.value || '',
     hometown: document.getElementById('ntHometown')?.value || '',
     permanentAddress: document.getElementById('ntPermanentAddress')?.value || '',
@@ -3010,6 +3053,15 @@ function jsArg(value) {
   return esc(JSON.stringify(String(value ?? '')));
 }
 
+function normalizePhoneDigits(value = '') {
+  return String(value ?? '').replace(/\D/g, '');
+}
+
+function getZaloUrl(phone = '') {
+  const digits = normalizePhoneDigits(phone);
+  return digits ? `https://zalo.me/${digits}` : '';
+}
+
 function fmtDate(d) {
   if (!d) return '';
   return parseIsoDate(d).toLocaleDateString('vi-VN', { timeZone: 'UTC' });
@@ -3327,6 +3379,23 @@ function hasNegativeMoneyInput(values = []) {
   return values.some(value => Number(value || 0) < 0);
 }
 
+function readMoneyInputValue(id) {
+  const raw = document.getElementById(id)?.value ?? '';
+  const text = String(raw).trim();
+  if (!text) return 0;
+  const sign = text.startsWith('-') ? -1 : 1;
+  const digits = text.replace(/\D/g, '');
+  if (!digits) return 0;
+  return sign * (parseInt(digits, 10) || 0);
+}
+
+function updateMoneyInputPreview(id, value = 0, options = {}) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const amount = Number(value || 0);
+  el.textContent = amount ? `${options.prefix || '= '} ${fmt(amount)}`.replace('=  ', '= ') : '';
+}
+
 function toast(msg, type = 'success') {
   const c = document.getElementById('toastContainer');
   const t = document.createElement('div');
@@ -3457,13 +3526,54 @@ function clearBillingDraft(roomId, month) {
   delete getBillingDraftStore()[draftKey(roomId, month)];
 }
 
+function waterDraftKey(tenantId, month) {
+  return `draft:water:${tenantId}:${month}`;
+}
+
+function getWaterDraftStore() {
+  return safeJsonParse(sessionStorage.getItem(WATER_ENTRY_DRAFT_KEY), {}) || {};
+}
+
+function writeWaterDraftStore(store = {}) {
+  try {
+    sessionStorage.setItem(WATER_ENTRY_DRAFT_KEY, JSON.stringify(store || {}));
+  } catch (error) {}
+}
+
+function getWaterDraft(tenantId, month) {
+  if (!tenantId || !month) return null;
+  return getWaterDraftStore()[waterDraftKey(tenantId, month)] || null;
+}
+
+function saveWaterDraft(roomId, tenantId, month) {
+  if (!tenantId || !month) return;
+  const hot = document.getElementById(`wrHotCur-${tenantId}`)?.value ?? '';
+  const cold = document.getElementById(`wrColdCur-${tenantId}`)?.value ?? '';
+  const store = getWaterDraftStore();
+  const key = waterDraftKey(tenantId, month);
+  if (hot === '' && cold === '') {
+    delete store[key];
+  } else {
+    store[key] = { roomId, tenantId, month, hot, cold, ts: Date.now() };
+  }
+  writeWaterDraftStore(store);
+}
+
+function clearWaterDraft(tenantId, month) {
+  if (!tenantId || !month) return;
+  const store = getWaterDraftStore();
+  delete store[waterDraftKey(tenantId, month)];
+  writeWaterDraftStore(store);
+}
+
 // ============================================================
 // DASHBOARD
 // ============================================================
 function getMonthStatus(billStatus, hasReading = false) {
-  if (billStatus === 'paid' || billStatus === 'billed' || billStatus === 'water_requested') {
+  if (billStatus === 'paid' || billStatus === 'billed') {
     return billStatus;
   }
+  if (billStatus === 'water_requested') return 'pending';
   return hasReading ? 'water_requested' : 'pending';
 }
 
@@ -3483,6 +3593,7 @@ function buildEmptyResidentSheetRow(index = 0) {
   return {
     stt: index + 1,
     full_name: '',
+    phone: '',
     date_of_birth: null,
     gender: '',
     permanent_address: '',
@@ -3587,6 +3698,85 @@ function getFileNameFromPath(path = '') {
   } catch (e) {
     return raw;
   }
+}
+
+function getFileExtensionFromName(name = '', fallback = 'jpg') {
+  const cleanFallback = String(fallback || 'jpg').replace(/^\./, '').toLowerCase();
+  const raw = getFileNameFromPath(name);
+  const match = raw.match(/\.([a-zA-Z0-9]{2,8})$/);
+  return (match?.[1] || cleanFallback).toLowerCase();
+}
+
+function getFileBaseName(name = '', fallback = 'file') {
+  const raw = getFileNameFromPath(name || fallback);
+  const withoutExt = raw.replace(/\.[a-zA-Z0-9]{2,8}$/, '');
+  return withoutExt.trim() || fallback;
+}
+
+function buildStorageFileName(file, fallbackBase = 'file', forcedExtension = '') {
+  const ext = String(forcedExtension || getFileExtensionFromName(file?.name, 'jpg')).replace(/^\./, '').toLowerCase();
+  const safeBase = sanitizeStoragePath(getFileBaseName(file?.name, fallbackBase)).split('/').pop() || fallbackBase;
+  return `${safeBase}.${ext || 'jpg'}`;
+}
+
+function getMonthShortLabel(month = '') {
+  const raw = String(month || '');
+  const match = raw.match(/^\d{4}-(\d{2})/);
+  return match ? `T${Number(match[1])}` : 'T?';
+}
+
+function getRoomNumberForDisplay(roomId = '') {
+  return appData.rooms.find(room => room.id === roomId)?.room_number || '';
+}
+
+function buildEvnStoragePath(roomId, month, file) {
+  const roomNumber = getRoomNumberForDisplay(roomId) || 'X';
+  const monthFolder = String(month || getTodayIsoLocal()).slice(0, 7);
+  const fallbackName = `EVN_P${roomNumber}_${getMonthShortLabel(month)}`;
+  return `evn/${monthFolder}/P${roomNumber}/${buildStorageFileName(file, fallbackName, 'jpg')}`;
+}
+
+function buildQrStoragePath(file) {
+  return `qr/${buildStorageFileName(file, 'QR_THANH_TOAN', 'jpg')}`;
+}
+
+function isLegacyEvnGeneratedName(name = '', roomId = '', month = '') {
+  const escapedRoomId = String(roomId || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedMonth = String(month || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^${escapedRoomId}_${escapedMonth}_\\d+\\.(jpg|jpeg|png|webp)$`, 'i').test(name);
+}
+
+function getFriendlyEvnFileName(fileUrl = '', roomId = '', month = '') {
+  const name = getFileNameFromPath(fileUrl);
+  if (!name) return 'Bill EVN đã lưu';
+  if (isLegacyEvnGeneratedName(name, roomId, month)) {
+    const roomNumber = getRoomNumberForDisplay(roomId) || '?';
+    const ext = getFileExtensionFromName(name, 'jpg');
+    return `EVN_P${roomNumber}_${getMonthShortLabel(month)}.${ext}`;
+  }
+  return name;
+}
+
+function getAsciiWords(text = '') {
+  return String(text || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, ' ')
+    .trim()
+    .toUpperCase()
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function getFriendlyQrFileName(fileUrl = '') {
+  const name = getFileNameFromPath(fileUrl);
+  if (!name) return 'QR thanh toán';
+  if (/^qr_\d+\.(jpg|jpeg|png|webp)$/i.test(name)) {
+    const words = getAsciiWords(appData.settings?.owner_name || appData.settings?.bank_account_name || '');
+    const label = words.length >= 2 ? words.slice(-2).join(' ') : (words.join(' ') || 'THANH TOAN');
+    return `QR ${label}.${getFileExtensionFromName(name, 'jpg')}`;
+  }
+  return name.replace(/_/g, ' ');
 }
 
 function getFileExtensionLabel(fileType = '', filePath = '') {
@@ -3762,7 +3952,7 @@ async function resolveRoomMonthTenant(room, month, monthRow = null, bill = null,
     persisted_tenant_id: tenantId || null,
     room_id: room.id,
     full_name: displayName,
-    phone: tenantRecord?.phone || monthRow?.phone || eligibleActiveTenant?.phone || '',
+    phone: normalizePhoneDigits(tenantRecord?.phone || monthRow?.phone || eligibleActiveTenant?.phone || ''),
     cccd_number: tenantRecord?.cccd_number || monthRow?.cccd_number || eligibleActiveTenant?.cccd_number || '',
     room_price_override: monthRow?.room_price ?? tenantRecord?.room_price_override ?? eligibleActiveTenant?.room_price_override ?? null,
     has_wifi_override: tenantRecord?.has_wifi_override ?? eligibleActiveTenant?.has_wifi_override ?? null,
@@ -4212,7 +4402,7 @@ function buildBaseMonthlySheetPayload(room, billingMonth, extras = {}) {
     tenant_id: tenant?.id || null,
     full_name: tenant?.full_name || '',
     cccd_number: tenant?.cccd_number || '',
-    phone: tenant?.phone || '',
+    phone: normalizePhoneDigits(tenant?.phone || ''),
     room_price: bill?.room_price ?? tenant?.room_price_override ?? room.room_price ?? 0,
     electricity_customer_code: getRoomElectricityCode(room),
     water_customer_code: getGlobalWaterCustomerCode(),
@@ -4321,7 +4511,7 @@ async function reconcileMonthlySheetIdentity(month, rows = [], bills = [], readi
     }
     if (preferredTenant) {
       if (preferredTenant.full_name && row.full_name !== preferredTenant.full_name) patch.full_name = preferredTenant.full_name;
-      if ((preferredTenant.phone || '') !== (row.phone || '')) patch.phone = preferredTenant.phone || '';
+      if (normalizePhoneDigits(preferredTenant.phone || '') !== normalizePhoneDigits(row.phone || '')) patch.phone = normalizePhoneDigits(preferredTenant.phone || '');
       if ((preferredTenant.cccd_number || '') !== (row.cccd_number || '')) patch.cccd_number = preferredTenant.cccd_number || '';
     }
     if (!Object.keys(patch).length) {
@@ -4358,7 +4548,7 @@ async function upsertMonthlyRoomSheetRow(roomId, billingMonth, patch = {}, optio
     tenant_id: Object.prototype.hasOwnProperty.call(patch, 'tenant_id') ? patch.tenant_id : (tenant?.id || existing?.tenant_id || null),
     full_name: Object.prototype.hasOwnProperty.call(patch, 'full_name') ? patch.full_name : (tenant?.full_name ?? existing?.full_name ?? ''),
     cccd_number: Object.prototype.hasOwnProperty.call(patch, 'cccd_number') ? patch.cccd_number : (tenant?.cccd_number ?? existing?.cccd_number ?? ''),
-    phone: Object.prototype.hasOwnProperty.call(patch, 'phone') ? patch.phone : (tenant?.phone ?? existing?.phone ?? ''),
+    phone: Object.prototype.hasOwnProperty.call(patch, 'phone') ? normalizePhoneDigits(patch.phone || '') : normalizePhoneDigits(tenant?.phone ?? existing?.phone ?? ''),
     room_price: Object.prototype.hasOwnProperty.call(patch, 'room_price') ? (patch.room_price ?? 0) : (existing?.room_price ?? tenant?.room_price_override ?? room.room_price ?? 0),
     electricity_customer_code: Object.prototype.hasOwnProperty.call(patch, 'electricity_customer_code') ? patch.electricity_customer_code : (existing?.electricity_customer_code || getRoomElectricityCode(room)),
     water_customer_code: Object.prototype.hasOwnProperty.call(patch, 'water_customer_code') ? patch.water_customer_code : (existing?.water_customer_code || getGlobalWaterCustomerCode()),
@@ -4466,7 +4656,7 @@ async function recordMoveInForDashboard(room, tenant, moveInDate, depositAmount,
     tenant_id: tenant.id,
     full_name: tenant.full_name || '',
     cccd_number: tenant.cccd_number || '',
-    phone: tenant.phone || '',
+    phone: normalizePhoneDigits(tenant.phone || ''),
     room_price: tenant.room_price_override || room.room_price || 0,
     has_turnover: true,
     move_in_tenant_name: tenant.full_name || '',
@@ -4484,7 +4674,7 @@ async function recordCheckoutForDashboard(room, tenant, checkoutDate, refundRoom
     tenant_id: tenant.id,
     full_name: tenant.full_name || '',
     cccd_number: tenant.cccd_number || '',
-    phone: tenant.phone || '',
+    phone: normalizePhoneDigits(tenant.phone || ''),
     room_price: tenant.room_price_override || room.room_price || 0,
     has_turnover: true,
     move_out_tenant_name: tenant.full_name || '',
@@ -4513,7 +4703,7 @@ function buildDashboardFinanceRows(sheetRows = [], moveIns = [], checkouts = [],
       tenant_id: row.tenant_id || null,
       full_name: row.full_name || '',
       cccd_number: row.cccd_number || '',
-      phone: row.phone || '',
+      phone: normalizePhoneDigits(row.phone || ''),
       room_price: row.room_price ?? room.room_price ?? 0,
       electricity_customer_code: row.electricity_customer_code || getRoomElectricityCode(room),
       water_customer_code: row.water_customer_code || getGlobalWaterCustomerCode(),
@@ -4570,7 +4760,7 @@ function buildOverviewMonthlyTableHtml(rows = []) {
         <td class="overview-index-cell">${row.room_number}</td>
         <td class="overview-readonly">${esc(row.full_name || '') || '—'}</td>
         <td class="finance-col-detail overview-readonly">${esc(row.cccd_number || '') || '—'}</td>
-        <td class="finance-col-detail overview-readonly">${esc(row.phone || '') || '—'}</td>
+        <td class="finance-col-detail overview-readonly">${esc(normalizePhoneDigits(row.phone || '')) || '—'}</td>
         <td class="overview-money-cell">${fmtSheetMoney(row.room_price || 0)}</td>
         <td class="finance-col-detail overview-readonly overview-code-cell">${row.electricity_customer_code ? esc(row.electricity_customer_code) : '—'}</td>
         <td class="finance-col-detail"><input type="number" class="overview-input overview-input-xs ov-finance-elec-prev" value="${row.electricity_previous ?? ''}" placeholder="Cũ"></td>
@@ -4670,6 +4860,7 @@ function buildOverviewResidentsTableHtml(rows = []) {
             <tr>
               <th>STT</th>
               <th>Họ và tên người tạm trú</th>
+              <th>SĐT</th>
               <th>Ngày sinh</th>
               <th>Giới tính</th>
               <th>Nơi thường trú</th>
@@ -4700,6 +4891,7 @@ function buildOverviewResidentRowHtml(row = {}, index = 0) {
     <tr data-row-index="${index}">
       <td class="overview-index-cell">${row.stt}</td>
       <td><input class="overview-input overview-input-lg ov-resident-name" value="${esc(row.full_name)}" placeholder="Họ và tên"></td>
+      <td><input class="overview-input overview-input-md ov-resident-phone" value="${esc(normalizePhoneDigits(row.phone || ''))}" placeholder="0373512553" inputmode="numeric"></td>
       <td><input type="date" class="overview-input overview-input-md ov-resident-dob" value="${esc(asInputDate(row.date_of_birth))}"></td>
       <td>
         <select class="overview-select overview-input-sm ov-resident-gender">
@@ -4930,9 +5122,9 @@ function buildDashboardWorkState({
   }));
   const missingWater = getReminderRoomLabels(expectedRoomIds.filter(roomId => !readingRoomIds.has(roomId)));
   const paid = getReminderRoomLabels(statusRows.filter(row => row.status === 'paid').map(row => row.roomId));
-  const unpaid = getReminderRoomLabels(statusRows.filter(row => row.status === 'unpaid').map(row => row.roomId));
-  const ready = getReminderRoomLabels(statusRows.filter(row => row.status === 'ready').map(row => row.roomId));
-  const pending = getReminderRoomLabels(statusRows.filter(row => row.status === 'pending').map(row => row.roomId));
+  const unpaid = getReminderRoomLabels(statusRows.filter(row => row.status === 'unpaid' || row.status === 'water_debt').map(row => row.roomId));
+  const ready = getReminderRoomLabels(statusRows.filter(row => row.status === 'ready' || row.status === 'needs_bill_save').map(row => row.roomId));
+  const pending = getReminderRoomLabels(statusRows.filter(row => row.status === 'pending' || row.status === 'waiting_water').map(row => row.roomId));
   return {
     expectedCount: roomIds.length,
     waterDoneCount: expectedRoomIds.length
@@ -5283,6 +5475,7 @@ async function saveDashboardResidents() {
     const residentRows = rows.map((row, index) => ({
       stt: index + 1,
       full_name: row.querySelector('.ov-resident-name')?.value?.trim() || '',
+      phone: normalizePhoneDigits(row.querySelector('.ov-resident-phone')?.value || '') || null,
       date_of_birth: row.querySelector('.ov-resident-dob')?.value || null,
       gender: row.querySelector('.ov-resident-gender')?.value || null,
       permanent_address: row.querySelector('.ov-resident-permanent')?.value?.trim() || null,
@@ -5394,7 +5587,7 @@ function buildFinanceExportSheet(monthBundles = [], totals = {}) {
         row.has_turnover ? `* ${row.room_number}` : row.room_number,
         row.full_name || '',
         row.cccd_number || '',
-        row.phone || '',
+        normalizePhoneDigits(row.phone || ''),
         Number(row.room_price || 0),
         row.electricity_customer_code || '',
         '',
@@ -5687,6 +5880,7 @@ function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ
   const headers = [
     'STT',
     'HỌ VÀ TÊN NGƯỜI TẠM TRÚ',
+    'SĐT',
     'NGÀY SINH',
     'GIỚI TÍNH',
     'NƠI THƯỜNG TRÚ',
@@ -5705,7 +5899,7 @@ function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ
     [],
     headers
   ];
-  const merges = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 13 } }];
+  const merges = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 14 } }];
   const headerRowIndex = 2;
   const roomTitleRows = [];
 
@@ -5717,12 +5911,13 @@ function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ
       const titleRowIndex = aoa.length;
       const roomLabel = roomKey === 'CHUA_XEP' ? 'CHƯA XẾP PHÒNG' : `PHÒNG ${formatRoomTwoDigits(roomKey)}`;
       aoa.push([roomLabel]);
-      merges.push({ s: { r: titleRowIndex, c: 0 }, e: { r: titleRowIndex, c: 13 } });
+      merges.push({ s: { r: titleRowIndex, c: 0 }, e: { r: titleRowIndex, c: 14 } });
       roomTitleRows.push(titleRowIndex);
     }
     aoa.push([
       row.stt || '',
       row.full_name || '',
+      normalizePhoneDigits(row.phone || ''),
       asInputDate(row.date_of_birth),
       row.gender || '',
       row.permanent_address || '',
@@ -5740,7 +5935,7 @@ function buildResidentsExportSheet(rows = [], title = 'THÔNG TIN NGƯỜI THUÊ
 
   const sheet = XLSX.utils.aoa_to_sheet(aoa);
   sheet['!cols'] = [
-    { wch: 8 }, { wch: 24 }, { wch: 14 }, { wch: 12 }, { wch: 28 }, { wch: 22 },
+    { wch: 8 }, { wch: 24 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 28 }, { wch: 22 },
     { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 18 }, { wch: 28 },
     { wch: 8 }, { wch: 22 }
   ];
@@ -6095,9 +6290,9 @@ async function buildBillingLoginReminderCard(today, cache = new Map(), config = 
     status: getBillingUiStatus(billMap.get(roomId), readingRoomIds.has(roomId))
   }));
   const paid = getReminderRoomLabels(statusRows.filter(row => row.status === 'paid').map(row => row.roomId));
-  const unpaid = getReminderRoomLabels(statusRows.filter(row => row.status === 'unpaid').map(row => row.roomId));
-  const ready = getReminderRoomLabels(statusRows.filter(row => row.status === 'ready').map(row => row.roomId));
-  const pending = getReminderRoomLabels(statusRows.filter(row => row.status === 'pending').map(row => row.roomId));
+  const unpaid = getReminderRoomLabels(statusRows.filter(row => row.status === 'unpaid' || row.status === 'water_debt').map(row => row.roomId));
+  const ready = getReminderRoomLabels(statusRows.filter(row => row.status === 'ready' || row.status === 'needs_bill_save').map(row => row.roomId));
+  const pending = getReminderRoomLabels(statusRows.filter(row => row.status === 'pending' || row.status === 'waiting_water').map(row => row.roomId));
   const totalRooms = statusRows.length;
   if (!unpaid.length && !ready.length && !pending.length) return null;
   const lines = [];
@@ -6343,7 +6538,7 @@ function buildSettingsExportRows(settingsRow = {}) {
   const yearFrameConfig = getYearFrameConfig();
   return [{
     owner_name: settingsRow.owner_name || '',
-    owner_phone: settingsRow.owner_phone || '',
+    owner_phone: normalizePhoneDigits(settingsRow.owner_phone || ''),
     bank_name: settingsRow.bank_name || '',
     bank_account_number: settingsRow.bank_account_number || '',
     bank_account_name: settingsRow.bank_account_name || '',
@@ -6526,7 +6721,7 @@ function buildTenantActiveExportRows(tenants = [], rooms = []) {
   return (tenants || []).map(row => ({
     room_number: roomMap.get(row.room_id)?.room_number || '',
     full_name: row.full_name || '',
-    phone: row.phone || '',
+    phone: normalizePhoneDigits(row.phone || ''),
     cccd_number: row.cccd_number || '',
     place_of_origin: row.place_of_origin || row.hometown || '',
     permanent_address: row.permanent_address || '',
@@ -6547,7 +6742,7 @@ function buildArchivedTenantExportRows(archivedTenants = []) {
   return (archivedTenants || []).map(row => ({
     room_number: row.room_number || '',
     full_name: row.full_name || '',
-    phone: row.phone || '',
+    phone: normalizePhoneDigits(row.phone || ''),
     move_in_date: row.move_in_date || '',
     move_out_date: row.move_out_date || '',
     deposit_amount: row.deposit_amount || 0,
@@ -6588,7 +6783,7 @@ function buildOccupantExportRows(occupants = [], rooms = [], tenants = []) {
     household_head: tenantMap.get(row.tenant_id)?.full_name || '',
     full_name: row.full_name || '',
     relationship: row.relationship || '',
-    phone: row.phone || '',
+    phone: normalizePhoneDigits(row.phone || ''),
     cccd_number: row.cccd_number || '',
     place_of_origin: row.place_of_origin || row.hometown || '',
     permanent_address: row.permanent_address || '',
@@ -6864,7 +7059,7 @@ async function appendHouseholdArchiveFolder(folder, options = {}) {
     `Chủ hộ: ${person.full_name || ''}`,
     `Phòng đang quản lý: ${room.room_number || person.room_number || ''}`,
     `Thời gian lưu trú: ${startDate ? fmtDate(startDate) : ''} -> ${endDate ? fmtDate(endDate) : fmtDate(getTodayIsoLocal())}`,
-    `SĐT: ${person.phone || ''}`,
+    `SĐT: ${normalizePhoneDigits(person.phone || '')}`,
     `CCCD: ${person.cccd_number || ''}`,
     `Tiền cọc: ${fmt(person.deposit_amount || 0)}`
   ]));
@@ -6891,7 +7086,7 @@ async function appendHouseholdArchiveFolder(folder, options = {}) {
     occFolder.file('THONG_TIN.txt', buildZipSummaryText([
       `Họ tên: ${occupant.full_name || ''}`,
       `Vai trò: ${occupant.relationship || ''}`,
-      `SĐT: ${occupant.phone || ''}`,
+      `SĐT: ${normalizePhoneDigits(occupant.phone || '')}`,
       `CCCD: ${occupant.cccd_number || ''}`,
       `Quê quán: ${occupant.place_of_origin || occupant.hometown || ''}`,
       `Nơi thường trú: ${occupant.permanent_address || ''}`
@@ -7274,7 +7469,7 @@ function buildHouseholdSummaryRows({ label = 'Khách đang ở', room = {}, pers
     ['Loại hồ sơ', label],
     ['Chủ hộ', person.full_name || ''],
     ['Phòng', room.room_number || person.room_number || ''],
-    ['Số điện thoại', person.phone || ''],
+    ['Số điện thoại', normalizePhoneDigits(person.phone || '')],
     ['CCCD', person.cccd_number || ''],
     ['Quê quán', person.place_of_origin || person.hometown || ''],
     ['Nơi thường trú', person.permanent_address || ''],
@@ -7288,7 +7483,7 @@ function buildHouseholdOccupantRows(rows = []) {
   return (rows || []).map(row => ([
     row.full_name || '',
     row.relationship || '',
-    row.phone || '',
+    normalizePhoneDigits(row.phone || ''),
     row.cccd_number || '',
     row.place_of_origin || row.hometown || '',
     row.permanent_address || ''
@@ -7860,10 +8055,10 @@ function renderRooms() {
         <div class="room-number">P${esc(room.room_number)}</div>
         <div class="tenant-name">${tenant ? esc(tenant.full_name) : 'Phòng trống'}</div>
         <div class="room-price">${fmt(room.room_price)}/tháng</div>
-        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
-          ${tenant ? '<span class="badge badge-paid">Đang ở</span>' : '<span class="badge badge-empty">Trống</span>'}
-          <span class="badge" style="background:#EEF2FF;color:#3730A3">👥 ${people} người</span>
-          ${room.has_wifi ? '<span class="badge" style="background:#ECFDF5;color:#065F46">📶 Có Wifi</span>' : '<span class="badge" style="background:#F3F4F6;color:#6B7280">🚫 Không Wifi</span>'}
+        <div class="room-card-badges">
+          ${tenant ? '<span class="badge badge-active">Đang ở</span>' : '<span class="badge badge-empty">Trống</span>'}
+          <span class="badge badge-people">${people} người</span>
+          ${room.has_wifi ? '<span class="badge badge-wifi">Có Wifi</span>' : '<span class="badge badge-empty">Không Wifi</span>'}
         </div>
       </div>`;
   });
@@ -8221,12 +8416,92 @@ function toggleRoomHeadLock() {
   setRoomHeadLockState(!roomModalCtx.householdHeadUnlocked);
 }
 
+function buildTenantIdentityPayloadFromPerson(person = {}) {
+  return {
+    full_name: person.full_name || '',
+    phone: normalizePhoneDigits(person.phone || '') || null,
+    cccd_number: person.cccd_number || null,
+    hometown: person.place_of_origin || person.hometown || null,
+    place_of_origin: person.place_of_origin || person.hometown || null,
+    permanent_address: person.permanent_address || null,
+    cccd_front_url: person.cccd_front_url || null,
+    cccd_back_url: person.cccd_back_url || null
+  };
+}
+
+async function changeHouseholdHead(occupantId) {
+  const roomId = roomModalCtx.roomId;
+  const tenantId = roomModalCtx.tenantId;
+  const room = appData.rooms.find(r => r.id === roomId);
+  const tenant = getTenantForRoom(roomId);
+  const occupant = (appData.roomOccupants || []).find(row => row.id === occupantId && row.room_id === roomId && row.is_active);
+  if (!room || !tenantId || !tenant || !occupant) {
+    toast('Không tìm thấy chủ hộ hoặc người nhà để đổi.', 'warning');
+    return;
+  }
+  if (hasUnsavedChanges) {
+    toast('Đang có thay đổi chưa lưu. Lưu thông tin hộ trước rồi đổi chủ hộ để tránh mất dữ liệu.', 'warning');
+    return;
+  }
+  const oldHeadName = tenant.full_name || 'chủ hộ hiện tại';
+  const newHeadName = occupant.full_name || 'người được chọn';
+  if (!confirm(`Đổi chủ hộ Phòng ${room.room_number}?\n\n${newHeadName} sẽ lên làm chủ hộ.\n${oldHeadName} sẽ chuyển xuống danh sách người ở cùng.\n\nBill, nước, cọc và lịch sử phòng vẫn giữ nguyên vì tenant_id không đổi.`)) return;
+
+  await withBusyState('change-household-head', {
+    title: `Đang đổi chủ hộ Phòng ${room.room_number}`,
+    meta: 'Đang hoán đổi thông tin cá nhân giữa chủ hộ và người ở cùng.',
+    selectors: ['#roomSaveAllBtn'],
+    busyText: 'Đang đổi...',
+    keepVisibleMs: 800
+  }, async () => {
+    const tenantSnapshot = buildTenantIdentityPayloadFromPerson(tenant);
+    const occupantSnapshot = {
+      full_name: tenant.full_name || '',
+      phone: normalizePhoneDigits(tenant.phone || '') || null,
+      cccd_number: tenant.cccd_number || null,
+      hometown: tenant.place_of_origin || tenant.hometown || null,
+      place_of_origin: tenant.place_of_origin || tenant.hometown || null,
+      permanent_address: tenant.permanent_address || null,
+      cccd_front_url: tenant.cccd_front_url || null,
+      cccd_back_url: tenant.cccd_back_url || null,
+      relationship: 'Chủ hộ cũ',
+      is_household_head: false,
+      is_active: true
+    };
+    const newHeadPayload = {
+      ...buildTenantIdentityPayloadFromPerson(occupant),
+      is_household_head: true
+    };
+
+    const tenantRes = await sb.from('tenants').update(newHeadPayload).eq('id', tenantId);
+    if (tenantRes.error) {
+      toast('Đổi chủ hộ thất bại khi cập nhật chủ hộ mới: ' + tenantRes.error.message, 'error');
+      return;
+    }
+
+    const occupantRes = await sb.from('room_occupants').update(occupantSnapshot).eq('id', occupantId);
+    if (occupantRes.error) {
+      await sb.from('tenants').update({ ...tenantSnapshot, is_household_head: true }).eq('id', tenantId);
+      toast('Đổi chủ hộ thất bại, đã cố gắng khôi phục chủ hộ cũ: ' + occupantRes.error.message, 'error');
+      return;
+    }
+
+    await loadAllData();
+    hasUnsavedChanges = false;
+    unsavedReason = '';
+    markSaved();
+    toast(`Đã đổi chủ hộ: ${newHeadName}`);
+    renderRooms();
+    await openRoomDetail(roomId, 'people');
+  });
+}
+
 function occupantCardHtml(o = {}, idx = 0) {
   const id = o.id || '';
   return `<div class="card occ-card" data-occ-id="${esc(id)}" style="padding:12px;margin-bottom:10px">
     <div class="grid-2">
       <div class="form-group"><label>Họ tên</label><input class="form-input occ-full-name" value="${esc(o.full_name || '')}" onchange="markUnsaved()"></div>
-      <div class="form-group"><label>SĐT</label><input class="form-input occ-phone" value="${esc(o.phone || '')}" onchange="markUnsaved()"></div>
+      <div class="form-group"><label>SĐT</label><input class="form-input occ-phone" value="${esc(normalizePhoneDigits(o.phone || ''))}" onchange="markUnsaved()" inputmode="numeric"></div>
     </div>
     <div class="grid-2">
       <div class="form-group"><label>Số CCCD</label><input class="form-input occ-cccd" value="${esc(o.cccd_number || '')}" onchange="markUnsaved()"></div>
@@ -8238,10 +8513,13 @@ function occupantCardHtml(o = {}, idx = 0) {
       <div></div>
     </div>
     <div class="grid-2">
-      <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input occ-front" accept="image/*" onchange="markUnsaved()">${o.cccd_front_preview ? `<div class="file-current-preview"><a href="#" onclick="openStorageFile(${jsArg(o.cccd_front_url)});return false"><img src="${esc(o.cccd_front_preview)}" alt="CCCD mặt trước"></a><button class="btn btn-danger btn-sm" type="button" onclick="deleteOccupantCccdFile(${jsArg(id)},'front')">Xóa ảnh đang lưu</button></div>`:''}</div>
-      <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input occ-back" accept="image/*" onchange="markUnsaved()">${o.cccd_back_preview ? `<div class="file-current-preview"><a href="#" onclick="openStorageFile(${jsArg(o.cccd_back_url)});return false"><img src="${esc(o.cccd_back_preview)}" alt="CCCD mặt sau"></a><button class="btn btn-danger btn-sm" type="button" onclick="deleteOccupantCccdFile(${jsArg(id)},'back')">Xóa ảnh đang lưu</button></div>`:''}</div>
+      <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input occ-front" accept="image/*" onchange="markUnsaved()">${o.cccd_front_preview ? `<div class="file-current-preview"><a href="#" onclick="openStorageFile(${jsArg(o.cccd_front_url)});return false"><img src="${esc(o.cccd_front_preview)}" alt="CCCD mặt trước"></a><div class="file-current-meta"><div class="file-current-name">${esc(getFileNameFromPath(o.cccd_front_url) || 'CCCD mặt trước')}</div><button class="btn btn-danger btn-sm" type="button" onclick="deleteOccupantCccdFile(${jsArg(id)},'front')">Xóa ảnh</button></div></div>`:''}</div>
+      <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input occ-back" accept="image/*" onchange="markUnsaved()">${o.cccd_back_preview ? `<div class="file-current-preview"><a href="#" onclick="openStorageFile(${jsArg(o.cccd_back_url)});return false"><img src="${esc(o.cccd_back_preview)}" alt="CCCD mặt sau"></a><div class="file-current-meta"><div class="file-current-name">${esc(getFileNameFromPath(o.cccd_back_url) || 'CCCD mặt sau')}</div><button class="btn btn-danger btn-sm" type="button" onclick="deleteOccupantCccdFile(${jsArg(id)},'back')">Xóa ảnh</button></div></div>`:''}</div>
     </div>
-    <div style="display:flex;justify-content:flex-end"><button class="btn btn-danger btn-sm" type="button" onclick="removeOccupantCard(this,${jsArg(id)})">🗑️ Xóa người nhà</button></div>
+    <div class="occ-card-actions">
+      ${id ? `<button class="btn btn-outline btn-sm" type="button" onclick="changeHouseholdHead(${jsArg(id)})">Chọn làm chủ hộ</button>` : `<span style="font-size:12px;color:var(--text2)">Lưu người này trước khi chọn làm chủ hộ.</span>`}
+      <button class="btn btn-danger btn-sm" type="button" onclick="removeOccupantCard(this,${jsArg(id)})">🗑️ Xóa người nhà</button>
+    </div>
   </div>`;
 }
 
@@ -8429,7 +8707,7 @@ async function openRoomDetail(roomId, initialSection = 'room') {
         <div id="roomHeadInputs" class="room-head-inputs is-locked">
           <div class="grid-2">
             <div class="form-group"><label>Họ tên chủ hộ</label><input class="form-input" id="tnName" value="${esc(tenant.full_name || '')}" onchange="markUnsaved()"></div>
-            <div class="form-group"><label>SĐT</label><input class="form-input" id="tnPhone" value="${esc(tenant.phone || '')}" onchange="markUnsaved()"></div>
+            <div class="form-group"><label>SĐT</label><input class="form-input" id="tnPhone" value="${esc(normalizePhoneDigits(tenant.phone || ''))}" onchange="markUnsaved()" inputmode="numeric"></div>
           </div>
           <div class="grid-2">
             <div class="form-group"><label>Số CCCD</label><input class="form-input" id="tnCccdNumber" value="${esc(tenant.cccd_number || '')}" onchange="markUnsaved()"></div>
@@ -8448,8 +8726,8 @@ async function openRoomDetail(roomId, initialSection = 'room') {
         ${baselineFloor.hot > 0 || baselineFloor.cold > 0 ? `<div style="font-size:12px;line-height:1.55;color:var(--warning);background:rgba(201,120,23,.08);border:1px solid rgba(201,120,23,.18);border-radius:12px;padding:10px 12px;margin-bottom:12px">Mốc nước ban đầu của khách hiện tại không được thấp hơn mốc gần nhất của phòng: <strong>N${esc(baselineFloor.hot)}</strong> | <strong>L${esc(baselineFloor.cold)}</strong>${baselineFloor.sourceText ? ` (${esc(baselineFloor.sourceText)})` : ''}. Nếu muốn reset xuống thấp hơn, phải dùng <strong>HARD DELETE</strong>.</div>` : ''}
         <div id="roomHeadInputsFiles" class="room-head-inputs is-locked">
           <div class="grid-2">
-            <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input" id="tnCCCDFront" accept="image/*" onchange="markUnsaved()">${cccdFrontSigned ? `<div class="file-current-preview"><a href="${esc(cccdFrontSigned)}" target="_blank"><img src="${esc(cccdFrontSigned)}" alt="CCCD mặt trước"></a><button class="btn btn-danger btn-sm" type="button" onclick="deleteTenantCccdFile('front')">Xóa ảnh đang lưu</button></div>`:''}</div>
-            <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input" id="tnCCCDBack" accept="image/*" onchange="markUnsaved()">${cccdBackSigned ? `<div class="file-current-preview"><a href="${esc(cccdBackSigned)}" target="_blank"><img src="${esc(cccdBackSigned)}" alt="CCCD mặt sau"></a><button class="btn btn-danger btn-sm" type="button" onclick="deleteTenantCccdFile('back')">Xóa ảnh đang lưu</button></div>`:''}</div>
+            <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input" id="tnCCCDFront" accept="image/*" onchange="markUnsaved()">${cccdFrontSigned ? `<div class="file-current-preview"><a href="${esc(cccdFrontSigned)}" target="_blank"><img src="${esc(cccdFrontSigned)}" alt="CCCD mặt trước"></a><div class="file-current-meta"><div class="file-current-name">${esc(getFileNameFromPath(tenant.cccd_front_url) || 'CCCD mặt trước')}</div><button class="btn btn-danger btn-sm" type="button" onclick="deleteTenantCccdFile('front')">Xóa ảnh</button></div></div>`:''}</div>
+            <div class="form-group"><label>CCCD mặt sau</label><input type="file" class="form-input" id="tnCCCDBack" accept="image/*" onchange="markUnsaved()">${cccdBackSigned ? `<div class="file-current-preview"><a href="${esc(cccdBackSigned)}" target="_blank"><img src="${esc(cccdBackSigned)}" alt="CCCD mặt sau"></a><div class="file-current-meta"><div class="file-current-name">${esc(getFileNameFromPath(tenant.cccd_back_url) || 'CCCD mặt sau')}</div><button class="btn btn-danger btn-sm" type="button" onclick="deleteTenantCccdFile('back')">Xóa ảnh</button></div></div>`:''}</div>
           </div>
           <div class="form-group"><label>Ghi chú chủ hộ</label><input class="form-input" id="tnNotes" value="${esc(tenant.notes || '')}" onchange="markUnsaved()"></div>
         </div>
@@ -8459,6 +8737,14 @@ async function openRoomDetail(roomId, initialSection = 'room') {
           <h3>Người nhà</h3>
           <button class="btn btn-primary btn-sm" type="button" onclick="addOccupantCard()">+ Thêm người nhà</button>
         </div>
+        ${occRows.length ? `
+          <div class="room-head-switch-panel">
+            <div>
+              <div class="room-head-switch-title">Đổi chủ hộ</div>
+              <div class="room-head-switch-note">Chọn người nhà đã lưu để làm đại diện. Không tạo khách mới; bill, nước và cọc giữ nguyên.</div>
+            </div>
+          </div>
+        ` : ''}
         <input type="hidden" id="occDeleteIds" value="">
         <div id="occupantsCards">${occRows.map((o,i)=>occupantCardHtml(o,i)).join('') || '<div style="color:var(--text2)">Chưa có người nhà</div>'}</div>
       </div>
@@ -8622,7 +8908,7 @@ async function saveRoomProfile(fromClose = false) {
   if (tenantId && tenant) {
     const updates = {
       full_name: document.getElementById('tnName')?.value || tenant.full_name,
-      phone: document.getElementById('tnPhone')?.value || null,
+      phone: normalizePhoneDigits(document.getElementById('tnPhone')?.value || '') || null,
       move_in_date: document.getElementById('tnMoveIn')?.value || tenant.move_in_date,
       deposit_amount: parseInt(document.getElementById('tnDeposit')?.value) || 0,
       last_hot_water_reading: hotBaseline,
@@ -8678,7 +8964,7 @@ async function saveRoomProfile(fromClose = false) {
   for (const card of occCards) {
     const occId = card.getAttribute('data-occ-id') || null;
     const full_name = card.querySelector('.occ-full-name')?.value?.trim() || '';
-    const phone = card.querySelector('.occ-phone')?.value?.trim() || null;
+    const phone = normalizePhoneDigits(card.querySelector('.occ-phone')?.value || '') || null;
     const cccd_number = card.querySelector('.occ-cccd')?.value?.trim() || null;
     const hometown = card.querySelector('.occ-hometown')?.value?.trim() || null;
     const permanent_address = card.querySelector('.occ-permanent')?.value?.trim() || null;
@@ -9064,7 +9350,7 @@ async function exportHardDeleteRoomSnapshot(roomId) {
       const baseline = baselineByTenantId.get(row.id);
       return [
         row.full_name || '',
-        row.phone || '',
+        normalizePhoneDigits(row.phone || ''),
         row.cccd_number || '',
         row.place_of_origin || row.hometown || '',
         row.permanent_address || '',
@@ -9081,7 +9367,7 @@ async function exportHardDeleteRoomSnapshot(roomId) {
     ['Họ tên', 'SĐT', 'Ngày vào', 'Ngày ra', 'Tiền cọc', 'Ghi chú'],
     archived.map(row => [
       row.full_name || '',
-      row.phone || '',
+      normalizePhoneDigits(row.phone || ''),
       row.move_in_date ? fmtDate(row.move_in_date) : '',
       row.move_out_date ? fmtDate(row.move_out_date) : '',
       fmt(row.deposit_amount || 0),
@@ -9095,7 +9381,7 @@ async function exportHardDeleteRoomSnapshot(roomId) {
     occupants.map(row => [
       row.full_name || '',
       row.relationship || '',
-      row.phone || '',
+      normalizePhoneDigits(row.phone || ''),
       row.cccd_number || '',
       row.place_of_origin || row.hometown || '',
       row.permanent_address || ''
@@ -9189,7 +9475,7 @@ async function exportHardDeleteRoomSnapshot(roomId) {
       occFolder.file('THONG_TIN.txt', buildZipSummaryText([
         `Họ tên: ${occupant.full_name || ''}`,
         `Vai trò: ${occupant.relationship || ''}`,
-        `SĐT: ${occupant.phone || ''}`,
+        `SĐT: ${normalizePhoneDigits(occupant.phone || '')}`,
         `CCCD: ${occupant.cccd_number || ''}`
       ]));
       if (occupant.cccd_front_url) {
@@ -9271,7 +9557,7 @@ async function exportHardDeleteRoomSnapshot(roomId) {
       occFolder.file('THONG_TIN.txt', buildZipSummaryText([
         `Họ tên: ${occupant.full_name || ''}`,
         `Vai trò: ${occupant.relationship || ''}`,
-        `SĐT: ${occupant.phone || ''}`,
+        `SĐT: ${normalizePhoneDigits(occupant.phone || '')}`,
         `CCCD: ${occupant.cccd_number || ''}`
       ]));
       if (occupant.cccd_front_url) {
@@ -9533,7 +9819,7 @@ function defaultZaloTemplate(name='') {
 async function openZaloModalByTenant(tenantId) {
   const tenant = appData.tenants.find(t => t.id === tenantId);
   if (!tenant) return toast('Không tìm thấy khách thuê', 'warning');
-  zaloCtx = { tenantId, phone: tenant.phone || '', name: tenant.full_name || '' };
+  zaloCtx = { tenantId, phone: normalizePhoneDigits(tenant.phone || ''), name: tenant.full_name || '' };
   const tpl = tenant.zalo_template || defaultZaloTemplate(tenant.full_name || '');
   document.getElementById('zaloTemplateInput').value = tpl;
   document.getElementById('zaloSaveOpenBtn').onclick = saveTemplateAndOpenZalo;
@@ -9548,21 +9834,24 @@ async function saveTemplateAndOpenZalo() {
   if (error) return toast('Lưu mẫu lỗi: ' + error.message, 'error');
   const msg = tpl.replaceAll('{ten}', zaloCtx.name || '');
   await navigator.clipboard.writeText(msg);
-  if (zaloCtx.phone) window.open(`https://zalo.me/${zaloCtx.phone}`, '_blank');
+  const zaloUrl = getZaloUrl(zaloCtx.phone);
+  if (zaloUrl) window.open(zaloUrl, '_blank');
   toast('Đã lưu mẫu + copy tin nhắn');
   await loadAllData();
   closeModal('zaloModal');
 }
 
 function openZaloModal(phone, honorific, name) {
-  const tenant = appData.tenants.find(t => t.phone === phone && t.full_name === name) || appData.tenants.find(t => t.phone === phone);
+  const phoneDigits = normalizePhoneDigits(phone);
+  const tenant = appData.tenants.find(t => normalizePhoneDigits(t.phone || '') === phoneDigits && t.full_name === name) || appData.tenants.find(t => normalizePhoneDigits(t.phone || '') === phoneDigits);
   if (tenant) return openZaloModalByTenant(tenant.id);
-  zaloCtx = { tenantId: null, phone: phone || '', name: name || '' };
+  zaloCtx = { tenantId: null, phone: phoneDigits, name: name || '' };
   document.getElementById('zaloTemplateInput').value = defaultZaloTemplate(name || '');
   document.getElementById('zaloSaveOpenBtn').onclick = async () => {
     const msg = (document.getElementById('zaloTemplateInput').value || '').replaceAll('{ten}', name || '');
     await navigator.clipboard.writeText(msg);
-    if (phone) window.open(`https://zalo.me/${phone}`, '_blank');
+    const zaloUrl = getZaloUrl(phoneDigits);
+    if (zaloUrl) window.open(zaloUrl, '_blank');
     closeModal('zaloModal');
   };
   openModal('zaloModal');
@@ -9623,14 +9912,19 @@ function getTrashFeeDefault() {
 
 function getBillingUiStatus(bill, hasReading = false) {
   if (bill?.status === 'paid') return 'paid';
+  if (bill?.is_water_debt) return 'water_debt';
+  if (bill?.status === 'water_requested') return hasReading ? 'needs_bill_save' : 'waiting_water';
   if (bill) return 'unpaid';
   if (hasReading) return 'ready';
-  return 'pending';
+  return 'waiting_water';
 }
 
 function billingUiBadge(status) {
   const labels = {
-    pending: ['Chưa nhập số nước', 'badge-pending'],
+    pending: ['Chờ số nước', 'badge-pending'],
+    waiting_water: ['Chờ số nước', 'badge-pending'],
+    needs_bill_save: ['Cần lưu bill', 'badge-water'],
+    water_debt: ['Nợ nước', 'badge-debt'],
     ready: ['Chưa lập bill', 'badge-water'],
     unpaid: ['Chưa thu tiền', 'badge-billed'],
     paid: ['Đã thu tiền', 'badge-paid']
@@ -9673,7 +9967,7 @@ async function saveBillingCollectionStatus(month) {
       busyText: '⏳ Đang lưu...'
     }, async () => {
       const tasks = inputs
-        .filter(input => input.dataset.billId && input.checked && input.dataset.status !== 'paid')
+        .filter(input => !input.disabled && input.dataset.billId && input.checked && input.dataset.status === 'billed')
         .map(input => {
           return sb.from('monthly_bills').update({ status: 'paid' }).eq('id', input.dataset.billId);
         });
@@ -9709,7 +10003,8 @@ async function renderBillingEvnPreview(roomId, fileUrl = '', tenantId = '', mont
     el.innerHTML = '<div style="font-size:12px;color:var(--text2)">Không tải được ảnh bill EVN.</div>';
     return;
   }
-  el.innerHTML = `<div class="file-current-preview"><img src="${signedUrl}" alt="Bill EVN" style="width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid var(--border)"><button class="btn btn-danger btn-sm" type="button" onclick="deleteBillingEvnAttachment(${jsArg(roomId)},${jsArg(tenantId)},${jsArg(month)})">Xóa ảnh đang lưu</button></div>`;
+  const fileName = getFriendlyEvnFileName(fileUrl, roomId, month);
+  el.innerHTML = `<div class="file-current-preview"><img src="${signedUrl}" alt="Bill EVN" style="width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid var(--border)"><div class="file-current-meta"><div class="file-current-name">${esc(fileName)}</div><div class="file-current-sub">Ảnh EVN đang lưu trong database.</div><button class="btn btn-danger btn-sm" type="button" onclick="deleteBillingEvnAttachment(${jsArg(roomId)},${jsArg(tenantId)},${jsArg(month)})">Xóa ảnh</button></div></div>`;
 }
 
 function previewBillingEvnSelection(roomId) {
@@ -9720,7 +10015,7 @@ function previewBillingEvnSelection(roomId) {
   if (clearFlag) clearFlag.value = '0';
   if (!el || !file) return;
   const localUrl = URL.createObjectURL(file);
-  el.innerHTML = `<img src="${localUrl}" alt="Bill EVN" style="width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid var(--border)">`;
+  el.innerHTML = `<div class="file-current-preview"><img src="${localUrl}" alt="Bill EVN" style="width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid var(--border)"><div class="file-current-meta"><div class="file-current-name">${esc(file.name || 'Bill EVN vừa chọn')}</div><div class="file-current-sub">File vừa chọn, bấm Lưu bill để ghi vào database.</div></div></div>`;
 }
 
 function renderBillingSummary(month, contexts = [], fullOccupancyBase = getFullOccupancyBaseAmount()) {
@@ -9747,9 +10042,19 @@ function renderBillingSummary(month, contexts = [], fullOccupancyBase = getFullO
       revenueTotal += bill.total_amount || 0;
       expenseTotal += getBillingExpenseAmount(bill);
     }
+    const waitingForWater = bill?.status === 'water_requested' && !ctx.reading;
+    const needsBillSave = bill?.status === 'water_requested' && !!ctx.reading;
+    const collectionStateClass = !bill
+      ? 'missing disabled'
+      : (bill.status === 'paid' ? 'paid' : (waitingForWater || needsBillSave ? 'missing disabled' : 'unpaid'));
+    const collectionStateText = !bill
+      ? 'Chưa có bill'
+      : (bill.status === 'paid'
+        ? 'Đã thu tiền và khóa'
+        : (waitingForWater ? 'Chờ số nước' : (needsBillSave ? 'Cần lưu lại bill' : (bill.is_water_debt ? 'Nợ nước, chưa thu tiền' : 'Chưa thu tiền'))));
 
     collectionHtml += `
-      <label class="collection-item ${bill ? '' : 'disabled'}">
+      <label class="collection-item ${collectionStateClass}">
         <input
           type="checkbox"
           class="billing-collect-check"
@@ -9757,12 +10062,12 @@ function renderBillingSummary(month, contexts = [], fullOccupancyBase = getFullO
           data-bill-id="${esc(bill?.id || '')}"
           data-status="${esc(bill?.status || '')}"
           ${bill?.status === 'paid' ? 'checked disabled' : ''}
-          ${bill && canEditBilling ? '' : 'disabled'}
+          ${bill && canEditBilling && !waitingForWater && !needsBillSave ? '' : 'disabled'}
         >
         <div>
           <div class="collection-room">P${esc(room.room_number)}</div>
           <div class="collection-name">${esc(tenant.full_name)}</div>
-<div class="collection-state">${bill ? (bill.status === 'paid' ? 'Đã thu tiền và đã khóa' : 'Chưa thu tiền') : 'Chưa có bill để đánh dấu'}</div>
+          <div class="collection-state ${!bill || waitingForWater || needsBillSave ? 'missing' : (bill.status === 'paid' ? 'paid' : 'unpaid')}"><span class="collection-state-dot"></span>${collectionStateText}</div>
         </div>
       </label>
     `;
@@ -9886,6 +10191,8 @@ async function loadBillingMonth() {
     const { room, tenant, bill, reading, displayReading, previousReading, monthRow, activeTenant, isPaidLocked } = ctx;
     if (!tenant) return;
 
+    const hasCurrentWater = !!reading;
+    const isWaterDebt = !!reading?.is_water_debt || !!bill?.is_water_debt;
     const waterCarryNote = getWaterCarryoverNote(reading, previousReading);
     const uiStatus = getBillingUiStatus(bill, !!reading);
     const roomPrice = tenant.room_price_override || room.room_price || 0;
@@ -9895,8 +10202,8 @@ async function loadBillingMonth() {
     const deductionDisplay = deduction > 0 ? deduction : '';
     const elecAmount = bill?.electricity_amount || 0;
     const extraAmount = bill?.extra_fee || 0;
-    const otherAmount = (trashFee + extraAmount - deduction);
     const persistedTenantId = tenant.persisted_tenant_id || '';
+    const canExportBill = !!persistedTenantId && !!bill && bill.status !== 'water_requested';
     const monthRowMatchesTenant = !persistedTenantId || !monthRow?.tenant_id || monthRow.tenant_id === persistedTenantId;
 
     const hotPrev = displayReading?.hot_water_previous ?? (monthRowMatchesTenant ? monthRow?.hot_water_previous : null) ?? previousReading?.hot_water_current ?? tenant.last_hot_water_reading ?? 0;
@@ -9905,12 +10212,13 @@ async function loadBillingMonth() {
     const coldCur = displayReading?.cold_water_current ?? coldPrev;
     const hotUsage = Math.max(0, (hotCur - hotPrev));
     const coldUsage = Math.max(0, (coldCur - coldPrev));
-    const waterAmount = reading
-      ? (reading.is_water_debt ? 0 : ((bill?.hot_water_amount || 0) + (bill?.cold_water_amount || 0)))
-      : ((monthRowMatchesTenant ? monthRow?.total_water_amount : null) ?? null);
-    const billingNote = reading?.is_water_debt
-      ? 'Kỳ này đang bật nợ nước, tiền nước sẽ dời sang kỳ sau.'
-      : (waterCarryNote || 'Website tự lấy mốc cũ và cộng phần điện nước đã dùng trong tháng qua.');
+    const waterAmount = hasCurrentWater && !isWaterDebt ? ((bill?.hot_water_amount || 0) + (bill?.cold_water_amount || 0)) : null;
+    const waterHeaderText = isWaterDebt ? 'Nợ nước' : (hasCurrentWater ? fmt(waterAmount || 0) : 'Chờ số');
+    const billingNote = isWaterDebt
+      ? 'Đang bật NỢ NƯỚC. Bill tháng này không cộng tiền nước; phần nước sẽ dời sang kỳ sau.'
+      : (!hasCurrentWater
+        ? 'Chờ số nước. Vẫn có thể lưu tiền điện, phí khác, khấu trừ và ảnh EVN trước; tổng hiện tại là tạm tính.'
+        : (waterCarryNote || 'Website tự lấy mốc cũ và cộng phần điện nước đã dùng trong tháng qua.'));
     const lockDisabledAttr = isPaidLocked || !persistedTenantId || !canEditBilling ? 'disabled' : '';
     const snapshotNote = activeTenant?.full_name && activeTenant.full_name !== tenant.full_name
       ? `Snapshot tháng này đang giữ tên ${tenant.full_name}. Người đang ở hiện tại là ${activeTenant.full_name}, nhưng không được ghi đè lịch sử tháng cũ.`
@@ -9923,7 +10231,7 @@ async function loadBillingMonth() {
             <div class="billing-room-title">
               <span class="collection-room">P${esc(room.room_number)}</span>
               <span class="billing-room-name">${esc(tenant.full_name)}</span>
-              <span class="billing-state-chip ${isPaidLocked ? 'locked' : 'editable'}">${isPaidLocked ? 'ĐANG KHÓA' : 'ĐANG MỞ'}</span>
+              <span class="billing-state-chip ${isPaidLocked ? 'locked' : 'editable'}">${isPaidLocked ? 'Đã thu • khóa' : 'Đang mở'}</span>
               <span id="bHeaderStatus-${esc(room.id)}">${billingUiBadge(uiStatus)}</span>
             </div>
             ${snapshotNote ? `<div class="billing-room-history">${esc(snapshotNote)}</div>` : ''}
@@ -9934,16 +10242,28 @@ async function loadBillingMonth() {
               <div class="billing-kpi-value">${fmt(roomPrice)}</div>
             </div>
             <div class="billing-kpi">
-              <div class="billing-kpi-label">Tiền nước</div>
-              <div class="billing-kpi-value" id="bWaterHeader-${esc(room.id)}">${waterAmount === null ? '—' : fmt(waterAmount)}</div>
+              <div class="billing-kpi-label">Nước</div>
+              <div class="billing-kpi-value ${!hasCurrentWater || isWaterDebt ? 'warning' : ''}" id="bWaterHeader-${esc(room.id)}">${waterHeaderText}</div>
             </div>
             <div class="billing-kpi">
-              <div class="billing-kpi-label">Tiền điện</div>
+              <div class="billing-kpi-label">Điện</div>
               <div class="billing-kpi-value" id="bElecHeader-${esc(room.id)}">${bill ? fmt(elecAmount) : '—'}</div>
             </div>
             <div class="billing-kpi">
+              <div class="billing-kpi-label">Wifi</div>
+              <div class="billing-kpi-value" id="bWifiHeader-${esc(room.id)}">${wifiAmt ? fmt(wifiAmt) : 'Không'}</div>
+            </div>
+            <div class="billing-kpi">
+              <div class="billing-kpi-label">Rác</div>
+              <div class="billing-kpi-value" id="bTrashHeader-${esc(room.id)}">${fmt(trashFee)}</div>
+            </div>
+            <div class="billing-kpi">
               <div class="billing-kpi-label">Khác</div>
-              <div class="billing-kpi-value" id="bOtherHeader-${esc(room.id)}">${bill ? fmt(otherAmount) : fmt(trashFee)}</div>
+              <div class="billing-kpi-value" id="bExtraHeader-${esc(room.id)}">${bill ? fmt(extraAmount) : '—'}</div>
+            </div>
+            <div class="billing-kpi">
+              <div class="billing-kpi-label">Khấu trừ</div>
+              <div class="billing-kpi-value ${deduction ? 'negative' : 'muted'}" id="bDeductHeader-${esc(room.id)}">${deduction ? `- ${fmt(deduction)}` : 'Không'}</div>
             </div>
           </div>
           <div class="billing-room-total">
@@ -9961,7 +10281,7 @@ async function loadBillingMonth() {
           <div class="billing-detail-grid">
             <div class="billing-detail-box">
               <h4>Nhập chi phí của kỳ này</h4>
-              <div class="${bill?.status === 'paid' ? 'billing-lock-note' : ''}" style="${bill?.status === 'paid' ? '' : 'margin-bottom:12px;padding:10px 12px;border-radius:12px;border:1px solid rgba(245,158,11,.28);background:rgba(245,158,11,.08);font-size:12px;color:#FDE68A'}">
+              <div class="${bill?.status === 'paid' ? 'billing-lock-note' : 'billing-edit-note'}">
                 ${!canEditBilling
                   ? getBillingCycleLockMessage(month)
                   : bill?.status === 'paid'
@@ -9971,7 +10291,8 @@ async function loadBillingMonth() {
               <div class="grid-2">
                 <div class="form-group">
                   <label>Tiền điện (VNĐ)</label>
-                  <input type="number" class="form-input" id="bElec-${esc(room.id)}" value="${esc(bill?.electricity_amount ?? '')}" placeholder="Ví dụ: 300000" oninput="calcBillRoom(${jsArg(room.id)})" ${lockDisabledAttr}>
+                  <input type="text" inputmode="numeric" class="form-input" id="bElec-${esc(room.id)}" value="${esc(bill?.electricity_amount ?? '')}" placeholder="Ví dụ: 1422000" oninput="calcBillRoom(${jsArg(room.id)})" ${lockDisabledAttr}>
+                  <div class="money-input-preview" id="bElecPreview-${esc(room.id)}">${bill?.electricity_amount ? `= ${fmt(bill.electricity_amount)}` : ''}</div>
                 </div>
                 <div class="form-group">
                   <label>Upload Bill EVN (proof)</label>
@@ -9986,7 +10307,8 @@ async function loadBillingMonth() {
                 <div class="billing-field-card">
                   <div class="form-group">
                     <label>Chi phí khác (VNĐ)</label>
-                    <input type="number" class="form-input" id="bExtra-${esc(room.id)}" value="${esc(bill?.extra_fee ?? '')}" placeholder="Ví dụ: 50000" oninput="calcBillRoom(${jsArg(room.id)})" ${lockDisabledAttr}>
+                    <input type="text" inputmode="numeric" class="form-input" id="bExtra-${esc(room.id)}" value="${esc(bill?.extra_fee ?? '')}" placeholder="Ví dụ: 50000" oninput="calcBillRoom(${jsArg(room.id)})" ${lockDisabledAttr}>
+                    <div class="money-input-preview" id="bExtraPreview-${esc(room.id)}">${bill?.extra_fee ? `= ${fmt(bill.extra_fee)}` : ''}</div>
                   </div>
                   <div class="form-group">
                     <label>Ghi chú phụ phí</label>
@@ -9996,7 +10318,8 @@ async function loadBillingMonth() {
                 <div class="billing-field-card">
                   <div class="form-group">
                     <label>Khấu trừ cho phòng (VNĐ)</label>
-                    <input type="number" class="form-input" id="bDeduct-${esc(room.id)}" value="${esc(deductionDisplay)}" placeholder="Ví dụ: 100000" oninput="calcBillRoom(${jsArg(room.id)})" ${lockDisabledAttr}>
+                    <input type="text" inputmode="numeric" class="form-input" id="bDeduct-${esc(room.id)}" value="${esc(deductionDisplay)}" placeholder="Ví dụ: 100000" oninput="calcBillRoom(${jsArg(room.id)})" ${lockDisabledAttr}>
+                    <div class="money-input-preview" id="bDeductPreview-${esc(room.id)}">${deduction ? `= ${fmt(deduction)}` : ''}</div>
                   </div>
                   <div class="form-group">
                     <label>Ghi chú khấu trừ</label>
@@ -10034,7 +10357,7 @@ async function loadBillingMonth() {
             ${bill?.status === 'paid' ? `<button class="btn btn-attention" type="button" onclick="reopenRoomMonthForEditing(${jsArg(room.id)},${jsArg(month)})">🔓 Mở khóa chỉnh sửa</button>` : ''}
             <button class="btn btn-primary" id="billSave-${esc(room.id)}" onclick="saveBillRoom(${jsArg(room.id)},${jsArg(persistedTenantId)},${jsArg(month)})" ${lockDisabledAttr}>💾 Lưu bill</button>
             <button class="btn btn-outline" type="button" onclick="resetBillForm(${jsArg(room.id)},${jsArg(month)})" ${lockDisabledAttr}>↺ Làm mới bill</button>
-            <button class="btn btn-success" onclick="exportBillImage(${jsArg(room.id)},${jsArg(persistedTenantId)},${jsArg(month)})" ${persistedTenantId ? '' : 'disabled'}>📸 Xuất bill</button>
+            <button class="btn btn-success" onclick="exportBillImage(${jsArg(room.id)},${jsArg(persistedTenantId)},${jsArg(month)})" ${canExportBill ? '' : 'disabled'}>📸 Xuất bill</button>
           </div>
         </div>
       </div>`;
@@ -10070,6 +10393,7 @@ function calcBillRoom(roomId) {
     row.reading_date === month && (row.tenant_id === tenantId || row.room_id === roomId)
   ) || null;
 
+  const isWaitingForWater = !currentReading;
   const isDebt = !!currentReading?.is_water_debt;
   const hotPrev = parseFloat(document.getElementById(`bHotPrev-${roomId}`)?.value) || 0;
   const hotCur = parseFloat(document.getElementById(`bHotCur-${roomId}`)?.value) || 0;
@@ -10078,15 +10402,18 @@ function calcBillRoom(roomId) {
 
   const hotUsage = Math.max(0, hotCur - hotPrev);
   const coldUsage = Math.max(0, coldCur - coldPrev);
-  const hotAmt = isDebt ? 0 : Math.round(hotUsage * hotPrice);
-  const coldAmt = isDebt ? 0 : Math.round(coldUsage * coldPrice);
+  const hotAmt = (isDebt || isWaitingForWater) ? 0 : Math.round(hotUsage * hotPrice);
+  const coldAmt = (isDebt || isWaitingForWater) ? 0 : Math.round(coldUsage * coldPrice);
 
-  const elec = parseInt(document.getElementById(`bElec-${roomId}`).value) || 0;
+  const elec = readMoneyInputValue(`bElec-${roomId}`);
   const trash = getTrashFeeDefault();
-  const extra = parseInt(document.getElementById(`bExtra-${roomId}`).value) || 0;
-  const deduct = parseInt(document.getElementById(`bDeduct-${roomId}`).value) || 0;
+  const extra = readMoneyInputValue(`bExtra-${roomId}`);
+  const deduct = readMoneyInputValue(`bDeduct-${roomId}`);
 
-  if (!isDebt) {
+  if (isWaitingForWater) {
+    document.getElementById(`bHotLine-${roomId}`).innerHTML = `<span>Nước nóng:</span><span style="color:var(--warning)">Chờ số nước</span>`;
+    document.getElementById(`bColdLine-${roomId}`).innerHTML = `<span>Nước lạnh:</span><span style="color:var(--warning)">Chờ số nước</span>`;
+  } else if (!isDebt) {
     document.getElementById(`bHotLine-${roomId}`).innerHTML = `<span>Nước nóng (${hotUsage} khối × ${fmt(hotPrice)}):</span><span>${fmt(hotAmt)}</span>`;
     document.getElementById(`bColdLine-${roomId}`).innerHTML = `<span>Nước lạnh (${coldUsage} khối × ${fmt(coldPrice)}):</span><span>${fmt(coldAmt)}</span>`;
   } else {
@@ -10096,14 +10423,21 @@ function calcBillRoom(roomId) {
 
   document.getElementById(`bElecLine-${roomId}`).textContent = fmt(elec);
   document.getElementById(`bTrashLine-${roomId}`).textContent = fmt(trash);
-  document.getElementById(`bExtraLine-${roomId}`).innerHTML = `<span>Chi phí khác:</span><span>${fmt(extra)}</span>`;
-  document.getElementById(`bDeductLine-${roomId}`).innerHTML = `<span>Khấu trừ:</span><span style="color:#059669">- ${fmt(deduct)}</span>`;
+  document.getElementById(`bExtraLine-${roomId}`).innerHTML = `<span>Chi phí khác:</span><span>${extra ? fmt(extra) : 'Không'}</span>`;
+  document.getElementById(`bDeductLine-${roomId}`).innerHTML = `<span>Khấu trừ:</span><span style="color:#059669">${deduct ? `- ${fmt(deduct)}` : 'Không'}</span>`;
+  updateMoneyInputPreview(`bElecPreview-${roomId}`, elec);
+  updateMoneyInputPreview(`bExtraPreview-${roomId}`, extra);
+  updateMoneyInputPreview(`bDeductPreview-${roomId}`, deduct);
 
   const total = roomPrice + hotAmt + coldAmt + elec + wifiAmt + trash + extra - deduct;
-  document.getElementById(`bTotal-${roomId}`).textContent = `TỔNG: ${fmt(total)}`;
-  if (document.getElementById(`bWaterHeader-${roomId}`)) document.getElementById(`bWaterHeader-${roomId}`).textContent = fmt(hotAmt + coldAmt);
+  document.getElementById(`bTotal-${roomId}`).textContent = `${isWaitingForWater ? 'TẠM TÍNH: ' : 'TỔNG: '}${fmt(total)}`;
+  if (document.getElementById(`bWaterHeader-${roomId}`)) {
+    document.getElementById(`bWaterHeader-${roomId}`).textContent = isDebt ? 'Nợ nước' : (isWaitingForWater ? 'Chờ số' : fmt(hotAmt + coldAmt));
+  }
   if (document.getElementById(`bElecHeader-${roomId}`)) document.getElementById(`bElecHeader-${roomId}`).textContent = fmt(elec);
-  if (document.getElementById(`bOtherHeader-${roomId}`)) document.getElementById(`bOtherHeader-${roomId}`).textContent = fmt(trash + extra - deduct);
+  if (document.getElementById(`bTrashHeader-${roomId}`)) document.getElementById(`bTrashHeader-${roomId}`).textContent = fmt(trash);
+  if (document.getElementById(`bExtraHeader-${roomId}`)) document.getElementById(`bExtraHeader-${roomId}`).textContent = fmt(extra);
+  if (document.getElementById(`bDeductHeader-${roomId}`)) document.getElementById(`bDeductHeader-${roomId}`).textContent = deduct ? `- ${fmt(deduct)}` : 'Không';
   if (document.getElementById(`bHeaderTotal-${roomId}`)) document.getElementById(`bHeaderTotal-${roomId}`).textContent = fmt(total);
 }
 
@@ -10167,35 +10501,32 @@ async function saveBillRoom(roomId, tenantId, month) {
   const currentReading = (window._monthReadings || []).find(row =>
     row.reading_date === month && (row.tenant_id === tenantId || row.room_id === roomId)
   ) || null;
-  if (!currentReading) {
-    toast('Chưa nhập số nước kỳ này ở mục Nhập số nước.', 'warning');
-    return;
-  }
+  const isWaitingForWater = !currentReading;
   const roomPrice = tenant.room_price_override || room.room_price || 0;
   const hotPrice = appData.settings?.water_hot_price || 20000;
   const coldPrice = appData.settings?.water_cold_price || 15000;
   const wifiAmt = (tenant.has_wifi_override !== null ? tenant.has_wifi_override : room.has_wifi) ? (appData.settings?.wifi_price || 60000) : 0;
   const trash = getTrashFeeDefault();
 
-  const isDebt = !!currentReading.is_water_debt;
+  const isDebt = !!currentReading?.is_water_debt;
   const hotPrev = parseFloat(document.getElementById(`bHotPrev-${roomId}`).value) || 0;
   const hotCur = parseFloat(document.getElementById(`bHotCur-${roomId}`).value) || 0;
   const coldPrev = parseFloat(document.getElementById(`bColdPrev-${roomId}`).value) || 0;
   const coldCur = parseFloat(document.getElementById(`bColdCur-${roomId}`).value) || 0;
-  if (!isDebt) {
+  if (!isDebt && !isWaitingForWater) {
     const rollbackMessage = getMeterRollbackMessage({ hotPrev, hotCur, coldPrev, coldCur, context: 'tính tiền tháng' });
     if (rollbackMessage) {
       toast(rollbackMessage, 'warning');
       return;
     }
   }
-  const hotUsage = isDebt ? 0 : Math.max(0, hotCur - hotPrev);
-  const coldUsage = isDebt ? 0 : Math.max(0, coldCur - coldPrev);
+  const hotUsage = (isDebt || isWaitingForWater) ? 0 : Math.max(0, hotCur - hotPrev);
+  const coldUsage = (isDebt || isWaitingForWater) ? 0 : Math.max(0, coldCur - coldPrev);
   const hotAmt = Math.round(hotUsage * hotPrice);
   const coldAmt = Math.round(coldUsage * coldPrice);
-  const elec = parseInt(document.getElementById(`bElec-${roomId}`).value) || 0;
-  const extra = parseInt(document.getElementById(`bExtra-${roomId}`).value) || 0;
-  const deduct = parseInt(document.getElementById(`bDeduct-${roomId}`).value) || 0;
+  const elec = readMoneyInputValue(`bElec-${roomId}`);
+  const extra = readMoneyInputValue(`bExtra-${roomId}`);
+  const deduct = readMoneyInputValue(`bDeduct-${roomId}`);
   if (hasNegativeMoneyInput([elec, extra, deduct])) {
     toast('Tiền điện, phụ phí và khấu trừ không được âm.', 'warning');
     return;
@@ -10219,7 +10550,7 @@ async function saveBillRoom(roomId, tenantId, month) {
     let evnUrl = null;
     const evnFile = document.getElementById(`bEvn-${roomId}`).files[0];
     if (evnFile) {
-      evnUrl = await uploadFile('nhatro-docs', `evn/${roomId}_${month}_${Date.now()}.jpg`, evnFile);
+      evnUrl = await uploadFile('nhatro-docs', buildEvnStoragePath(roomId, month, evnFile), evnFile);
       if (!evnUrl) {
         toast('Upload ảnh EVN thất bại nên chưa lưu bill.', 'error');
         return;
@@ -10239,7 +10570,7 @@ async function saveBillRoom(roomId, tenantId, month) {
       note_to_tenant: document.getElementById(`bNote-${roomId}`).value,
       total_amount: total,
       is_water_debt: isDebt,
-      status: existingBill?.status === 'paid' ? 'paid' : 'billed',
+      status: existingBill?.status === 'paid' ? 'paid' : (isWaitingForWater ? 'water_requested' : 'billed'),
       trash_fee: trash,
       deduction_amount: deduct,
       deduction_note: document.getElementById(`bDeductNote-${roomId}`).value
@@ -10266,7 +10597,7 @@ async function saveBillRoom(roomId, tenantId, month) {
     if (clearFlag) clearFlag.value = '0';
 
     clearBillingDraft(roomId, month);
-    toast('Đã lưu dữ liệu phòng ' + room.room_number + '!');
+    toast(isWaitingForWater ? `Đã lưu phần bill Phòng ${room.room_number}. Phòng này còn chờ số nước.` : 'Đã lưu dữ liệu phòng ' + room.room_number + '!');
     await loadBillingMonth();
   });
 }
@@ -10295,6 +10626,10 @@ async function renderBillImageAsset(roomId, tenantId, month) {
   }
   const { data: bill } = await sb.from('monthly_bills').select('*').eq('tenant_id', tenantId).eq('billing_month', month).single();
   if (!bill) { toast('Lưu dữ liệu trước khi xuất bill!', 'warning'); return; }
+  if (bill.status === 'water_requested') {
+    toast('Bill này còn chờ số nước nên chưa xuất bill cuối cùng.', 'warning');
+    return null;
+  }
   const previousReading = await getPreviousReading(tenantId, month);
   const { data: monthReadings } = await sb.from('water_readings').select('*').eq('tenant_id', tenantId).eq('billing_month', month);
   const currentReading = findReadingForMonth(monthReadings || [], tenantId, month, roomId);
@@ -10310,7 +10645,7 @@ async function renderBillImageAsset(roomId, tenantId, month) {
   const evnSigned = bill.evn_bill_image_url ? await resolveFileUrl(bill.evn_bill_image_url) : '';
   const qrSigned = st.qr_image_url ? await resolveFileUrl(st.qr_image_url) : '';
   const trashFee = bill.trash_fee ?? getTrashFeeDefault();
-  const ownerPhone = st.owner_phone || '—';
+  const ownerPhone = normalizePhoneDigits(st.owner_phone || '') || '—';
   const bankName = st.bank_name || '—';
   const bankAccount = st.bank_account_number || '—';
   const bankHolder = st.bank_account_name || '—';
@@ -10342,7 +10677,7 @@ async function renderBillImageAsset(roomId, tenantId, month) {
           <div style="border:2px solid #FFB186;border-radius:16px;background:#FFFFFF;padding:10px 16px;text-align:center">
             <div style="font-size:15px;font-weight:800;color:#1F2937;line-height:1">THÔNG TIN BILL</div>
             <div style="font-size:23px;font-weight:900;color:#FF6B1A;line-height:1.1;margin-top:6px">${tenantNameUpper}</div>
-            <div style="font-size:14px;color:#1F2937;font-weight:700;margin-top:8px">Phòng: ${room.room_number} - SĐT: <span style="font-weight:500;color:#4B5563">${tenant.phone || ownerPhone}</span></div>
+            <div style="font-size:14px;color:#1F2937;font-weight:700;margin-top:8px">Phòng: ${room.room_number} - SĐT: <span style="font-weight:500;color:#4B5563">${normalizePhoneDigits(tenant.phone || '') || ownerPhone}</span></div>
             <div style="font-size:14px;color:#1F2937;font-weight:700;margin-top:4px">Tháng: <span style="font-weight:800">${monthLabel}</span></div>
           </div>
           <div style="border-radius:12px;background:#FF7A1A;padding:12px 18px;text-align:center;color:#fff;display:flex;flex-direction:column;justify-content:center">
@@ -10509,7 +10844,7 @@ async function exportAllBills() {
   }
   const zip = new JSZip();
   let fileCount = 0;
-  const exportableRooms = (window._billingMonthContexts || []).filter(ctx => ctx?.tenant?.persisted_tenant_id);
+  const exportableRooms = (window._billingMonthContexts || []).filter(ctx => ctx?.tenant?.persisted_tenant_id && ctx?.bill && ctx.bill.status !== 'water_requested');
   setExportProgress(`Đang xuất bill kỳ ${getPeriodMonthTitle(month).replace('THÁNG', 'Tháng')}`, 0, exportableRooms.length || 1, 'Đang chuẩn bị các bill...');
   for (const ctx of exportableRooms) {
     const asset = await renderBillImageAsset(ctx.room.id, ctx.tenant.persisted_tenant_id, month);
@@ -11072,9 +11407,12 @@ async function loadWaterEntry() {
     const coldPrev = today?.cold_water_previous ?? (monthRowMatchesTenant ? monthRow?.cold_water_previous : null) ?? prev?.cold_water_current ?? tenant?.last_cold_water_reading ?? '';
     const hotCur = today?.hot_water_current ?? '';
     const coldCur = today?.cold_water_current ?? '';
+    const debt = !!today?.is_water_debt;
+    const waterDraft = effectiveTenantId ? getWaterDraft(effectiveTenantId, readingDate) : null;
+    const draftHotCur = waterDraft && !debt ? (waterDraft.hot ?? hotCur) : hotCur;
+    const draftColdCur = waterDraft && !debt ? (waterDraft.cold ?? coldCur) : coldCur;
     const finalHotForNote = today ? hotCur : undefined;
     const finalColdForNote = today ? coldCur : undefined;
-    const debt = !!today?.is_water_debt;
     if (tenant) expectedCount += 1;
     if (today) savedCount += 1;
     if (debt) debtCount += 1;
@@ -11112,15 +11450,15 @@ async function loadWaterEntry() {
       html += `<tr class="${isPaidLocked ? 'water-row-locked' : (isWritable ? 'water-row-editable' : '')}">
         <td><strong>P${esc(room.room_number)}</strong></td>
         <td>${esc(tenant.full_name)}${noteHtml}</td>
-        <td><input class="form-input ${missingInputClass}" type="number" id="wrHotCur-${esc(effectiveTenantId)}" value="${esc(hotCur)}" placeholder="Nhập số hiện tại" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
-        <td><input class="form-input ${missingInputClass}" type="number" id="wrColdCur-${esc(effectiveTenantId)}" value="${esc(coldCur)}" placeholder="Nhập số hiện tại" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
+        <td><input class="form-input ${missingInputClass}" type="number" id="wrHotCur-${esc(effectiveTenantId)}" value="${esc(draftHotCur)}" placeholder="Nhập số hiện tại" oninput="saveWaterDraft(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
+        <td><input class="form-input ${missingInputClass}" type="number" id="wrColdCur-${esc(effectiveTenantId)}" value="${esc(draftColdCur)}" placeholder="Nhập số hiện tại" oninput="saveWaterDraft(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
         <td>
           <div class="water-reference-main"><strong>${latestReference}</strong></div>
           <div class="water-reference-sub">${esc(referenceSourceText)}</div>
           ${referenceDebtText ? `<div class="water-reference-debt">${esc(referenceDebtText)}</div>` : ''}
         </td>
         <td><div class="water-message-cell"><button class="btn btn-outline btn-sm" onclick="openZaloModalByTenant(${jsArg(effectiveTenantId)})" ${canMessage ? '' : 'disabled'}>💬 Nhắn</button></div></td>
-        <td><div class="water-action-cell"><button class="btn btn-sm ${debt?'btn-danger':'btn-outline'}" onclick="toggleWaterDebt(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>${debt?'Đang bật nợ nước':'Nợ nước'}</button><button class="btn btn-primary btn-sm" id="waterSave-${esc(room.id)}" data-room-id="${esc(room.id)}" data-tenant-id="${esc(effectiveTenantId)}" onclick="saveWaterRow(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>💾 Lưu</button></div></td>
+        <td><div class="water-action-cell"><button class="btn btn-sm ${debt?'btn-danger':'btn-outline'}" onclick="toggleWaterDebt(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>${debt?'Đang nợ nước':'Nợ nước'}</button><button class="btn btn-primary btn-sm" id="waterSave-${esc(room.id)}" data-room-id="${esc(room.id)}" data-tenant-id="${esc(effectiveTenantId)}" data-is-debt="${debt ? '1' : '0'}" onclick="saveWaterRow(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>💾 Lưu</button></div></td>
       </tr>`;
     }
   }
@@ -11261,6 +11599,7 @@ async function toggleWaterDebt(roomId, tenantId, readingDate) {
     const tenantUpdateRes = await sb.from('tenants').update({ last_hot_water_reading: payload.hot_water_previous, last_cold_water_reading: payload.cold_water_previous }).eq('id', tenantId);
     if (tenantUpdateRes.error) return toast('Đã lưu nợ nước nhưng chưa cập nhật được mốc nước tenant: ' + tenantUpdateRes.error.message, 'error');
   }
+  clearWaterDraft(tenantId, readingDate);
   toast(nextDebt ? 'Đã bật NỢ NƯỚC (lock số)' : 'Đã tắt NỢ NƯỚC');
   await loadWaterEntry();
   await loadBillingMonth();
@@ -11344,6 +11683,7 @@ async function saveWaterRow(roomId, tenantId, readingDate, skipRefresh = false) 
       const tenantUpdateRes = await sb.from('tenants').update({ last_hot_water_reading: payload.hot_water_previous, last_cold_water_reading: payload.cold_water_previous }).eq('id', tenantId);
       if (tenantUpdateRes.error) { toast('Đã lưu số nước nhưng chưa cập nhật được mốc nước tenant: ' + tenantUpdateRes.error.message, 'error'); return false; }
     }
+    clearWaterDraft(tenantId, readingDate);
     if (!skipRefresh) {
       toast('Đã lưu số nước');
       await loadWaterEntry();
@@ -11368,18 +11708,35 @@ async function saveAllWaterReadings() {
     busyText: '💾 Đang lưu...',
     keepVisibleMs: 800
   }, async () => {
+    let saved = 0;
+    let skipped = 0;
+    let failed = 0;
     for (const row of rows) {
       const saveBtn = row.querySelector('button[id^="waterSave-"]');
       if (!saveBtn || saveBtn.disabled) continue;
       const roomId = saveBtn.dataset.roomId || '';
       const tenantId = saveBtn.dataset.tenantId || '';
       if (!roomId || !tenantId) continue;
+      const isDebt = saveBtn.dataset.isDebt === '1';
+      const hotInput = document.getElementById(`wrHotCur-${tenantId}`);
+      const coldInput = document.getElementById(`wrColdCur-${tenantId}`);
+      const hotCurInput = getInputNumberOrNull(`wrHotCur-${tenantId}`);
+      const coldCurInput = getInputNumberOrNull(`wrColdCur-${tenantId}`);
+      if (!isDebt && (hotCurInput === null || coldCurInput === null)) {
+        hotInput?.classList.add('water-missing-input');
+        coldInput?.classList.add('water-missing-input');
+        skipped += 1;
+        continue;
+      }
       const ok = await saveWaterRow(roomId, tenantId, readingDate, true);
-      if (ok === false) return;
+      if (ok === false) failed += 1;
+      else saved += 1;
     }
     await loadWaterEntry();
     await loadBillingMonth();
-    toast('Đã lưu toàn bộ số nước của kỳ này');
+    if (failed) toast(`Đã lưu ${saved} phòng. ${failed} phòng lỗi, ${skipped} phòng còn thiếu số.`, 'warning');
+    else if (skipped) toast(`Đã lưu ${saved} phòng. Còn ${skipped} phòng thiếu số nước, dữ liệu nháp vẫn được giữ.`, 'warning');
+    else toast('Đã lưu toàn bộ số nước của kỳ này');
   });
 }
 
@@ -11392,7 +11749,7 @@ async function loadNewTenantForm() {
   const draft = {
     roomId: document.getElementById('newTenantRoom')?.value || savedDraft.roomId || '',
     name: document.getElementById('ntName')?.value || savedDraft.name || '',
-    phone: document.getElementById('ntPhone')?.value || savedDraft.phone || '',
+    phone: normalizePhoneDigits(document.getElementById('ntPhone')?.value || savedDraft.phone || ''),
     cccdNumber: document.getElementById('ntCccdNumber')?.value || savedDraft.cccdNumber || '',
     hometown: document.getElementById('ntHometown')?.value || savedDraft.hometown || '',
     permanentAddress: document.getElementById('ntPermanentAddress')?.value || savedDraft.permanentAddress || '',
@@ -11523,7 +11880,7 @@ async function confirmNewTenant() {
   if (!roomId) { toast('Chọn phòng!', 'warning'); return; }
   const name = document.getElementById('ntName').value.trim();
   if (!name) { toast('Nhập họ tên!', 'warning'); return; }
-  const phone = document.getElementById('ntPhone').value.trim();
+  const phone = normalizePhoneDigits(document.getElementById('ntPhone').value);
   if (!phone) { toast('Nhập SĐT (Zalo)!', 'warning'); return; }
   const cccdNumber = document.getElementById('ntCccdNumber').value.trim();
   if (!cccdNumber) { toast('Nhập số CCCD!', 'warning'); return; }
@@ -12231,7 +12588,7 @@ async function loadArchived() {
         <details>
           <summary style="cursor:pointer;color:var(--gold);font-size:13px">Xem chi tiết</summary>
           <div style="margin-top:12px;padding:12px;background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;font-size:13px">
-            <p>SĐT: ${esc(a.phone || '—')} | Cọc: ${fmt(a.deposit_amount)} | Giá phòng: ${fmt(a.room_price)}</p>
+            <p>SĐT: ${esc(normalizePhoneDigits(a.phone || '') || '—')} | Cọc: ${fmt(a.deposit_amount)} | Giá phòng: ${fmt(a.room_price)}</p>
             ${checkout ? `<p>Tất toán cuối: ${fmtDate(checkout.checkout_date)} | Hoàn phòng: ${fmt(checkout.refund_room_amount || 0)} | Trả cọc: ${fmt(checkout.refund_deposit_amount || 0)} | Thu lại: nước ${fmt(checkout.water_charge || 0)}, điện ${fmt(checkout.electricity_charge || 0)}, hư hỏng ${fmt(checkout.damage_charge || 0)}, khấu trừ ${fmt(checkoutMeta.deduction_charge || 0)}</p>` : ''}
             ${checkout ? `<p>Snapshot nước khi rời: N${checkoutMeta.hot_previous ?? '—'} → ${checkoutMeta.hot_current ?? '—'} | L${checkoutMeta.cold_previous ?? '—'} → ${checkoutMeta.cold_current ?? '—'}</p>` : ''}
             ${a.notes ? `<p>Ghi chú: ${esc(a.notes)}</p>` : ''}
@@ -12426,7 +12783,7 @@ async function toggleOperationalYearUnlock(year, unlock = true) {
 async function loadSettings() {
   const s = appData.settings || {};
   document.getElementById('setOwnerName').value = s.owner_name || '';
-  document.getElementById('setOwnerPhone').value = s.owner_phone || '';
+  document.getElementById('setOwnerPhone').value = normalizePhoneDigits(s.owner_phone || '');
   document.getElementById('setBankName').value = s.bank_name || '';
   document.getElementById('setBankAccount').value = s.bank_account_number || '';
   document.getElementById('setBankHolder').value = s.bank_account_name || '';
@@ -12438,7 +12795,7 @@ async function loadSettings() {
   
   if (s.qr_image_url) {
     const qrSigned = await resolveFileUrl(s.qr_image_url);
-    document.getElementById('qrPreview').innerHTML = qrSigned ? `<div class="file-current-preview"><img src="${qrSigned}" style="width:120px;height:120px;object-fit:contain;border-radius:12px;background:#fff"><button class="btn btn-danger btn-sm" id="removeSettingsQrBtn" type="button" onclick="deleteSettingsQrImage()">Xóa QR đang lưu</button></div>` : '';
+    document.getElementById('qrPreview').innerHTML = qrSigned ? `<div class="file-current-preview"><img src="${qrSigned}" style="width:120px;height:120px;object-fit:contain;border-radius:12px;background:#fff"><div class="file-current-meta"><div class="file-current-name">${esc(getFriendlyQrFileName(s.qr_image_url))}</div><button class="btn btn-danger btn-sm" id="removeSettingsQrBtn" type="button" onclick="deleteSettingsQrImage()">Xóa QR</button></div></div>` : '';
   } else {
     document.getElementById('qrPreview').innerHTML = '<div style="font-size:12px;color:var(--text2)">Chưa có QR đang lưu.</div>';
   }
@@ -12494,7 +12851,7 @@ async function saveSettings() {
       let uploadedQrPath = '';
       const updates = {
         owner_name: document.getElementById('setOwnerName').value,
-        owner_phone: document.getElementById('setOwnerPhone').value,
+        owner_phone: normalizePhoneDigits(document.getElementById('setOwnerPhone').value),
         bank_name: document.getElementById('setBankName').value,
         bank_account_number: document.getElementById('setBankAccount').value,
         bank_account_name: document.getElementById('setBankHolder').value,
@@ -12513,7 +12870,7 @@ async function saveSettings() {
       const qrFile = document.getElementById('setQRImage').files[0];
       const oldQrPath = appData.settings?.qr_image_url || '';
       if (qrFile) {
-        const url = await uploadFile('nhatro-docs', `qr/qr_${Date.now()}.jpg`, qrFile);
+        const url = await uploadFile('nhatro-docs', buildQrStoragePath(qrFile), qrFile);
         if (url) {
           updates.qr_image_url = url;
           uploadedQrPath = url;
