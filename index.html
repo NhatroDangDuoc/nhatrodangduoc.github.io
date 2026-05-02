@@ -3631,6 +3631,87 @@ async function fetchDashboardResidentRows() {
   return normalizeResidentSheetRows(fromSettings);
 }
 
+function normalizeResidentLookupText(value = '') {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function normalizeResidentRoomKey(roomNumber = '') {
+  const parsed = Number.parseInt(roomNumber, 10);
+  return Number.isFinite(parsed) ? String(parsed) : String(roomNumber || '').trim();
+}
+
+function buildResidentContactLookup(dataset = {}) {
+  const lookup = new Map();
+  const rooms = dataset.rooms || appData.rooms || [];
+  const tenants = (dataset.tenants || appData.tenants || []).filter(row => row?.is_active !== false);
+  const occupants = (dataset.occupants || appData.occupants || []).filter(row => row?.is_active !== false);
+  const roomNumberById = new Map(rooms.map(room => [String(room.id), String(room.room_number || '')]));
+  const tenantById = new Map(tenants.map(row => [String(row.id), row]));
+
+  const setIfMissing = (key, value) => {
+    if (key && value?.phone && !lookup.has(key)) lookup.set(key, value);
+  };
+
+  const addPerson = (person = {}, roomNumber = '') => {
+    const phone = normalizePhoneDigits(person.phone || '');
+    if (!phone) return;
+    const contact = { phone };
+    const roomKey = normalizeResidentRoomKey(roomNumber);
+    const cccd = String(person.cccd_number || person.cccd || '').trim();
+    const nameKey = normalizeResidentLookupText(person.full_name || person.name || '');
+
+    if (cccd) {
+      setIfMissing(`cccd:${cccd}`, contact);
+      if (roomKey) setIfMissing(`room:${roomKey}:cccd:${cccd}`, contact);
+    }
+    if (nameKey) {
+      setIfMissing(`name:${nameKey}`, contact);
+      if (roomKey) setIfMissing(`room:${roomKey}:name:${nameKey}`, contact);
+    }
+  };
+
+  tenants.forEach(tenant => {
+    addPerson(tenant, roomNumberById.get(String(tenant.room_id)) || tenant.room_number || '');
+  });
+
+  occupants.forEach(occupant => {
+    const owner = tenantById.get(String(occupant.tenant_id));
+    addPerson(
+      occupant,
+      roomNumberById.get(String(occupant.room_id))
+        || roomNumberById.get(String(owner?.room_id))
+        || owner?.room_number
+        || occupant.room_number
+        || ''
+    );
+  });
+
+  return lookup;
+}
+
+function enrichResidentRowsForExport(rows = [], dataset = {}) {
+  const lookup = buildResidentContactLookup(dataset);
+  return normalizeResidentSheetRows(rows).map(row => {
+    if (normalizePhoneDigits(row.phone || '')) return row;
+    const roomKey = normalizeResidentRoomKey(row.room_number);
+    const cccd = String(row.cccd_number || '').trim();
+    const nameKey = normalizeResidentLookupText(row.full_name || '');
+    const candidates = [
+      roomKey && cccd ? `room:${roomKey}:cccd:${cccd}` : '',
+      cccd ? `cccd:${cccd}` : '',
+      roomKey && nameKey ? `room:${roomKey}:name:${nameKey}` : '',
+      nameKey ? `name:${nameKey}` : ''
+    ].filter(Boolean);
+    const match = candidates.map(key => lookup.get(key)).find(Boolean);
+    return match?.phone ? { ...row, phone: match.phone } : row;
+  });
+}
+
 const DEFAULT_WATER_CUSTOMER_CODE = '20190227018';
 const DEFAULT_ELECTRICITY_CUSTOMER_CODES = {
   1: 'PB07020044336',
@@ -6956,7 +7037,7 @@ function createManagementWorkbook(dataset = {}, options = {}) {
   XLSX.utils.book_append_sheet(workbook, buildFinanceExportSheet(monthBundles, totals), 'Bang_tien_thang');
   XLSX.utils.book_append_sheet(workbook, buildWaterOverviewExportSheet(buildWaterOverviewExportRowsFromBundles(monthBundles)), 'Bang_nuoc');
   if (includeLiveResidents) {
-    XLSX.utils.book_append_sheet(workbook, buildResidentsExportSheet(dataset.residentRows || [], 'BẢNG THÔNG TIN NGƯỜI Ở TRỌ - NHÀ TRỌ ĐẶNG ĐƯỢC'), 'Nguoi_dang_o');
+    XLSX.utils.book_append_sheet(workbook, buildResidentsExportSheet(enrichResidentRowsForExport(dataset.residentRows || [], dataset), 'BẢNG THÔNG TIN NGƯỜI Ở TRỌ - NHÀ TRỌ ĐẶNG ĐƯỢC'), 'Nguoi_dang_o');
   }
   residentSnapshots.forEach((snapshot, index) => {
     const rows = Array.isArray(snapshot.snapshot_data) ? snapshot.snapshot_data : [];
@@ -6986,7 +7067,10 @@ function createManagementWorkbook(dataset = {}, options = {}) {
 
 function createScopedManagementWorkbook(payload = {}, options = {}) {
   const workbook = XLSX.utils.book_new();
-  const residentRows = Array.isArray(options.residentRows) ? options.residentRows : [];
+  const residentRows = enrichResidentRowsForExport(
+    Array.isArray(options.residentRows) ? options.residentRows : [],
+    options.contactDataset || appData
+  );
   const residentSnapshots = Array.isArray(options.residentSnapshots) ? options.residentSnapshots : [];
   appendWorkbookAoaSheet(workbook, 'Huong_dan', buildScopedWorkbookGuideRows(payload, options), [{ wch: 22 }, { wch: 92 }]);
   XLSX.utils.book_append_sheet(workbook, buildOverviewSummaryExportSheet(payload.monthBundles || [], payload.totals || {}), 'Tong_quan');
@@ -7113,7 +7197,7 @@ async function appendHouseholdArchiveFolder(folder, options = {}) {
     if (ok) exportedCount += 1;
   }
 
-  exportedCount += await addBillFilesToZip(billFolder, billRows, fileNotes);
+  exportedCount += await addBillFilesToZip(billFolder, billRows, fileNotes, room);
 
   if (fileNotes.length) {
     folder.file('CANH_BAO_FILE.txt', fileNotes.join('\n'));
@@ -7185,9 +7269,11 @@ async function fetchStorageBlob(filePath) {
   return response.blob();
 }
 
-async function addStorageFileToZip(folder, filePath, fallbackName, notes = []) {
+async function addStorageFileToZip(folder, filePath, fallbackName, notes = [], options = {}) {
   if (!filePath) return;
-  const fileName = sanitizeZipSegment(getFileNameFromPath(filePath) || fallbackName || `file_${Date.now()}`);
+  const originalName = getFileNameFromPath(filePath);
+  const preferredName = options.preferFallbackName && fallbackName ? fallbackName : (originalName || fallbackName);
+  const fileName = sanitizeZipSegment(preferredName || `file_${Date.now()}`);
   try {
     const blob = await fetchStorageBlob(filePath);
     if (blob) folder.file(fileName, blob);
@@ -7210,6 +7296,173 @@ function extractBillAttachmentPaths(rows = []) {
     row?.evn_bill_image_url || '',
     row?.generated_bill_image_url || ''
   ]).filter(Boolean);
+}
+
+function addRawStorageManifestRef(rows = [], filePath = '', source = {}, friendlyName = '') {
+  if (!filePath) return;
+  rows.push({
+    source_table: source.table || '',
+    source_column: source.column || '',
+    owner_type: source.owner_type || '',
+    owner_name: source.owner_name || '',
+    room_number: source.room_number || '',
+    tenant_id: source.tenant_id || '',
+    billing_month: source.billing_month || '',
+    friendly_name: friendlyName || getFileNameFromPath(filePath),
+    storage_path: filePath
+  });
+}
+
+function buildStorageFilesManifestRows(dataset = {}) {
+  const rows = [];
+  const roomMap = new Map((dataset.rooms || appData.rooms || []).map(room => [room.id, room]));
+  const tenantMap = new Map((dataset.tenants || []).map(row => [row.id, row]));
+  const archivedMap = new Map((dataset.archivedTenants || []).map(row => [row.original_tenant_id, row]));
+  const getRoomNumber = roomId => roomMap.get(roomId)?.room_number || '';
+  const getOwnerName = tenantId => tenantMap.get(tenantId)?.full_name || archivedMap.get(tenantId)?.full_name || '';
+
+  if (dataset.settingsRow?.qr_image_url) {
+    addRawStorageManifestRef(rows, dataset.settingsRow.qr_image_url, {
+      table: 'settings',
+      column: 'qr_image_url',
+      owner_type: 'system'
+    }, `QR_CHUYEN_KHOAN.${getFileExtensionFromName(dataset.settingsRow.qr_image_url, 'jpg')}`);
+  }
+
+  (dataset.tenants || []).forEach(row => {
+    const base = {
+      table: 'tenants',
+      owner_type: 'tenant',
+      owner_name: row.full_name || '',
+      room_number: getRoomNumber(row.room_id) || row.room_number || '',
+      tenant_id: row.id || ''
+    };
+    addRawStorageManifestRef(rows, row.cccd_front_url, { ...base, column: 'cccd_front_url' }, 'CCCD_MAT_TRUOC');
+    addRawStorageManifestRef(rows, row.cccd_back_url, { ...base, column: 'cccd_back_url' }, 'CCCD_MAT_SAU');
+  });
+
+  (dataset.archivedTenants || []).forEach(row => {
+    const base = {
+      table: 'archived_tenants',
+      owner_type: 'archived_tenant',
+      owner_name: row.full_name || '',
+      room_number: row.room_number || '',
+      tenant_id: row.original_tenant_id || ''
+    };
+    addRawStorageManifestRef(rows, row.cccd_front_url, { ...base, column: 'cccd_front_url' }, 'CCCD_MAT_TRUOC');
+    addRawStorageManifestRef(rows, row.cccd_back_url, { ...base, column: 'cccd_back_url' }, 'CCCD_MAT_SAU');
+    extractArchivedDocumentPaths(row.documents).forEach((path, index) => {
+      addRawStorageManifestRef(rows, path, { ...base, column: `documents[${index}]` }, getFileNameFromPath(path));
+    });
+    extractBillAttachmentPaths(Array.isArray(row.billing_history) ? row.billing_history : []).forEach((path, index) => {
+      addRawStorageManifestRef(rows, path, { ...base, column: `billing_history[${index}]` }, getFileNameFromPath(path));
+    });
+  });
+
+  (dataset.occupants || []).forEach(row => {
+    const tenant = tenantMap.get(row.tenant_id);
+    const base = {
+      table: 'room_occupants',
+      owner_type: 'occupant',
+      owner_name: row.full_name || '',
+      room_number: getRoomNumber(row.room_id || tenant?.room_id) || '',
+      tenant_id: row.tenant_id || ''
+    };
+    addRawStorageManifestRef(rows, row.cccd_front_url, { ...base, column: 'cccd_front_url' }, 'CCCD_MAT_TRUOC');
+    addRawStorageManifestRef(rows, row.cccd_back_url, { ...base, column: 'cccd_back_url' }, 'CCCD_MAT_SAU');
+  });
+
+  (dataset.tenantDocuments || []).forEach(row => {
+    addRawStorageManifestRef(rows, row.file_url, {
+      table: 'tenant_documents',
+      column: 'file_url',
+      owner_type: 'document',
+      owner_name: getOwnerName(row.tenant_id),
+      room_number: getRoomNumber(row.room_id),
+      tenant_id: row.tenant_id || ''
+    }, getFileNameFromPath(row.file_url));
+  });
+
+  (dataset.roomPhotos || []).forEach(row => {
+    addRawStorageManifestRef(rows, row.photo_url, {
+      table: 'room_photos',
+      column: 'photo_url',
+      owner_type: 'room_photo',
+      owner_name: getOwnerName(row.tenant_id),
+      room_number: getRoomNumber(row.room_id),
+      tenant_id: row.tenant_id || ''
+    }, getFileNameFromPath(row.photo_url));
+  });
+
+  (dataset.generalDocuments || []).forEach(row => {
+    addRawStorageManifestRef(rows, row.file_url, {
+      table: 'general_documents',
+      column: 'file_url',
+      owner_type: 'general_document'
+    }, getFileNameFromPath(row.file_url));
+  });
+
+  (dataset.bills || []).forEach(row => {
+    const roomNumber = getBillArchiveRoomNumber(row);
+    const base = {
+      table: 'monthly_bills',
+      owner_type: 'bill',
+      owner_name: getOwnerName(row.tenant_id),
+      room_number: roomNumber,
+      tenant_id: row.tenant_id || '',
+      billing_month: row.billing_month || ''
+    };
+    addRawStorageManifestRef(rows, row.evn_bill_image_url, { ...base, column: 'evn_bill_image_url' }, buildBillArchiveFileName(row, 'EVN', row.evn_bill_image_url, 'jpg'));
+    addRawStorageManifestRef(rows, row.generated_bill_image_url, { ...base, column: 'generated_bill_image_url' }, buildBillArchiveFileName(row, 'BILL', row.generated_bill_image_url, 'png'));
+  });
+
+  return rows;
+}
+
+function appendRawDataBackupToZip(root, dataset = {}, yearScopes = []) {
+  const raw = root.folder('00_RAW_DATA_JSON');
+  const files = [
+    ['export_meta.json', {
+      exported_at: new Date().toISOString(),
+      business_start_date: BUSINESS_START_DATE,
+      cycle_starts: dataset.cycleStarts || [],
+      year_scopes: yearScopes.map(scope => ({
+        year: scope.year,
+        folder_label: scope.folderLabel,
+        range_start: scope.rangeStart,
+        range_end: scope.rangeEnd,
+        cycle_starts: scope.cycleStarts || []
+      }))
+    }],
+    ['settings.json', dataset.settingsRow ? [dataset.settingsRow] : []],
+    ['rooms.json', dataset.rooms || []],
+    ['tenants.json', dataset.tenants || []],
+    ['archived_tenants.json', dataset.archivedTenants || []],
+    ['room_occupants.json', dataset.occupants || []],
+    ['monthly_bills.json', dataset.bills || []],
+    ['water_readings.json', dataset.readings || []],
+    ['move_in_records.json', dataset.moveIns || []],
+    ['checkout_records.json', dataset.checkouts || []],
+    ['monthly_room_sheet_data.json', dataset.sheetRows || []],
+    ['tenant_documents.json', dataset.tenantDocuments || []],
+    ['room_photos.json', dataset.roomPhotos || []],
+    ['general_documents.json', dataset.generalDocuments || []],
+    ['resident_live_sheet.json', enrichResidentRowsForExport(dataset.residentRows || [], dataset)],
+    ['resident_snapshots.json', dataset.residentSnapshots || []],
+    ['finance_totals.json', dataset.totals || {}],
+    ['derived_month_bundles.json', dataset.monthBundles || []],
+    ['storage_files_manifest.json', buildStorageFilesManifestRows(dataset)]
+  ];
+
+  raw.file('README.txt', buildZipSummaryText([
+    'RAW_DATA_JSON là bản dump dữ liệu thô để đối chiếu hoặc khôi phục thủ công nếu cần.',
+    'Các file JSON giữ nguyên field theo Supabase/app, không dùng để đọc hằng ngày.',
+    'File storage_files_manifest.json liệt kê đường dẫn ảnh/file đã được gom vào ZIP.'
+  ]));
+  files.forEach(([name, value]) => {
+    raw.file(name, JSON.stringify(value ?? null, null, 2));
+  });
+  return files.length + 1;
 }
 
 async function removeStorageFiles(fileRefs = [], options = {}) {
@@ -7436,7 +7689,22 @@ function buildBillFolderName(row = {}) {
   return sanitizeZipSegment(`${month} - ${row.status || 'chua_ro_trang_thai'}`);
 }
 
-async function addBillFilesToZip(folder, billRows = [], notes = []) {
+function getBillArchiveRoomNumber(bill = {}, fallbackRoom = {}) {
+  if (bill.room_number) return bill.room_number;
+  if (fallbackRoom?.room_number) return fallbackRoom.room_number;
+  const room = (appData.rooms || []).find(item => item.id === bill.room_id);
+  return room?.room_number || '';
+}
+
+function buildBillArchiveFileName(bill = {}, prefix = 'BILL', filePath = '', fallbackExt = 'png', fallbackRoom = {}) {
+  const roomNumber = getBillArchiveRoomNumber(bill, fallbackRoom) || 'X';
+  const year = getCycleStartYear(bill.billing_month || BUSINESS_START_DATE);
+  const month = getMonthShortLabel(bill.billing_month || BUSINESS_START_DATE);
+  const ext = getFileExtensionFromName(filePath, fallbackExt);
+  return `${prefix}_P${roomNumber}_${month}_${year}.${ext}`;
+}
+
+async function addBillFilesToZip(folder, billRows = [], notes = [], room = {}) {
   let addedCount = 0;
   for (const bill of (billRows || [])) {
     const billFolder = folder.folder(buildBillFolderName(bill));
@@ -7452,11 +7720,23 @@ async function addBillFilesToZip(folder, billRows = [], notes = []) {
       `Ghi chú: ${bill.note_to_tenant || 'Không có'}`
     ]));
     if (bill.evn_bill_image_url) {
-      const ok = await addStorageFileToZip(billFolder, bill.evn_bill_image_url, `EVN_${cycleStartToMonthValue(bill.billing_month)}.file`, notes);
+      const ok = await addStorageFileToZip(
+        billFolder,
+        bill.evn_bill_image_url,
+        buildBillArchiveFileName(bill, 'EVN', bill.evn_bill_image_url, 'jpg', room),
+        notes,
+        { preferFallbackName: true }
+      );
       if (ok) addedCount += 1;
     }
     if (bill.generated_bill_image_url) {
-      const ok = await addStorageFileToZip(billFolder, bill.generated_bill_image_url, `BILL_${cycleStartToMonthValue(bill.billing_month)}.png`, notes);
+      const ok = await addStorageFileToZip(
+        billFolder,
+        bill.generated_bill_image_url,
+        buildBillArchiveFileName(bill, 'BILL', bill.generated_bill_image_url, 'png', room),
+        notes,
+        { preferFallbackName: true }
+      );
       if (ok) addedCount += 1;
     }
   }
@@ -7814,6 +8094,7 @@ async function exportDatabaseZip() {
     let exportedFileCount = 0;
     const yearScopes = buildYearArchiveScopes(dataset);
     const yearFolders = new Map();
+    const rawDataFileCount = appendRawDataBackupToZip(root, dataset, yearScopes);
 
     const workbookBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     workbookFolder.file(buildWorkbookFilename('NHÀ TRỌ ĐẶNG ĐƯỢC - FULL ARCHIVE', dataset.cycleStarts || [BUSINESS_START_DATE]), workbookBuffer);
@@ -7967,7 +8248,13 @@ async function exportDatabaseZip() {
 
       if (dataset.settingsRow?.qr_image_url) {
         const notes = [];
-        const ok = await addStorageFileToZip(systemRoot, dataset.settingsRow.qr_image_url, 'QR_CHUYEN_KHOAN', notes);
+        const ok = await addStorageFileToZip(
+          systemRoot,
+          dataset.settingsRow.qr_image_url,
+          `QR_CHUYEN_KHOAN.${getFileExtensionFromName(dataset.settingsRow.qr_image_url, 'jpg')}`,
+          notes,
+          { preferFallbackName: true }
+        );
         if (ok) exportedFileCount += 1;
         if (notes.length) warnings.push(`[HE_THONG] QR chuyển khoản\n${notes.join('\n')}`);
       }
@@ -7979,6 +8266,7 @@ async function exportDatabaseZip() {
         `Khách đang ở: ${activeTenants.length} hộ`,
         `Khách cũ: ${(dataset.archivedTenants || []).length} hộ`,
         `Tài liệu chung: ${(dataset.generalDocuments || []).length} file`,
+        `Raw JSON backup: ${rawDataFileCount} file`,
         `Số file scan / tài liệu tải được vào ZIP: ${exportedFileCount}`,
         warnings.length
           ? `Có ${warnings.length} nhóm phát sinh cảnh báo tải file. Xem 99_CANH_BAO_TAI_FILE.txt để biết chi tiết.`
@@ -9497,7 +9785,7 @@ async function exportHardDeleteRoomSnapshot(roomId) {
       const ok = await addStorageFileToZip(groupFolder, photo.photo_url, getFileNameFromPath(photo.photo_url), fileNotes);
       if (ok) exportedFileCount += 1;
     }
-    exportedFileCount += await addBillFilesToZip(billFolder, billRows, fileNotes);
+    exportedFileCount += await addBillFilesToZip(billFolder, billRows, fileNotes, room);
     if (fileNotes.length) {
       folder.file('CANH_BAO_FILE.txt', fileNotes.join('\n'));
       warnings.push(`[KHACH_DANG_O] ${tenant.full_name || 'Khách'}\n${fileNotes.join('\n')}`);
@@ -9579,7 +9867,7 @@ async function exportHardDeleteRoomSnapshot(roomId) {
       const ok = await addStorageFileToZip(groupFolder, photo.photo_url, getFileNameFromPath(photo.photo_url), fileNotes);
       if (ok) exportedFileCount += 1;
     }
-    exportedFileCount += await addBillFilesToZip(billFolder, billRows, fileNotes);
+    exportedFileCount += await addBillFilesToZip(billFolder, billRows, fileNotes, { room_number: archivedTenant.room_number || room.room_number });
     if (fileNotes.length) {
       folder.file('CANH_BAO_FILE.txt', fileNotes.join('\n'));
       warnings.push(`[KHACH_CU] ${archivedTenant.full_name || 'Khách cũ'}\n${fileNotes.join('\n')}`);
@@ -9912,7 +10200,8 @@ function getTrashFeeDefault() {
 
 function getBillingUiStatus(bill, hasReading = false) {
   if (bill?.status === 'paid') return 'paid';
-  if (bill?.is_water_debt) return 'water_debt';
+  if (bill?.is_water_debt && hasReading) return 'water_debt';
+  if (bill && !hasReading) return 'waiting_water';
   if (bill?.status === 'water_requested') return hasReading ? 'needs_bill_save' : 'waiting_water';
   if (bill) return 'unpaid';
   if (hasReading) return 'ready';
@@ -10042,16 +10331,17 @@ function renderBillingSummary(month, contexts = [], fullOccupancyBase = getFullO
       revenueTotal += bill.total_amount || 0;
       expenseTotal += getBillingExpenseAmount(bill);
     }
+    const missingWaterState = !!bill && !ctx.reading;
     const waitingForWater = bill?.status === 'water_requested' && !ctx.reading;
     const needsBillSave = bill?.status === 'water_requested' && !!ctx.reading;
     const collectionStateClass = !bill
       ? 'missing disabled'
-      : (bill.status === 'paid' ? 'paid' : (waitingForWater || needsBillSave ? 'missing disabled' : 'unpaid'));
+      : (bill.status === 'paid' ? 'paid' : (missingWaterState || needsBillSave ? 'missing disabled' : 'unpaid'));
     const collectionStateText = !bill
       ? 'Chưa có bill'
       : (bill.status === 'paid'
         ? 'Đã thu tiền và khóa'
-        : (waitingForWater ? 'Chờ số nước' : (needsBillSave ? 'Cần lưu lại bill' : (bill.is_water_debt ? 'Nợ nước, chưa thu tiền' : 'Chưa thu tiền'))));
+        : (missingWaterState ? 'Chờ số nước' : (needsBillSave ? 'Cần lưu lại bill' : (bill.is_water_debt ? 'Nợ nước, chưa thu tiền' : 'Chưa thu tiền'))));
 
     collectionHtml += `
       <label class="collection-item ${collectionStateClass}">
@@ -10062,7 +10352,7 @@ function renderBillingSummary(month, contexts = [], fullOccupancyBase = getFullO
           data-bill-id="${esc(bill?.id || '')}"
           data-status="${esc(bill?.status || '')}"
           ${bill?.status === 'paid' ? 'checked disabled' : ''}
-          ${bill && canEditBilling && !waitingForWater && !needsBillSave ? '' : 'disabled'}
+          ${bill && canEditBilling && !missingWaterState && !needsBillSave ? '' : 'disabled'}
         >
         <div>
           <div class="collection-room">P${esc(room.room_number)}</div>
@@ -10203,7 +10493,7 @@ async function loadBillingMonth() {
     const elecAmount = bill?.electricity_amount || 0;
     const extraAmount = bill?.extra_fee || 0;
     const persistedTenantId = tenant.persisted_tenant_id || '';
-    const canExportBill = !!persistedTenantId && !!bill && bill.status !== 'water_requested';
+    const canExportBill = !!persistedTenantId && !!bill && !!reading && bill.status !== 'water_requested';
     const monthRowMatchesTenant = !persistedTenantId || !monthRow?.tenant_id || monthRow.tenant_id === persistedTenantId;
 
     const hotPrev = displayReading?.hot_water_previous ?? (monthRowMatchesTenant ? monthRow?.hot_water_previous : null) ?? previousReading?.hot_water_current ?? tenant.last_hot_water_reading ?? 0;
@@ -10215,10 +10505,13 @@ async function loadBillingMonth() {
     const waterAmount = hasCurrentWater && !isWaterDebt ? ((bill?.hot_water_amount || 0) + (bill?.cold_water_amount || 0)) : null;
     const waterHeaderText = isWaterDebt ? 'Nợ nước' : (hasCurrentWater ? fmt(waterAmount || 0) : 'Chờ số');
     const billingNote = isWaterDebt
-      ? 'Đang bật NỢ NƯỚC. Bill tháng này không cộng tiền nước; phần nước sẽ dời sang kỳ sau.'
+      ? 'Đang bật NỢ NƯỚC. Kỳ này giữ mốc nước cũ, không cộng tiền nước; phần nước sẽ dồn sang kỳ sau.'
       : (!hasCurrentWater
         ? 'Chờ số nước. Vẫn có thể lưu tiền điện, phí khác, khấu trừ và ảnh EVN trước; tổng hiện tại là tạm tính.'
         : (waterCarryNote || 'Website tự lấy mốc cũ và cộng phần điện nước đã dùng trong tháng qua.'));
+    const waterDetailText = isWaterDebt
+      ? `Nợ nước: giữ mốc Nóng ${hotPrev} | Lạnh ${coldPrev}; chưa tính tiền nước kỳ này.`
+      : `Nóng: <strong>${hotPrev} → ${hotCur}</strong> (${hotUsage} khối) | Lạnh: <strong>${coldPrev} → ${coldCur}</strong> (${coldUsage} khối)`;
     const lockDisabledAttr = isPaidLocked || !persistedTenantId || !canEditBilling ? 'disabled' : '';
     const snapshotNote = activeTenant?.full_name && activeTenant.full_name !== tenant.full_name
       ? `Snapshot tháng này đang giữ tên ${tenant.full_name}. Người đang ở hiện tại là ${activeTenant.full_name}, nhưng không được ghi đè lịch sử tháng cũ.`
@@ -10337,7 +10630,7 @@ async function loadBillingMonth() {
               <h4>Nước và tổng hợp kỳ này</h4>
               <div class="billing-water-note">
                 ${billingNote}<br>
-                Nóng: <strong>${hotPrev} → ${hotCur}</strong> (${hotUsage} khối) | Lạnh: <strong>${coldPrev} → ${coldCur}</strong> (${coldUsage} khối)
+                ${waterDetailText}
               </div>
               <div class="billing-quick-list" style="margin-top:14px">
                 <div class="billing-quick-row"><span>Tiền phòng</span><span>${fmt(roomPrice)}</span></div>
@@ -10417,8 +10710,8 @@ function calcBillRoom(roomId) {
     document.getElementById(`bHotLine-${roomId}`).innerHTML = `<span>Nước nóng (${hotUsage} khối × ${fmt(hotPrice)}):</span><span>${fmt(hotAmt)}</span>`;
     document.getElementById(`bColdLine-${roomId}`).innerHTML = `<span>Nước lạnh (${coldUsage} khối × ${fmt(coldPrice)}):</span><span>${fmt(coldAmt)}</span>`;
   } else {
-    document.getElementById(`bHotLine-${roomId}`).innerHTML = `<span>Nước nóng:</span><span style="color:var(--warning)">Nợ qua tháng sau</span>`;
-    document.getElementById(`bColdLine-${roomId}`).innerHTML = `<span>Nước lạnh:</span><span style="color:var(--warning)">Nợ qua tháng sau</span>`;
+    document.getElementById(`bHotLine-${roomId}`).innerHTML = `<span>Nước nóng:</span><span style="color:var(--warning)">Nợ nước - dồn kỳ sau</span>`;
+    document.getElementById(`bColdLine-${roomId}`).innerHTML = `<span>Nước lạnh:</span><span style="color:var(--warning)">Nợ nước - dồn kỳ sau</span>`;
   }
 
   document.getElementById(`bElecLine-${roomId}`).textContent = fmt(elec);
@@ -10633,6 +10926,10 @@ async function renderBillImageAsset(roomId, tenantId, month) {
   const previousReading = await getPreviousReading(tenantId, month);
   const { data: monthReadings } = await sb.from('water_readings').select('*').eq('tenant_id', tenantId).eq('billing_month', month);
   const currentReading = findReadingForMonth(monthReadings || [], tenantId, month, roomId);
+  if (!currentReading) {
+    toast('Bill này chưa có trạng thái nước. Hãy nhập số nước hoặc tick NỢ NƯỚC trước khi xuất bill cuối.', 'warning');
+    return null;
+  }
   const billWaterNote = getWaterCarryoverNote(currentReading, previousReading);
 
   const hotPrev = currentReading?.hot_water_previous ?? previousReading?.hot_water_current ?? tenant?.last_hot_water_reading ?? 0;
@@ -10653,9 +10950,22 @@ async function renderBillImageAsset(roomId, tenantId, month) {
   const hotPrice = st.water_hot_price || 20000;
   const coldPrice = st.water_cold_price || 15000;
   const propertyTitle = 'NHÀ TRỌ ĐẶNG ĐƯỢC';
-  const hotUsage = Math.max(0, hotCur - hotPrev);
-  const coldUsage = Math.max(0, coldCur - coldPrev);
-  const waterDebtLabel = currentReading?.is_water_debt ? 'KHÔNG GHI NHẬN SỐ NƯỚC THÁNG NÀY' : '';
+  const isWaterDebt = !!currentReading?.is_water_debt || !!bill?.is_water_debt;
+  const hotUsage = isWaterDebt ? 0 : Math.max(0, hotCur - hotPrev);
+  const coldUsage = isWaterDebt ? 0 : Math.max(0, coldCur - coldPrev);
+  const waterDebtLabel = isWaterDebt ? 'NỢ NƯỚC KỲ NÀY - CHƯA TÍNH TIỀN NƯỚC, DỒN SANG KỲ SAU' : '';
+  const waterDetailHtml = isWaterDebt
+    ? `
+      <div><strong>Nóng:</strong> giữ mốc ${hotPrev} • nợ sang kỳ sau</div>
+      <div><strong>Lạnh:</strong> giữ mốc ${coldPrev} • nợ sang kỳ sau</div>
+    `
+    : `
+      <div><strong>Nóng:</strong> ${hotPrev} -> ${hotCur} • ${hotUsage} khối • ${fmt(hotPrice)}/khối</div>
+      <div><strong>Lạnh:</strong> ${coldPrev} -> ${coldCur} • ${coldUsage} khối • ${fmt(coldPrice)}/khối</div>
+    `;
+  const waterAmountHtml = isWaterDebt
+    ? `${fmt(0)}<div style="margin-top:4px;font-size:12px;color:#C65911;font-weight:800">Dồn sang kỳ sau</div>`
+    : fmt(waterTotal);
   const tenantNameUpper = String(tenant.full_name || '').toUpperCase();
   const bankHolderUpper = String(bankHolder || '').toUpperCase();
 
@@ -10704,11 +11014,10 @@ async function renderBillImageAsset(roomId, tenantId, month) {
                 <td style="padding:10px 12px;border-top:2px solid #FFD1B5;border-right:2px solid #FFD1B5;vertical-align:top">
                   <div style="font-weight:900;color:#1F2937;font-size:15px">Tiền nước</div>
                   <div style="margin-top:6px;font-size:13px;color:#4B5563;line-height:1.45">
-                    <div><strong>Nóng:</strong> ${hotPrev} -> ${hotCur} • ${hotUsage} khối • ${fmt(hotPrice)}/khối</div>
-                    <div><strong>Lạnh:</strong> ${coldPrev} -> ${coldCur} • ${coldUsage} khối • ${fmt(coldPrice)}/khối</div>
+                    ${waterDetailHtml}
                   </div>
                 </td>
-                <td style="padding:10px 14px;border-top:2px solid #FFD1B5;text-align:center;font-size:15px;color:#4B5563">${fmt(waterTotal)}</td>
+                <td style="padding:10px 14px;border-top:2px solid #FFD1B5;text-align:center;font-size:15px;color:#4B5563">${waterAmountHtml}</td>
               </tr>
               <tr>
                 <td style="padding:10px 12px;border-top:2px solid #FFD1B5;border-right:2px solid #FFD1B5;vertical-align:top">
@@ -10844,7 +11153,9 @@ async function exportAllBills() {
   }
   const zip = new JSZip();
   let fileCount = 0;
-  const exportableRooms = (window._billingMonthContexts || []).filter(ctx => ctx?.tenant?.persisted_tenant_id && ctx?.bill && ctx.bill.status !== 'water_requested');
+  const exportableRooms = (window._billingMonthContexts || []).filter(ctx =>
+    ctx?.tenant?.persisted_tenant_id && ctx?.bill && ctx?.reading && ctx.bill.status !== 'water_requested'
+  );
   setExportProgress(`Đang xuất bill kỳ ${getPeriodMonthTitle(month).replace('THÁNG', 'Tháng')}`, 0, exportableRooms.length || 1, 'Đang chuẩn bị các bill...');
   for (const ctx of exportableRooms) {
     const asset = await renderBillImageAsset(ctx.room.id, ctx.tenant.persisted_tenant_id, month);
@@ -11119,7 +11430,7 @@ async function cleanupMonthlySheetForTenantRemoval(room, tenant) {
 function getWaterCarryoverNote(currentReading, previousReading) {
   if (!currentReading) return '';
   if (currentReading.is_water_debt) {
-    return 'KHÔNG GHI NHẬN SỐ NƯỚC THÁNG NÀY';
+    return 'Nợ nước kỳ này: chưa tính tiền nước, dồn sang kỳ sau.';
   }
   if (previousReading?.is_water_debt) {
     return 'Kỳ này đang tính dồn tiền nước do kỳ trước không ghi số nước.';
