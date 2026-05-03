@@ -7733,7 +7733,7 @@ async function addBillFilesToZip(folder, billRows = [], notes = [], room = {}) {
       const ok = await addStorageFileToZip(
         billFolder,
         bill.generated_bill_image_url,
-        buildBillArchiveFileName(bill, 'BILL', bill.generated_bill_image_url, 'png', room),
+        buildBillArchiveFileName(bill, 'BILL', bill.generated_bill_image_url, 'jpg', room),
         notes,
         { preferFallbackName: true }
       );
@@ -11090,11 +11090,11 @@ async function renderBillImageAsset(roomId, tenantId, month) {
         doc.body.style.background = '#F6F0E2';
       }
     });
-    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.92));
     const previousGeneratedPath = bill.generated_bill_image_url || '';
-    const exportPath = `exports/${tenantId}/${month}/bill.png`;
+    const exportPath = `exports/${tenantId}/${month}/bill.jpg`;
     if (blob) {
-      const f = new File([blob], `bill_${tenantId}_${month}.png`, { type: 'image/png' });
+      const f = new File([blob], `bill_${tenantId}_${month}.jpg`, { type: 'image/jpeg' });
       const pth = await uploadFile('nhatro-docs', exportPath, f);
       const updateRes = await sb.from('monthly_bills').update({ status: 'billed', generated_bill_image_url: pth || null }).eq('tenant_id', tenantId).eq('billing_month', month);
       if (updateRes.error) {
@@ -11108,7 +11108,7 @@ async function renderBillImageAsset(roomId, tenantId, month) {
     container.innerHTML = '';
     return {
       blob,
-      filename: `Bill_P${room.room_number}_${month}.png`,
+      filename: `Bill_P${room.room_number}_${month}.jpg`,
       roomNumber: room.room_number
     };
   } catch(e) { toast('Lỗi xuất bill: ' + e.message, 'error'); }
