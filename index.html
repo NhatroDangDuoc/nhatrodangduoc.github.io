@@ -1971,6 +1971,10 @@ body.mobile-app .save-float{bottom:96px;right:16px}
       <label>Ghi chú</label>
       <input type="text" class="form-input" id="waterResetNote" placeholder="Ví dụ: thay đồng hồ nước ngày 08/05/2026">
     </div>
+    <div class="form-group">
+      <label>Mật khẩu xác nhận</label>
+      <input type="password" class="form-input" id="waterResetPassword" autocomplete="current-password" placeholder="Nhập mật khẩu đăng nhập để lưu/xóa reset">
+    </div>
     <div id="waterResetExisting" style="font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:14px"></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
       <button class="btn btn-outline" type="button" onclick="closeModal('waterResetModal')">Đóng</button>
@@ -12116,6 +12120,8 @@ function openWaterResetModal(roomId, tenantId, readingDate) {
   `;
   document.getElementById('waterResetMeterType').value = ctx.resetPair?.cold ? 'cold' : (ctx.resetPair?.hot ? 'hot' : 'cold');
   prefillWaterResetModalFromType();
+  const passwordInput = document.getElementById('waterResetPassword');
+  if (passwordInput) passwordInput.value = '';
   openModal('waterResetModal');
 }
 
@@ -12138,6 +12144,21 @@ function prefillWaterResetModalFromType() {
   if (deleteBtn) deleteBtn.style.display = existing ? '' : 'none';
 }
 
+async function verifyWaterResetPassword(actionLabel = 'reset số nước') {
+  const password = (document.getElementById('waterResetPassword')?.value || '').trim();
+  if (!password) {
+    toast(`Nhập mật khẩu đăng nhập để ${actionLabel}.`, 'warning');
+    return false;
+  }
+  const { data, error } = await sb.auth.signInWithPassword({ email: AUTH_EMAIL, password });
+  if (error) {
+    toast('Sai mật khẩu. Chưa thực hiện reset số nước.', 'error');
+    return false;
+  }
+  currentUser = data?.user || currentUser;
+  return true;
+}
+
 async function saveWaterMeterReset() {
   if (!waterResetCtx) return;
   const type = document.getElementById('waterResetMeterType')?.value || 'cold';
@@ -12150,6 +12171,8 @@ async function saveWaterMeterReset() {
   if (oldFinal === null || newStart === null) return toast('Nhập đủ số chốt đồng hồ cũ và số bắt đầu đồng hồ mới.', 'warning');
   if (oldFinal < base) return toast(`Số chốt đồng hồ cũ không được nhỏ hơn mốc gần nhất (${oldFinal} < ${base}).`, 'warning');
   if (newStart < 0) return toast('Số bắt đầu đồng hồ mới không được âm.', 'warning');
+  const verified = await verifyWaterResetPassword('lưu reset số nước');
+  if (!verified) return;
   const payload = {
     room_id: waterResetCtx.roomId,
     tenant_id: waterResetCtx.tenantId,
@@ -12172,6 +12195,8 @@ async function deleteWaterMeterReset() {
   if (!waterResetCtx) return;
   const type = document.getElementById('waterResetMeterType')?.value || 'cold';
   if (!confirm(`Xóa reset ${getMeterTypeLabel(type)} của Phòng ${waterResetCtx.roomNumber || ''}?`)) return;
+  const verified = await verifyWaterResetPassword('xóa reset số nước');
+  if (!verified) return;
   const { error } = await sb.from('water_meter_resets')
     .delete()
     .eq('room_id', waterResetCtx.roomId)
