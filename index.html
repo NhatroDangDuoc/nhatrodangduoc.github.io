@@ -724,6 +724,7 @@ body.dark-mode .billing-edit-note{color:#FDE68A;background:rgba(245,158,11,.1);b
 .water-overview-period.done{border-color:rgba(16,185,129,.24);background:rgba(16,185,129,.07)}
 .water-overview-period.empty{opacity:.58}
 .water-overview-period.debt{border-color:rgba(239,68,68,.24);background:rgba(239,68,68,.07)}
+.water-overview-period.reset{border-color:rgba(14,165,233,.26);background:rgba(14,165,233,.08)}
 .water-overview-period.baseline{border-color:rgba(245,158,11,.28);background:rgba(245,158,11,.08)}
 .water-overview-period-label{font-size:11px;font-weight:850;color:var(--gold);line-height:1}
 .water-overview-period-value{font-size:12px;font-weight:800;color:var(--text);line-height:1.25;margin-top:6px;white-space:nowrap}
@@ -1934,6 +1935,48 @@ body.mobile-app .save-float{bottom:96px;right:16px}
   <div class="modal modal-lg">
     <button class="modal-close" onclick="closeModal('roomModal')">&times;</button>
     <div id="roomModalContent"></div>
+  </div>
+</div>
+
+<!-- WATER RESET MODAL -->
+<div class="modal-overlay" id="waterResetModal">
+  <div class="modal" style="max-width:620px">
+    <button class="modal-close" onclick="closeModal('waterResetModal')">&times;</button>
+    <h2>Reset số nước</h2>
+    <div id="waterResetMeta" style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px"></div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Loại số nước</label>
+        <select class="form-input" id="waterResetMeterType" onchange="prefillWaterResetModalFromType()">
+          <option value="cold">Nước lạnh</option>
+          <option value="hot">Nước nóng</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Ngày reset</label>
+        <input type="date" class="form-input" id="waterResetDate">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Số chốt đồng hồ cũ</label>
+        <input type="number" class="form-input" id="waterResetOldFinal" placeholder="Ví dụ: 576">
+      </div>
+      <div class="form-group">
+        <label>Số bắt đầu đồng hồ mới</label>
+        <input type="number" class="form-input" id="waterResetNewStart" placeholder="Ví dụ: 0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Ghi chú</label>
+      <input type="text" class="form-input" id="waterResetNote" placeholder="Ví dụ: thay đồng hồ nước ngày 08/05/2026">
+    </div>
+    <div id="waterResetExisting" style="font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:14px"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
+      <button class="btn btn-outline" type="button" onclick="closeModal('waterResetModal')">Đóng</button>
+      <button class="btn btn-danger" type="button" id="waterResetDeleteBtn" onclick="deleteWaterMeterReset()">Xóa reset</button>
+      <button class="btn btn-primary" type="button" id="waterResetSaveBtn" onclick="saveWaterMeterReset()">Lưu reset</button>
+    </div>
   </div>
 </div>
 
@@ -3363,12 +3406,12 @@ function getCheckoutRefundInfo(checkoutDate, roomPrice) {
   return { cycleStart, cycleEnd, refundStart, refundDays, refundAmount, totalDays };
 }
 
-function getMeterRollbackMessage({ hotPrev = 0, hotCur = 0, coldPrev = 0, coldCur = 0, context = 'số nước' } = {}) {
+function getMeterRollbackMessage({ hotPrev = 0, hotCur = 0, coldPrev = 0, coldCur = 0, context = 'số nước', allowHotReset = false, allowColdReset = false } = {}) {
   const errors = [];
-  if (Number(hotCur) < Number(hotPrev)) {
+  if (!allowHotReset && Number(hotCur) < Number(hotPrev)) {
     errors.push(`Nước nóng đang nhỏ hơn mốc cũ (${hotCur} < ${hotPrev})`);
   }
-  if (Number(coldCur) < Number(coldPrev)) {
+  if (!allowColdReset && Number(coldCur) < Number(coldPrev)) {
     errors.push(`Nước lạnh đang nhỏ hơn mốc cũ (${coldCur} < ${coldPrev})`);
   }
   if (!errors.length) return '';
@@ -5797,6 +5840,8 @@ function buildWaterOverviewExportRowsFromBundles(monthBundles = []) {
     .sort((a, b) => String(a.month).localeCompare(String(b.month)))
     .flatMap(bundle => {
       return (bundle.rows || []).map(row => {
+        const resetPair = getWaterMeterResetPair(bundle.water_meter_resets || [], row.room_id, row.tenant_id, bundle.month);
+        const resetNoteText = buildWaterResetNoteText(resetPair);
         const hasWaterNumbers = [row.hot_water_previous, row.hot_water_current, row.cold_water_previous, row.cold_water_current]
           .some(value => value !== null && value !== undefined && value !== '');
         const hasCurrentWaterNumbers = [row.hot_water_current, row.cold_water_current]
@@ -5820,6 +5865,9 @@ function buildWaterOverviewExportRowsFromBundles(monthBundles = []) {
         const noteLines = buildWaterOverviewNoteLines(row.turnover_checkout || null, row.turnover_move_in || null, bundle.month, noteOptions);
         if (row.bill_status === 'paid') {
           noteLines.push(getWaterPaidLockGuidance(true));
+        }
+        if (resetNoteText) {
+          noteLines.unshift(resetNoteText);
         }
         return {
           monthLabel: getPeriodMonthTitle(bundle.month).replace('THÁNG', 'Tháng'),
@@ -6460,6 +6508,7 @@ async function collectMonthBundlesForExport(cycleStarts = []) {
       readings: [],
       moveIns: [],
       checkouts: [],
+      waterMeterResets: [],
       totals: { revenue: 0, expense: 0, profit: 0, totalHeldDeposit: 0 }
     };
   }
@@ -6467,12 +6516,13 @@ async function collectMonthBundlesForExport(cycleStarts = []) {
   for (const month of uniqueCycleStarts) {
     await materializeDashboardMonth(month);
   }
-  const [sheetRes, billsRes, readingsRes, moveInRes, checkoutRes] = await Promise.all([
+  const [sheetRes, billsRes, readingsRes, moveInRes, checkoutRes, meterResetRows] = await Promise.all([
     sb.from('monthly_room_sheet_data').select('*').in('billing_month', uniqueCycleStarts).order('billing_month'),
     sb.from('monthly_bills').select('*').in('billing_month', uniqueCycleStarts).order('billing_month'),
     sb.from('water_readings').select('*').in('billing_month', uniqueCycleStarts).order('billing_month'),
     sb.from('move_in_records').select('*').in('billing_month', uniqueCycleStarts).order('billing_month'),
-    sb.from('checkout_records').select('*').in('billing_month', uniqueCycleStarts).order('billing_month')
+    sb.from('checkout_records').select('*').in('billing_month', uniqueCycleStarts).order('billing_month'),
+    fetchWaterMeterResets(uniqueCycleStarts)
   ]);
   const loadError = [sheetRes, billsRes, readingsRes, moveInRes, checkoutRes].find(result => result?.error);
   if (loadError?.error) {
@@ -6483,25 +6533,28 @@ async function collectMonthBundlesForExport(cycleStarts = []) {
   const readings = readingsRes.data || [];
   const moveIns = moveInRes.data || [];
   const checkouts = checkoutRes.data || [];
+  const waterMeterResets = Array.isArray(meterResetRows) ? meterResetRows : [];
   const monthBundles = [];
   for (const month of uniqueCycleStarts) {
     const monthBills = bills.filter(row => row.billing_month === month);
     const monthReadings = readings.filter(row => row.billing_month === month);
     const normalizedRows = await reconcileMonthlySheetIdentity(month, sheetRows.filter(row => row.billing_month === month), monthBills, monthReadings);
-    monthBundles.push(buildMonthBundle(
+    const bundle = buildMonthBundle(
       month,
       normalizedRows,
       monthBills,
       moveIns.filter(row => row.billing_month === month),
       checkouts.filter(row => row.billing_month === month)
-    ));
+    );
+    bundle.water_meter_resets = waterMeterResets.filter(row => row.billing_month === month);
+    monthBundles.push(bundle);
   }
   const depositRows = buildDepositSummaryRows();
   const totals = {
     ...getFinanceSummary(bills, moveIns, checkouts),
     totalHeldDeposit: depositRows.reduce((sum, row) => sum + (row.deposit_amount || 0), 0)
   };
-  return { cycleStarts: uniqueCycleStarts, monthBundles, sheetRows, bills, readings, moveIns, checkouts, totals };
+  return { cycleStarts: uniqueCycleStarts, monthBundles, sheetRows, bills, readings, moveIns, checkouts, waterMeterResets, totals };
 }
 
 function buildWorkbookFilename(baseTitle, cycleStarts = [], extension = 'xlsx') {
@@ -7413,7 +7466,7 @@ function buildStorageFilesManifestRows(dataset = {}) {
       billing_month: row.billing_month || ''
     };
     addRawStorageManifestRef(rows, row.evn_bill_image_url, { ...base, column: 'evn_bill_image_url' }, buildBillArchiveFileName(row, 'EVN', row.evn_bill_image_url, 'jpg'));
-    addRawStorageManifestRef(rows, row.generated_bill_image_url, { ...base, column: 'generated_bill_image_url' }, buildBillArchiveFileName(row, 'BILL', row.generated_bill_image_url, 'png'));
+    addRawStorageManifestRef(rows, row.generated_bill_image_url, { ...base, column: 'generated_bill_image_url' }, buildBillArchiveFileName(row, 'BILL', row.generated_bill_image_url, 'jpg'));
   });
 
   return rows;
@@ -7441,6 +7494,7 @@ function appendRawDataBackupToZip(root, dataset = {}, yearScopes = []) {
     ['room_occupants.json', dataset.occupants || []],
     ['monthly_bills.json', dataset.bills || []],
     ['water_readings.json', dataset.readings || []],
+    ['water_meter_resets.json', dataset.waterMeterResets || []],
     ['move_in_records.json', dataset.moveIns || []],
     ['checkout_records.json', dataset.checkouts || []],
     ['monthly_room_sheet_data.json', dataset.sheetRows || []],
@@ -10445,8 +10499,10 @@ async function loadBillingMonth() {
   const bills = billsRes.data || [];
   const readings = readingsRes.data || [];
   const sheetRows = sheetRes.data || [];
+  const billingMeterResets = await fetchWaterMeterResets(month);
   const fullOccupancyBase = getFullOccupancyBaseAmount();
   window._monthReadings = readings || [];
+  window._billingWaterMeterResets = billingMeterResets || [];
   const billsByRoom = new Map(bills.map(row => [row.room_id, row]));
   const sheetByRoom = new Map(sheetRows.map(row => [row.room_id, row]));
   const contexts = (await Promise.all(appData.rooms.map(async room => {
@@ -10458,6 +10514,7 @@ async function loadBillingMonth() {
     const hasHistoricalData = !!(monthRow?.tenant_id || monthRow?.full_name || monthRow?.has_turnover || bill || displayReading);
     if (!tenant && !hasHistoricalData) return null;
     const previousReading = tenant?.persisted_tenant_id ? await getPreviousReading(tenant.persisted_tenant_id, month) : null;
+    const persistedTenantId = tenant?.persisted_tenant_id || tenant?.id || '';
     return {
       room,
       month,
@@ -10466,6 +10523,7 @@ async function loadBillingMonth() {
       reading: cycleReading,
       displayReading,
       tenant,
+      waterResetPair: getWaterMeterResetPair(billingMeterResets, room.id, persistedTenantId, month),
       previousReading,
       activeTenant: getTenantForRoom(room.id),
       hasHistoricalData,
@@ -10478,7 +10536,7 @@ async function loadBillingMonth() {
 
   let html = '';
   contexts.forEach(ctx => {
-    const { room, tenant, bill, reading, displayReading, previousReading, monthRow, activeTenant, isPaidLocked } = ctx;
+    const { room, tenant, bill, reading, displayReading, previousReading, monthRow, activeTenant, isPaidLocked, waterResetPair } = ctx;
     if (!tenant) return;
 
     const hasCurrentWater = !!reading;
@@ -10500,18 +10558,21 @@ async function loadBillingMonth() {
     const coldPrev = displayReading?.cold_water_previous ?? (monthRowMatchesTenant ? monthRow?.cold_water_previous : null) ?? previousReading?.cold_water_current ?? tenant.last_cold_water_reading ?? 0;
     const hotCur = displayReading?.hot_water_current ?? hotPrev;
     const coldCur = displayReading?.cold_water_current ?? coldPrev;
-    const hotUsage = Math.max(0, (hotCur - hotPrev));
-    const coldUsage = Math.max(0, (coldCur - coldPrev));
+    const hotUsageInfo = calculateWaterUsageWithReset(hotPrev, hotCur, waterResetPair?.hot);
+    const coldUsageInfo = calculateWaterUsageWithReset(coldPrev, coldCur, waterResetPair?.cold);
+    const hotUsage = hotUsageInfo.usage;
+    const coldUsage = coldUsageInfo.usage;
     const waterAmount = hasCurrentWater && !isWaterDebt ? ((bill?.hot_water_amount || 0) + (bill?.cold_water_amount || 0)) : null;
     const waterHeaderText = isWaterDebt ? 'Nợ nước' : (hasCurrentWater ? fmt(waterAmount || 0) : 'Chờ số');
+    const waterResetNote = buildWaterResetNoteText(waterResetPair);
     const billingNote = isWaterDebt
       ? 'Đang bật NỢ NƯỚC. Kỳ này giữ mốc nước cũ, không cộng tiền nước; phần nước sẽ dồn sang kỳ sau.'
       : (!hasCurrentWater
         ? 'Chờ số nước. Vẫn có thể lưu tiền điện, phí khác, khấu trừ và ảnh EVN trước; tổng hiện tại là tạm tính.'
-        : (waterCarryNote || 'Website tự lấy mốc cũ và cộng phần điện nước đã dùng trong tháng qua.'));
+        : (waterResetNote || waterCarryNote || 'Website tự lấy mốc cũ và cộng phần điện nước đã dùng trong tháng qua.'));
     const waterDetailText = isWaterDebt
       ? `Nợ nước: giữ mốc Nóng ${hotPrev} | Lạnh ${coldPrev}; chưa tính tiền nước kỳ này.`
-      : `Nóng: <strong>${hotPrev} → ${hotCur}</strong> (${hotUsage} khối) | Lạnh: <strong>${coldPrev} → ${coldCur}</strong> (${coldUsage} khối)`;
+      : `${buildWaterResetBillDetail('Nóng', hotUsageInfo, appData.settings?.water_hot_price || 20000)}${buildWaterResetBillDetail('Lạnh', coldUsageInfo, appData.settings?.water_cold_price || 15000)}`;
     const lockDisabledAttr = isPaidLocked || !persistedTenantId || !canEditBilling ? 'disabled' : '';
     const snapshotNote = activeTenant?.full_name && activeTenant.full_name !== tenant.full_name
       ? `Snapshot tháng này đang giữ tên ${tenant.full_name}. Người đang ở hiện tại là ${activeTenant.full_name}, nhưng không được ghi đè lịch sử tháng cũ.`
@@ -10692,9 +10753,12 @@ function calcBillRoom(roomId) {
   const hotCur = parseFloat(document.getElementById(`bHotCur-${roomId}`)?.value) || 0;
   const coldPrev = parseFloat(document.getElementById(`bColdPrev-${roomId}`)?.value) || 0;
   const coldCur = parseFloat(document.getElementById(`bColdCur-${roomId}`)?.value) || 0;
+  const resetPair = ctx?.waterResetPair || getWaterMeterResetPair(window._billingWaterMeterResets || [], roomId, tenantId, month);
 
-  const hotUsage = Math.max(0, hotCur - hotPrev);
-  const coldUsage = Math.max(0, coldCur - coldPrev);
+  const hotUsageInfo = calculateWaterUsageWithReset(hotPrev, hotCur, resetPair.hot);
+  const coldUsageInfo = calculateWaterUsageWithReset(coldPrev, coldCur, resetPair.cold);
+  const hotUsage = hotUsageInfo.usage;
+  const coldUsage = coldUsageInfo.usage;
   const hotAmt = (isDebt || isWaitingForWater) ? 0 : Math.round(hotUsage * hotPrice);
   const coldAmt = (isDebt || isWaitingForWater) ? 0 : Math.round(coldUsage * coldPrice);
 
@@ -10707,8 +10771,8 @@ function calcBillRoom(roomId) {
     document.getElementById(`bHotLine-${roomId}`).innerHTML = `<span>Nước nóng:</span><span style="color:var(--warning)">Chờ số nước</span>`;
     document.getElementById(`bColdLine-${roomId}`).innerHTML = `<span>Nước lạnh:</span><span style="color:var(--warning)">Chờ số nước</span>`;
   } else if (!isDebt) {
-    document.getElementById(`bHotLine-${roomId}`).innerHTML = `<span>Nước nóng (${hotUsage} khối × ${fmt(hotPrice)}):</span><span>${fmt(hotAmt)}</span>`;
-    document.getElementById(`bColdLine-${roomId}`).innerHTML = `<span>Nước lạnh (${coldUsage} khối × ${fmt(coldPrice)}):</span><span>${fmt(coldAmt)}</span>`;
+    document.getElementById(`bHotLine-${roomId}`).innerHTML = `<span>${buildWaterResetUsageLine('Nước nóng', hotUsageInfo, hotPrice)}</span><span>${fmt(hotAmt)}</span>`;
+    document.getElementById(`bColdLine-${roomId}`).innerHTML = `<span>${buildWaterResetUsageLine('Nước lạnh', coldUsageInfo, coldPrice)}</span><span>${fmt(coldAmt)}</span>`;
   } else {
     document.getElementById(`bHotLine-${roomId}`).innerHTML = `<span>Nước nóng:</span><span style="color:var(--warning)">Nợ nước - dồn kỳ sau</span>`;
     document.getElementById(`bColdLine-${roomId}`).innerHTML = `<span>Nước lạnh:</span><span style="color:var(--warning)">Nợ nước - dồn kỳ sau</span>`;
@@ -10806,15 +10870,29 @@ async function saveBillRoom(roomId, tenantId, month) {
   const hotCur = parseFloat(document.getElementById(`bHotCur-${roomId}`).value) || 0;
   const coldPrev = parseFloat(document.getElementById(`bColdPrev-${roomId}`).value) || 0;
   const coldCur = parseFloat(document.getElementById(`bColdCur-${roomId}`).value) || 0;
+  const resetPair = getWaterMeterResetPair(window._billingWaterMeterResets || [], roomId, tenantId, month);
   if (!isDebt && !isWaitingForWater) {
-    const rollbackMessage = getMeterRollbackMessage({ hotPrev, hotCur, coldPrev, coldCur, context: 'tính tiền tháng' });
+    const resetValidation = getWaterResetValidationMessage({ hotPrev, hotCur, coldPrev, coldCur, resetPair });
+    if (resetValidation) {
+      toast(resetValidation, 'warning');
+      return;
+    }
+    const rollbackMessage = getMeterRollbackMessage({
+      hotPrev,
+      hotCur,
+      coldPrev,
+      coldCur,
+      context: 'tính tiền tháng',
+      allowHotReset: !!resetPair.hot,
+      allowColdReset: !!resetPair.cold
+    });
     if (rollbackMessage) {
       toast(rollbackMessage, 'warning');
       return;
     }
   }
-  const hotUsage = (isDebt || isWaitingForWater) ? 0 : Math.max(0, hotCur - hotPrev);
-  const coldUsage = (isDebt || isWaitingForWater) ? 0 : Math.max(0, coldCur - coldPrev);
+  const hotUsage = (isDebt || isWaitingForWater) ? 0 : calculateWaterUsageWithReset(hotPrev, hotCur, resetPair.hot).usage;
+  const coldUsage = (isDebt || isWaitingForWater) ? 0 : calculateWaterUsageWithReset(coldPrev, coldCur, resetPair.cold).usage;
   const hotAmt = Math.round(hotUsage * hotPrice);
   const coldAmt = Math.round(coldUsage * coldPrice);
   const elec = readMoneyInputValue(`bElec-${roomId}`);
@@ -10931,6 +11009,8 @@ async function renderBillImageAsset(roomId, tenantId, month) {
     return null;
   }
   const billWaterNote = getWaterCarryoverNote(currentReading, previousReading);
+  const billMeterResets = await fetchWaterMeterResets(month);
+  const resetPair = getWaterMeterResetPair(billMeterResets, roomId, tenantId, month);
 
   const hotPrev = currentReading?.hot_water_previous ?? previousReading?.hot_water_current ?? tenant?.last_hot_water_reading ?? 0;
   const hotCur = currentReading?.hot_water_current ?? hotPrev;
@@ -10951,17 +11031,20 @@ async function renderBillImageAsset(roomId, tenantId, month) {
   const coldPrice = st.water_cold_price || 15000;
   const propertyTitle = 'NHÀ TRỌ ĐẶNG ĐƯỢC';
   const isWaterDebt = !!currentReading?.is_water_debt || !!bill?.is_water_debt;
-  const hotUsage = isWaterDebt ? 0 : Math.max(0, hotCur - hotPrev);
-  const coldUsage = isWaterDebt ? 0 : Math.max(0, coldCur - coldPrev);
+  const hotUsageInfo = calculateWaterUsageWithReset(hotPrev, hotCur, resetPair.hot);
+  const coldUsageInfo = calculateWaterUsageWithReset(coldPrev, coldCur, resetPair.cold);
+  const hotUsage = isWaterDebt ? 0 : hotUsageInfo.usage;
+  const coldUsage = isWaterDebt ? 0 : coldUsageInfo.usage;
   const waterDebtLabel = isWaterDebt ? 'NỢ NƯỚC KỲ NÀY - CHƯA TÍNH TIỀN NƯỚC, DỒN SANG KỲ SAU' : '';
+  const waterResetLabel = !isWaterDebt ? buildWaterResetNoteText(resetPair) : '';
   const waterDetailHtml = isWaterDebt
     ? `
       <div><strong>Nóng:</strong> giữ mốc ${hotPrev} • nợ sang kỳ sau</div>
       <div><strong>Lạnh:</strong> giữ mốc ${coldPrev} • nợ sang kỳ sau</div>
     `
     : `
-      <div><strong>Nóng:</strong> ${hotPrev} -> ${hotCur} • ${hotUsage} khối • ${fmt(hotPrice)}/khối</div>
-      <div><strong>Lạnh:</strong> ${coldPrev} -> ${coldCur} • ${coldUsage} khối • ${fmt(coldPrice)}/khối</div>
+      ${buildWaterResetBillDetail('Nóng', hotUsageInfo, hotPrice)}
+      ${buildWaterResetBillDetail('Lạnh', coldUsageInfo, coldPrice)}
     `;
   const waterAmountHtml = isWaterDebt
     ? `${fmt(0)}<div style="margin-top:4px;font-size:12px;color:#C65911;font-weight:800">Dồn sang kỳ sau</div>`
@@ -11056,7 +11139,7 @@ async function renderBillImageAsset(roomId, tenantId, month) {
             </tbody>
         </table>
 
-        ${(waterDebtLabel || billWaterNote) ? `<div style="margin-top:14px;padding:10px 14px;background:#FFD8BF;border:2px solid #FFB186;border-radius:12px;font-size:14px;color:#C65911;font-weight:900;text-transform:uppercase">${waterDebtLabel || billWaterNote}</div>` : ''}
+        ${(waterDebtLabel || waterResetLabel || billWaterNote) ? `<div style="margin-top:14px;padding:10px 14px;background:#FFD8BF;border:2px solid #FFB186;border-radius:12px;font-size:14px;color:#C65911;font-weight:900;text-transform:uppercase">${waterDebtLabel || waterResetLabel || billWaterNote}</div>` : ''}
 
         <div style="display:grid;grid-template-columns:1.08fr .92fr;gap:18px;align-items:start;margin-top:14px">
           <div style="height:360px;display:flex;align-items:flex-start;justify-content:flex-end;padding:0 8px 0 0">
@@ -11476,6 +11559,122 @@ function getInputNumberOrNull(id) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+let waterResetCtx = null;
+
+function normalizeWaterMeterReset(row = null) {
+  if (!row) return null;
+  return {
+    ...row,
+    meter_type: row.meter_type === 'hot' ? 'hot' : 'cold',
+    old_meter_final: Number(row.old_meter_final || 0),
+    new_meter_start: Number(row.new_meter_start || 0)
+  };
+}
+
+function getMeterTypeLabel(type = '') {
+  return type === 'hot' ? 'Nước nóng' : 'Nước lạnh';
+}
+
+function getWaterMeterReset(resets = [], roomId = '', tenantId = '', month = '', meterType = 'cold') {
+  return normalizeWaterMeterReset((resets || []).find(row =>
+    row?.room_id === roomId &&
+    row?.billing_month === month &&
+    row?.meter_type === meterType &&
+    (!tenantId || !row?.tenant_id || row.tenant_id === tenantId)
+  ) || null);
+}
+
+function getWaterMeterResetPair(resets = [], roomId = '', tenantId = '', month = '') {
+  return {
+    hot: getWaterMeterReset(resets, roomId, tenantId, month, 'hot'),
+    cold: getWaterMeterReset(resets, roomId, tenantId, month, 'cold')
+  };
+}
+
+async function fetchWaterMeterResets(months = null) {
+  let query = sb.from('water_meter_resets').select('*').order('billing_month', { ascending: true }).order('meter_type');
+  const monthList = Array.isArray(months) ? months.filter(Boolean) : (months ? [months] : []);
+  if (monthList.length === 1) query = query.eq('billing_month', monthList[0]);
+  else if (monthList.length > 1) query = query.in('billing_month', monthList);
+  const { data, error } = await query;
+  if (error) {
+    console.warn('fetchWaterMeterResets:', error.message);
+    return [];
+  }
+  return (data || []).map(normalizeWaterMeterReset).filter(Boolean);
+}
+
+function calculateWaterUsageWithReset(previousValue = 0, currentValue = 0, reset = null) {
+  const previous = Number(previousValue || 0);
+  const current = Number(currentValue || 0);
+  if (!reset) {
+    return {
+      hasReset: false,
+      usage: Math.max(0, current - previous),
+      text: `${previous} → ${current}`
+    };
+  }
+  const oldFinal = Number(reset.old_meter_final || 0);
+  const newStart = Number(reset.new_meter_start || 0);
+  const beforeReset = Math.max(0, oldFinal - previous);
+  const afterReset = Math.max(0, current - newStart);
+  return {
+    hasReset: true,
+    usage: beforeReset + afterReset,
+    beforeReset,
+    afterReset,
+    oldFinal,
+    newStart,
+    resetDate: reset.reset_date || '',
+    text: `${previous} → ${oldFinal} + ${newStart} → ${current}`
+  };
+}
+
+function getWaterResetValidationMessage({ hotPrev = 0, hotCur = 0, coldPrev = 0, coldCur = 0, resetPair = {} } = {}) {
+  const errors = [];
+  const checks = [
+    { type: 'hot', label: 'Nước nóng', prev: hotPrev, cur: hotCur, reset: resetPair.hot },
+    { type: 'cold', label: 'Nước lạnh', prev: coldPrev, cur: coldCur, reset: resetPair.cold }
+  ];
+  checks.forEach(item => {
+    if (!item.reset) return;
+    const oldFinal = Number(item.reset.old_meter_final || 0);
+    const newStart = Number(item.reset.new_meter_start || 0);
+    if (oldFinal < Number(item.prev || 0)) {
+      errors.push(`${item.label}: số chốt đồng hồ cũ (${oldFinal}) nhỏ hơn mốc cũ (${item.prev})`);
+    }
+    if (Number(item.cur || 0) < newStart) {
+      errors.push(`${item.label}: số hiện tại (${item.cur}) nhỏ hơn số bắt đầu đồng hồ mới (${newStart})`);
+    }
+  });
+  return errors.length ? `Reset số nước chưa hợp lý: ${errors.join(' | ')}.` : '';
+}
+
+function buildWaterResetNoteText(resetPair = {}) {
+  return ['hot', 'cold']
+    .map(type => {
+      const reset = resetPair?.[type];
+      if (!reset) return '';
+      return `${getMeterTypeLabel(type)} reset ${fmtDate(reset.reset_date)}: chốt cũ ${reset.old_meter_final}, đồng hồ mới từ ${reset.new_meter_start}`;
+    })
+    .filter(Boolean)
+    .join(' | ');
+}
+
+function buildWaterResetUsageLine(label, usageInfo, price) {
+  if (!usageInfo?.hasReset) {
+    return `${label} (${usageInfo.usage} khối × ${fmt(price)}):`;
+  }
+  return `${label} reset (${usageInfo.text} = ${usageInfo.usage} khối × ${fmt(price)}):`;
+}
+
+function buildWaterResetBillDetail(label, usageInfo, price) {
+  if (!usageInfo?.hasReset) {
+    return `<div><strong>${label}:</strong> ${usageInfo.text} • ${usageInfo.usage} khối • ${fmt(price)}/khối</div>`;
+  }
+  return `<div><strong>${label}:</strong> reset ${fmtDate(usageInfo.resetDate)} • ${usageInfo.text} • ${usageInfo.usage} khối • ${fmt(price)}/khối</div>`;
+}
+
 function getWaterTurnoverNotes(checkout = null, moveIn = null, options = {}) {
   return buildWaterOverviewNoteLines(checkout, moveIn, options.readingDate || '', options);
 }
@@ -11513,7 +11712,7 @@ function getWaterOverviewCycleStartsForYear(selectedCycleStart = '') {
   };
 }
 
-function buildWaterOverviewPeriodCell(reading = null, cycleStart = '') {
+function buildWaterOverviewPeriodCell(reading = null, cycleStart = '', meterResets = []) {
   const label = `T${Number(String(cycleStart || '').slice(5, 7)) || '?'}`;
   if (!reading) {
     return { label, text: '—', sub: 'Chưa có', tone: 'empty' };
@@ -11526,9 +11725,10 @@ function buildWaterOverviewPeriodCell(reading = null, cycleStart = '') {
   if (reading.is_water_debt) {
     return { label, text: `N${hotCurrent} / L${coldCurrent}`, sub: 'Nợ nước', tone: 'debt' };
   }
-  const hotUsed = Math.max(0, Number(reading.hot_water_current || 0) - Number(reading.hot_water_previous || 0));
-  const coldUsed = Math.max(0, Number(reading.cold_water_current || 0) - Number(reading.cold_water_previous || 0));
-  return { label, text: `N${hotCurrent} / L${coldCurrent}`, sub: `Dùng N${hotUsed} / L${coldUsed}`, tone: 'done' };
+  const resetPair = getWaterMeterResetPair(meterResets, reading.room_id, reading.tenant_id, cycleStart || reading.billing_month || reading.reading_date || '');
+  const hotInfo = calculateWaterUsageWithReset(reading.hot_water_previous, reading.hot_water_current, resetPair.hot);
+  const coldInfo = calculateWaterUsageWithReset(reading.cold_water_previous, reading.cold_water_current, resetPair.cold);
+  return { label, text: `N${hotCurrent} / L${coldCurrent}`, sub: `${resetPair.hot || resetPair.cold ? 'Reset · ' : ''}Dùng N${hotInfo.usage} / L${coldInfo.usage}`, tone: resetPair.hot || resetPair.cold ? 'reset' : 'done' };
 }
 
 function buildWaterYearOverviewRows({
@@ -11536,6 +11736,7 @@ function buildWaterYearOverviewRows({
   readings = [],
   moveIns = [],
   checkouts = [],
+  meterResets = [],
   selectedCycleStart = ''
 } = {}) {
   const { selectedYear, trackedCycleStarts } = getWaterOverviewCycleStartsForYear(selectedCycleStart);
@@ -11579,18 +11780,20 @@ function buildWaterYearOverviewRows({
     const latestCold = latest?.cold_water_current ?? null;
     const totalHot = yearReadings.reduce((sum, row) => {
       if (row.reading_source === 'move_in_baseline' || row.is_water_debt) return sum;
-      return sum + Math.max(0, Number(row.hot_water_current || 0) - Number(row.hot_water_previous || 0));
+      const reset = getWaterMeterReset(meterResets, row.room_id, row.tenant_id, row.billing_month || row.reading_date || '', 'hot');
+      return sum + calculateWaterUsageWithReset(row.hot_water_previous, row.hot_water_current, reset).usage;
     }, 0);
     const totalCold = yearReadings.reduce((sum, row) => {
       if (row.reading_source === 'move_in_baseline' || row.is_water_debt) return sum;
-      return sum + Math.max(0, Number(row.cold_water_current || 0) - Number(row.cold_water_previous || 0));
+      const reset = getWaterMeterReset(meterResets, row.room_id, row.tenant_id, row.billing_month || row.reading_date || '', 'cold');
+      return sum + calculateWaterUsageWithReset(row.cold_water_previous, row.cold_water_current, reset).usage;
     }, 0);
     const roomMoveIns = moveInByRoom.get(room.id) || [];
     const roomCheckouts = checkoutByRoom.get(room.id) || [];
     const activeTenant = getTenantForRoom(room.id);
     const monthCells = trackedCycleStarts.map(cycleStart => {
       const monthReading = pickPreferredMonthReading(roomReadings, cycleStart, room.id, null);
-      return buildWaterOverviewPeriodCell(monthReading, cycleStart);
+      return buildWaterOverviewPeriodCell(monthReading, cycleStart, meterResets);
     });
     const tenantNames = [
       ...new Set([
@@ -11604,6 +11807,8 @@ function buildWaterYearOverviewRows({
     if (latest?.is_water_debt) {
       notes.push(`${getWaterReadingReferenceLabel(latest)} đang bật nợ nước.`);
     }
+    const roomResets = (meterResets || []).filter(row => row.room_id === room.id && row.billing_month >= yearStart && row.billing_month <= yearEndCycle);
+    roomResets.forEach(row => notes.push(`${fmtDate(row.reset_date)}: reset ${getMeterTypeLabel(row.meter_type).toLowerCase()} chốt cũ ${row.old_meter_final}, đồng hồ mới từ ${row.new_meter_start}.`));
     roomCheckouts.forEach(row => notes.push(`${fmtDate(row.checkout_date)}: ${row.tenant_name_snapshot || 'Khách cũ'} rời tại N${row.event_meta?.hot_current ?? '—'} | L${row.event_meta?.cold_current ?? '—'}.`));
     roomMoveIns.forEach(row => notes.push(`${fmtDate(row.move_in_date)}: ${row.tenant_name_snapshot || 'Khách mới'} vào tại N${row.event_meta?.initial_hot_water ?? '—'} | L${row.event_meta?.initial_cold_water ?? '—'}.`));
     if (!yearReadings.length && !beforeYear) notes.push('Chưa có dữ liệu nước.');
@@ -11691,6 +11896,13 @@ async function loadWaterEntry() {
   const allReadings = allReadingsRes.data || [];
   const allMoveIns = allMoveInsRes.data || [];
   const allCheckouts = allCheckoutsRes.data || [];
+  const [monthMeterResets, allMeterResets] = await Promise.all([
+    fetchWaterMeterResets(readingDate),
+    fetchWaterMeterResets()
+  ]);
+  window._waterEntryMeterResets = monthMeterResets;
+  window._allWaterMeterResets = allMeterResets;
+  window._waterEntryRowContext = {};
   const sheetMap = new Map(sheetRows.map(row => [row.room_id, row]));
   const moveInMap = new Map(moveIns.map(row => [row.room_id, { ...row, event_meta: safeJsonParse(row.note, {}) || {} }]));
   const checkoutMap = new Map(checkouts.map(row => [row.room_id, { ...row, event_meta: safeJsonParse(row.notes, {}) || {} }]));
@@ -11700,6 +11912,7 @@ async function loadWaterEntry() {
   let expectedCount = 0;
   let savedCount = 0;
   let debtCount = 0;
+  let resetCount = 0;
   let paidLockedCount = 0;
   for (const room of appData.rooms) {
     const monthRow = sheetMap.get(room.id) || null;
@@ -11719,6 +11932,8 @@ async function loadWaterEntry() {
     const hotCur = today?.hot_water_current ?? '';
     const coldCur = today?.cold_water_current ?? '';
     const debt = !!today?.is_water_debt;
+    const resetPair = getWaterMeterResetPair(monthMeterResets, room.id, effectiveTenantId, readingDate);
+    const resetNoteText = buildWaterResetNoteText(resetPair);
     const waterDraft = effectiveTenantId ? getWaterDraft(effectiveTenantId, readingDate) : null;
     const draftHotCur = waterDraft && !debt ? (waterDraft.hot ?? hotCur) : hotCur;
     const draftColdCur = waterDraft && !debt ? (waterDraft.cold ?? coldCur) : coldCur;
@@ -11727,6 +11942,7 @@ async function loadWaterEntry() {
     if (tenant) expectedCount += 1;
     if (today) savedCount += 1;
     if (debt) debtCount += 1;
+    if (resetPair.hot || resetPair.cold) resetCount += 1;
     if (isPaidLocked) paidLockedCount += 1;
     const prevBeforeDebt = prev?.is_water_debt && effectiveTenantId && !String(effectiveTenantId).startsWith('snapshot-')
       ? await getPreviousReading(effectiveTenantId, prev.reading_date)
@@ -11753,10 +11969,21 @@ async function loadWaterEntry() {
     if (!today && isWritable) {
       noteParts.unshift('Cần nhập số nước kỳ này.');
     }
+    if (resetNoteText) noteParts.unshift(resetNoteText);
     if (carryoverText) noteParts.unshift(carryoverText);
     const noteHtml = noteParts.map(text => `<div class="water-inline-note ${text.includes('PAID-KHÔNG') ? 'locked' : 'warning'}">${esc(text)}</div>`).join('');
 
     if (tenant) {
+      window._waterEntryRowContext[effectiveTenantId] = {
+        roomId: room.id,
+        tenantId: effectiveTenantId,
+        readingDate,
+        roomNumber: room.room_number,
+        tenantName: tenant.full_name || '',
+        hotPrev,
+        coldPrev,
+        resetPair
+      };
       const missingInputClass = !today && isWritable ? 'water-missing-input' : '';
       html += `<tr class="${isPaidLocked ? 'water-row-locked' : (isWritable ? 'water-row-editable' : '')}">
         <td><strong>P${esc(room.room_number)}</strong></td>
@@ -11769,7 +11996,7 @@ async function loadWaterEntry() {
           ${referenceDebtText ? `<div class="water-reference-debt">${esc(referenceDebtText)}</div>` : ''}
         </td>
         <td><div class="water-message-cell"><button class="btn btn-outline btn-sm" onclick="openZaloModalByTenant(${jsArg(effectiveTenantId)})" ${canMessage ? '' : 'disabled'}>💬 Nhắn</button></div></td>
-        <td><div class="water-action-cell"><button class="btn btn-sm ${debt?'btn-danger':'btn-outline'}" onclick="toggleWaterDebt(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>${debt?'Đang nợ nước':'Nợ nước'}</button><button class="btn btn-primary btn-sm" id="waterSave-${esc(room.id)}" data-room-id="${esc(room.id)}" data-tenant-id="${esc(effectiveTenantId)}" data-is-debt="${debt ? '1' : '0'}" onclick="saveWaterRow(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>💾 Lưu</button></div></td>
+        <td><div class="water-action-cell"><button class="btn btn-sm ${debt?'btn-danger':'btn-outline'}" onclick="toggleWaterDebt(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>${debt?'Đang nợ nước':'Nợ nước'}</button><button class="btn btn-outline btn-sm" onclick="openWaterResetModal(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable && !debt ? '' : 'disabled'}>${resetNoteText ? 'Đã reset' : 'Reset số nước'}</button><button class="btn btn-primary btn-sm" id="waterSave-${esc(room.id)}" data-room-id="${esc(room.id)}" data-tenant-id="${esc(effectiveTenantId)}" data-is-debt="${debt ? '1' : '0'}" onclick="saveWaterRow(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${isWritable ? '' : 'disabled'}>💾 Lưu</button></div></td>
       </tr>`;
     }
   }
@@ -11780,6 +12007,7 @@ async function loadWaterEntry() {
       <span class="water-summary-chip"><strong>${savedCount}/${expectedCount}</strong> phòng đã nhập</span>
       <span class="water-summary-chip"><strong>${Math.max(0, expectedCount - savedCount)}</strong> phòng còn thiếu</span>
       <span class="water-summary-chip"><strong>${debtCount}</strong> nợ nước</span>
+      <span class="water-summary-chip"><strong>${resetCount}</strong> reset số nước</span>
       <span class="water-summary-chip"><strong>${paidLockedCount}</strong> đã PAID/khóa</span>
     `;
   }
@@ -11789,6 +12017,7 @@ async function loadWaterEntry() {
     readings: allReadings,
     moveIns: allMoveIns,
     checkouts: allCheckouts,
+    meterResets: allMeterResets,
     selectedCycleStart: readingDate
   });
   window._waterOverviewMonth = readingDate;
@@ -11868,6 +12097,93 @@ async function loadWaterEntry() {
   updateWaterModeUi();
 }
 
+function getDefaultWaterResetDate(readingDate = '') {
+  const today = getTodayIsoLocal();
+  const cycleEnd = readingDate ? getNextCycleStart(readingDate) : '';
+  return readingDate && today >= readingDate && (!cycleEnd || today < cycleEnd) ? today : (readingDate || today);
+}
+
+function openWaterResetModal(roomId, tenantId, readingDate) {
+  const ctx = window._waterEntryRowContext?.[tenantId];
+  if (!ctx) {
+    toast('Không tìm thấy dòng phòng để reset số nước. Refresh DB rồi thử lại.', 'warning');
+    return;
+  }
+  waterResetCtx = { ...ctx, roomId, tenantId, readingDate };
+  document.getElementById('waterResetMeta').innerHTML = `
+    <strong>Phòng ${esc(ctx.roomNumber || '')} - ${esc(ctx.tenantName || '')}</strong><br>
+    Kỳ ${esc(getPeriodMonthTitle(readingDate).replace('THÁNG', 'Tháng'))}. Mốc hiện tại: Nóng ${esc(ctx.hotPrev)} | Lạnh ${esc(ctx.coldPrev)}.
+  `;
+  document.getElementById('waterResetMeterType').value = ctx.resetPair?.cold ? 'cold' : (ctx.resetPair?.hot ? 'hot' : 'cold');
+  prefillWaterResetModalFromType();
+  openModal('waterResetModal');
+}
+
+function prefillWaterResetModalFromType() {
+  if (!waterResetCtx) return;
+  const type = document.getElementById('waterResetMeterType')?.value || 'cold';
+  const existing = waterResetCtx.resetPair?.[type] || null;
+  document.getElementById('waterResetDate').value = existing?.reset_date || getDefaultWaterResetDate(waterResetCtx.readingDate);
+  document.getElementById('waterResetOldFinal').value = existing ? existing.old_meter_final : '';
+  document.getElementById('waterResetNewStart').value = existing ? existing.new_meter_start : '0';
+  document.getElementById('waterResetNote').value = existing?.note || 'Reset số nước do thay đồng hồ';
+  const base = type === 'hot' ? waterResetCtx.hotPrev : waterResetCtx.coldPrev;
+  const existingEl = document.getElementById('waterResetExisting');
+  if (existingEl) {
+    existingEl.innerHTML = existing
+      ? `<strong>Đang có reset:</strong> ${esc(getMeterTypeLabel(type))} ngày ${esc(fmtDate(existing.reset_date))}, chốt cũ ${esc(existing.old_meter_final)}, đồng hồ mới từ ${esc(existing.new_meter_start)}.`
+      : `Chưa có reset cho ${esc(getMeterTypeLabel(type))}. Mốc cũ đang là <strong>${esc(base)}</strong>; nhập số chốt đồng hồ cũ tại ngày thay.`;
+  }
+  const deleteBtn = document.getElementById('waterResetDeleteBtn');
+  if (deleteBtn) deleteBtn.style.display = existing ? '' : 'none';
+}
+
+async function saveWaterMeterReset() {
+  if (!waterResetCtx) return;
+  const type = document.getElementById('waterResetMeterType')?.value || 'cold';
+  const resetDate = document.getElementById('waterResetDate')?.value || '';
+  const oldFinal = getInputNumberOrNull('waterResetOldFinal');
+  const newStart = getInputNumberOrNull('waterResetNewStart');
+  const note = document.getElementById('waterResetNote')?.value || '';
+  const base = type === 'hot' ? Number(waterResetCtx.hotPrev || 0) : Number(waterResetCtx.coldPrev || 0);
+  if (!resetDate) return toast('Chọn ngày reset số nước.', 'warning');
+  if (oldFinal === null || newStart === null) return toast('Nhập đủ số chốt đồng hồ cũ và số bắt đầu đồng hồ mới.', 'warning');
+  if (oldFinal < base) return toast(`Số chốt đồng hồ cũ không được nhỏ hơn mốc gần nhất (${oldFinal} < ${base}).`, 'warning');
+  if (newStart < 0) return toast('Số bắt đầu đồng hồ mới không được âm.', 'warning');
+  const payload = {
+    room_id: waterResetCtx.roomId,
+    tenant_id: waterResetCtx.tenantId,
+    billing_month: waterResetCtx.readingDate,
+    reset_date: resetDate,
+    meter_type: type,
+    old_meter_final: oldFinal,
+    new_meter_start: newStart,
+    note
+  };
+  const { error } = await sb.from('water_meter_resets').upsert(payload, { onConflict: 'room_id,billing_month,meter_type' });
+  if (error) return toast('Lỗi lưu reset số nước. Hãy chắc đã chạy SQL tạo bảng water_meter_resets: ' + error.message, 'error');
+  toast('Đã lưu reset số nước. Nếu bill đã lưu trước đó, hãy bấm Lưu bill lại để tính theo reset.');
+  closeModal('waterResetModal');
+  await loadWaterEntry();
+  await loadBillingMonth();
+}
+
+async function deleteWaterMeterReset() {
+  if (!waterResetCtx) return;
+  const type = document.getElementById('waterResetMeterType')?.value || 'cold';
+  if (!confirm(`Xóa reset ${getMeterTypeLabel(type)} của Phòng ${waterResetCtx.roomNumber || ''}?`)) return;
+  const { error } = await sb.from('water_meter_resets')
+    .delete()
+    .eq('room_id', waterResetCtx.roomId)
+    .eq('billing_month', waterResetCtx.readingDate)
+    .eq('meter_type', type);
+  if (error) return toast('Lỗi xóa reset số nước: ' + error.message, 'error');
+  toast('Đã xóa reset số nước. Kiểm tra lại số nước và bill của phòng này.');
+  closeModal('waterResetModal');
+  await loadWaterEntry();
+  await loadBillingMonth();
+}
+
 async function toggleWaterDebt(roomId, tenantId, readingDate) {
   if (!canEditWaterCycle(readingDate)) {
     toast(getWaterCycleLockMessage(readingDate), 'warning');
@@ -11935,6 +12251,7 @@ async function saveWaterRow(roomId, tenantId, readingDate, skipRefresh = false) 
   const isDebt = !!old?.is_water_debt;
   const hotCurInput = getInputNumberOrNull(`wrHotCur-${tenantId}`);
   const coldCurInput = getInputNumberOrNull(`wrColdCur-${tenantId}`);
+  const resetPair = getWaterMeterResetPair(window._waterEntryMeterResets || [], roomId, tenantId, readingDate);
   if (!isDebt && (hotCurInput === null || coldCurInput === null)) {
     toast('Thiếu số nước của kỳ này. Hãy nhập đủ số hiện tại rồi lưu lại.', 'warning');
     return false;
@@ -11942,7 +12259,20 @@ async function saveWaterRow(roomId, tenantId, readingDate, skipRefresh = false) 
   const hotCur = hotCurInput ?? hotPrev;
   const coldCur = coldCurInput ?? coldPrev;
   if (!isDebt) {
-    const rollbackMessage = getMeterRollbackMessage({ hotPrev, hotCur, coldPrev, coldCur, context: 'nhập số nước' });
+    const resetValidation = getWaterResetValidationMessage({ hotPrev, hotCur, coldPrev, coldCur, resetPair });
+    if (resetValidation) {
+      toast(resetValidation, 'warning');
+      return false;
+    }
+    const rollbackMessage = getMeterRollbackMessage({
+      hotPrev,
+      hotCur,
+      coldPrev,
+      coldCur,
+      context: 'nhập số nước',
+      allowHotReset: !!resetPair.hot,
+      allowColdReset: !!resetPair.cold
+    });
     if (rollbackMessage) {
       toast(rollbackMessage, 'warning');
       return false;
