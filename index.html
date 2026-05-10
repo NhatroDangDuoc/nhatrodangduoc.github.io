@@ -640,6 +640,11 @@ textarea.form-input{resize:vertical;min-height:108px}
 .billing-field-stack{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:2px}
 .billing-field-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px}
 .billing-field-card .form-group:last-child{margin-bottom:0}
+.common-electric-helper{margin-top:12px;padding:12px;border:1px solid rgba(14,165,233,.22);border-radius:14px;background:rgba(14,165,233,.07)}
+.common-electric-title{font-size:12px;font-weight:850;color:#38BDF8;margin-bottom:9px;text-transform:uppercase;letter-spacing:.02em}
+.common-electric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.common-electric-preview{margin-top:10px;font-size:12px;color:var(--text2);line-height:1.45;min-height:18px}
+.common-electric-preview strong{color:var(--text)}
 .billing-file-preview{margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .billing-file-hint{font-size:12px;color:var(--text2)}
 .money-input-preview{margin-top:6px;font-size:12px;color:var(--text2);font-weight:750;min-height:18px}
@@ -759,6 +764,7 @@ body.dark-mode .billing-edit-note{color:#FDE68A;background:rgba(245,158,11,.1);b
 .billing-field-stack{grid-template-columns:1fr}
 }
 @media(max-width:900px){.export-frame-grid{grid-template-columns:1fr}.login-reminder-actions{align-items:flex-start;flex-direction:column}}
+@media(max-width:760px){.common-electric-grid{grid-template-columns:1fr}}
 @media(max-width:1024px){.grid-3{grid-template-columns:repeat(2,1fr)}.collection-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.billing-room-header{grid-template-columns:minmax(180px,220px) 1fr}.billing-room-total{grid-column:1 / -1;align-items:flex-start;text-align:left}.billing-detail-grid{grid-template-columns:1fr}.billing-report-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.billing-field-stack{grid-template-columns:1fr}.overview-command-center{grid-template-columns:1fr}.overview-command-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.overview-top-grid{grid-template-columns:1fr}.overview-summary-grid,.overview-summary-grid.overview-summary-grid-3,.overview-summary-grid.overview-summary-grid-5,.overview-summary-grid-month,.overview-summary-grid-alltime{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-split-grid{grid-template-columns:1fr}.settings-hub{grid-template-columns:1fr}}
 /* SECTION PAGES */
 .page{display:none;min-height:calc(100vh - 72px)}
@@ -2088,6 +2094,10 @@ const DEFAULT_YEAR_FRAME_CONFIG = {
   unlockedYears: [],
   wrapups: {}
 };
+const COMMON_ELECTRIC_DEDUCTION_ROOM_NUMBER = '9';
+const COMMON_ELECTRIC_DEDUCTION_BASE_READING = 277;
+const COMMON_ELECTRIC_DEDUCTION_DEFAULT_PRICE = 2500;
+const COMMON_ELECTRIC_DEDUCTION_PREFIX = 'Điện dùng chung';
 
 let sb = null; // Supabase client
 let currentUser = null;
@@ -3441,6 +3451,106 @@ function updateMoneyInputPreview(id, value = 0, options = {}) {
   if (!el) return;
   const amount = Number(value || 0);
   el.textContent = amount ? `${options.prefix || '= '} ${fmt(amount)}`.replace('=  ', '= ') : '';
+}
+
+function isCommonElectricDeductionRoom(room) {
+  return String(room?.room_number ?? '').trim() === COMMON_ELECTRIC_DEDUCTION_ROOM_NUMBER;
+}
+
+function parseVietnameseNumber(value) {
+  const text = String(value ?? '').trim();
+  if (!text) return 0;
+  const stripped = text.replace(/[^\d,.-]/g, '');
+  const dotParts = stripped.split('.');
+  const normalized = stripped.includes(',')
+    ? stripped.replace(/\./g, '').replace(',', '.')
+    : (stripped.includes('.') && dotParts[dotParts.length - 1]?.length === 3
+      ? stripped.replace(/\./g, '')
+      : stripped);
+  const parsed = parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatKwh(value) {
+  return Number(value || 0).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
+}
+
+function parseCommonElectricDeductionNote(note = '') {
+  const pattern = /Điện dùng chung:\s*([\d.,]+)\s*(?:→|->)\s*([\d.,]+)\s*=\s*([\d.,]+)\s*kWh\s*[×x]\s*([\d.,]+)\s*=\s*([\d.,]+)đ?/i;
+  const match = String(note || '').match(pattern);
+  if (!match) return null;
+  return {
+    previous: parseVietnameseNumber(match[1]),
+    current: parseVietnameseNumber(match[2]),
+    usage: parseVietnameseNumber(match[3]),
+    price: parseVietnameseNumber(match[4]),
+    amount: parseVietnameseNumber(match[5])
+  };
+}
+
+function getCommonElectricDeductionDefaults(bill = null) {
+  const parsed = parseCommonElectricDeductionNote(bill?.deduction_note || '');
+  return {
+    previous: parsed?.previous ?? COMMON_ELECTRIC_DEDUCTION_BASE_READING,
+    current: parsed?.current ?? '',
+    price: parsed?.price ?? COMMON_ELECTRIC_DEDUCTION_DEFAULT_PRICE,
+    amount: parsed?.amount ?? (bill?.deduction_amount || 0)
+  };
+}
+
+function getCommonElectricDeductionInput(roomId) {
+  const previous = getInputNumberOrNull(`bCommonElecPrev-${roomId}`);
+  const current = getInputNumberOrNull(`bCommonElecCur-${roomId}`);
+  const price = readMoneyInputValue(`bCommonElecPrice-${roomId}`) || COMMON_ELECTRIC_DEDUCTION_DEFAULT_PRICE;
+  if (previous === null || current === null) return { ok: false, message: 'Nhập đủ số cũ và số mới của điện dùng chung.' };
+  if (current < previous) return { ok: false, message: `Số mới không được nhỏ hơn số cũ (${current} < ${previous}).` };
+  if (price <= 0) return { ok: false, message: 'Đơn giá điện dùng chung phải lớn hơn 0.' };
+  const usage = current - previous;
+  const amount = Math.round(usage * price);
+  return { ok: true, previous, current, price, usage, amount };
+}
+
+function buildCommonElectricDeductionNote(info) {
+  return `${COMMON_ELECTRIC_DEDUCTION_PREFIX}: ${formatKwh(info.previous)} → ${formatKwh(info.current)} = ${formatKwh(info.usage)} kWh × ${fmt(info.price)} = ${fmt(info.amount)}`;
+}
+
+function mergeCommonElectricDeductionNote(existingNote = '', commonNote = '') {
+  const cleanExisting = String(existingNote || '').trim();
+  if (!cleanExisting) return commonNote;
+  const pattern = /Điện dùng chung:\s*[\d.,]+\s*(?:→|->)\s*[\d.,]+\s*=\s*[\d.,]+\s*kWh\s*[×x]\s*[\d.,]+\s*=\s*[\d.,]+đ?/i;
+  if (pattern.test(cleanExisting)) {
+    return cleanExisting.replace(pattern, commonNote);
+  }
+  return `${cleanExisting} | ${commonNote}`;
+}
+
+function previewCommonElectricDeduction(roomId) {
+  const el = document.getElementById(`bCommonElecPreview-${roomId}`);
+  if (!el) return;
+  const info = getCommonElectricDeductionInput(roomId);
+  if (!info.ok) {
+    el.textContent = info.message;
+    return;
+  }
+  el.innerHTML = `<strong>${formatKwh(info.usage)} kWh</strong> × ${fmt(info.price)} = <strong>${fmt(info.amount)}</strong>`;
+}
+
+function applyCommonElectricDeduction(roomId, month) {
+  const info = getCommonElectricDeductionInput(roomId);
+  if (!info.ok) {
+    toast(info.message, 'warning');
+    return;
+  }
+  const deductInput = document.getElementById(`bDeduct-${roomId}`);
+  const noteInput = document.getElementById(`bDeductNote-${roomId}`);
+  if (!deductInput || !noteInput) return;
+  const note = buildCommonElectricDeductionNote(info);
+  deductInput.value = String(info.amount);
+  noteInput.value = mergeCommonElectricDeductionNote(noteInput.value, note);
+  previewCommonElectricDeduction(roomId);
+  calcBillRoom(roomId);
+  saveBillingDraft(roomId, month);
+  toast('Đã đưa điện dùng chung vào khấu trừ P9.');
 }
 
 function toast(msg, type = 'success') {
@@ -10552,6 +10662,7 @@ async function loadBillingMonth() {
     const trashFee = bill?.trash_fee ?? getTrashFeeDefault();
     const deduction = bill?.deduction_amount || 0;
     const deductionDisplay = deduction > 0 ? deduction : '';
+    const commonElectricDefaults = isCommonElectricDeductionRoom(room) ? getCommonElectricDeductionDefaults(bill) : null;
     const elecAmount = bill?.electricity_amount || 0;
     const extraAmount = bill?.extra_fee || 0;
     const persistedTenantId = tenant.persisted_tenant_id || '';
@@ -10683,6 +10794,27 @@ async function loadBillingMonth() {
                     <label>Ghi chú khấu trừ</label>
                     <input type="text" class="form-input" id="bDeductNote-${esc(room.id)}" value="${esc(bill?.deduction_note ?? '')}" placeholder="Ví dụ: giảm giá hỗ trợ, hoàn tiền..." oninput="saveBillingDraft(${jsArg(room.id)},${jsArg(month)})" ${lockDisabledAttr}>
                   </div>
+                  ${commonElectricDefaults ? `
+                    <div class="common-electric-helper">
+                      <div class="common-electric-title">Điện dùng chung P9</div>
+                      <div class="common-electric-grid">
+                        <div class="form-group">
+                          <label>Số cũ</label>
+                          <input type="number" class="form-input" id="bCommonElecPrev-${esc(room.id)}" value="${esc(commonElectricDefaults.previous)}" oninput="previewCommonElectricDeduction(${jsArg(room.id)})" ${lockDisabledAttr}>
+                        </div>
+                        <div class="form-group">
+                          <label>Số mới</label>
+                          <input type="number" class="form-input" id="bCommonElecCur-${esc(room.id)}" value="${esc(commonElectricDefaults.current)}" placeholder="Nhập số cuối tháng" oninput="previewCommonElectricDeduction(${jsArg(room.id)})" ${lockDisabledAttr}>
+                        </div>
+                        <div class="form-group">
+                          <label>Đơn giá</label>
+                          <input type="text" inputmode="numeric" class="form-input" id="bCommonElecPrice-${esc(room.id)}" value="${esc(commonElectricDefaults.price)}" oninput="previewCommonElectricDeduction(${jsArg(room.id)})" ${lockDisabledAttr}>
+                        </div>
+                      </div>
+                      <button class="btn btn-outline btn-sm" type="button" onclick="applyCommonElectricDeduction(${jsArg(room.id)},${jsArg(month)})" ${lockDisabledAttr}>Tính vào khấu trừ</button>
+                      <div class="common-electric-preview" id="bCommonElecPreview-${esc(room.id)}">${commonElectricDefaults.amount ? `Đang lưu: ${fmt(commonElectricDefaults.amount)}` : 'Nhập số mới để tính khấu trừ điện/camera chung.'}</div>
+                    </div>
+                  ` : ''}
                 </div>
               </div>
               <div class="form-group" style="margin-bottom:0">
