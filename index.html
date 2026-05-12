@@ -563,6 +563,7 @@ body.dark-mode .overview-finance-table tbody tr:nth-child(even) td{background:rg
 .form-group label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:7px;letter-spacing:0}
 .form-input{width:100%;padding:11px 14px;border:1.5px solid rgba(255,122,26,.14);border-radius:14px;font-family:'Manrope',sans-serif;font-size:14px;transition:border-color .2s,box-shadow .2s,background .2s;background:var(--input-bg);color:var(--text);min-height:46px;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
 .form-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(181,138,49,.12)}
+.form-input[readonly]{background:rgba(148,163,184,.08);color:var(--text2);cursor:not-allowed}
 .form-input::placeholder{color:#9CA3AF}
 select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236B7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 textarea.form-input{resize:vertical;min-height:108px}
@@ -707,6 +708,7 @@ body.dark-mode .billing-edit-note{color:#FDE68A;background:rgba(245,158,11,.1);b
 .water-table-wrap{overflow:auto;border-radius:16px}
 .water-reference-main{font-size:12px;color:var(--text2);line-height:1.45}
 .water-reference-main strong{color:var(--text)}
+.water-reference-main.reset-base strong{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:rgba(14,165,233,.1);border:1px solid rgba(14,165,233,.22);color:#7DD3FC}
 .water-reference-sub{font-size:11px;color:var(--text2);line-height:1.45;margin-top:4px}
 .water-reference-debt{font-size:11px;color:#D97706;line-height:1.45;margin-top:4px;font-weight:700}
 .water-overview-toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
@@ -1965,8 +1967,8 @@ body.mobile-app .save-float{bottom:96px;right:16px}
     </div>
     <div class="grid-2">
       <div class="form-group">
-        <label>Số chốt đồng hồ cũ</label>
-        <input type="number" class="form-input" id="waterResetOldFinal" placeholder="Ví dụ: 576">
+        <label>Mốc cũ trước reset</label>
+        <input type="number" class="form-input" id="waterResetOldFinal" readonly>
       </div>
       <div class="form-group">
         <label>Số bắt đầu đồng hồ mới</label>
@@ -11754,15 +11756,17 @@ function calculateWaterUsageWithReset(previousValue = 0, currentValue = 0, reset
   const newStart = Number(reset.new_meter_start || 0);
   const beforeReset = Math.max(0, oldFinal - previous);
   const afterReset = Math.max(0, current - newStart);
+  const directResetBase = beforeReset === 0;
   return {
     hasReset: true,
     usage: beforeReset + afterReset,
     beforeReset,
     afterReset,
+    directResetBase,
     oldFinal,
     newStart,
     resetDate: reset.reset_date || '',
-    text: `${previous} → ${oldFinal} + ${newStart} → ${current}`
+    text: directResetBase ? `${newStart} → ${current}` : `${previous} → ${oldFinal} + ${newStart} → ${current}`
   };
 }
 
@@ -11777,7 +11781,7 @@ function getWaterResetValidationMessage({ hotPrev = 0, hotCur = 0, coldPrev = 0,
     const oldFinal = Number(item.reset.old_meter_final || 0);
     const newStart = Number(item.reset.new_meter_start || 0);
     if (oldFinal < Number(item.prev || 0)) {
-      errors.push(`${item.label}: số chốt đồng hồ cũ (${oldFinal}) nhỏ hơn mốc cũ (${item.prev})`);
+      errors.push(`${item.label}: mốc reset (${oldFinal}) nhỏ hơn mốc cũ (${item.prev})`);
     }
     if (Number(item.cur || 0) < newStart) {
       errors.push(`${item.label}: số hiện tại (${item.cur}) nhỏ hơn số bắt đầu đồng hồ mới (${newStart})`);
@@ -11791,7 +11795,7 @@ function buildWaterResetNoteText(resetPair = {}) {
     .map(type => {
       const reset = resetPair?.[type];
       if (!reset) return '';
-      return `${getMeterTypeLabel(type)} reset ${fmtDate(reset.reset_date)}: chốt cũ ${reset.old_meter_final}, đồng hồ mới từ ${reset.new_meter_start}`;
+      return `${getMeterTypeLabel(type)} reset ${fmtDate(reset.reset_date)}: Reset nước về ${reset.new_meter_start}`;
     })
     .filter(Boolean)
     .join(' | ');
@@ -11801,12 +11805,18 @@ function buildWaterResetUsageLine(label, usageInfo, price) {
   if (!usageInfo?.hasReset) {
     return `${label} (${usageInfo.usage} khối × ${fmt(price)}):`;
   }
+  if (usageInfo.directResetBase) {
+    return `${label} reset về ${usageInfo.newStart} (${usageInfo.text} = ${usageInfo.usage} khối × ${fmt(price)}):`;
+  }
   return `${label} reset (${usageInfo.text} = ${usageInfo.usage} khối × ${fmt(price)}):`;
 }
 
 function buildWaterResetBillDetail(label, usageInfo, price) {
   if (!usageInfo?.hasReset) {
     return `<div><strong>${label}:</strong> ${usageInfo.text} • ${usageInfo.usage} khối • ${fmt(price)}/khối</div>`;
+  }
+  if (usageInfo.directResetBase) {
+    return `<div><strong>${label}:</strong> reset ${fmtDate(usageInfo.resetDate)} về ${usageInfo.newStart} • ${usageInfo.text} • ${usageInfo.usage} khối • ${fmt(price)}/khối</div>`;
   }
   return `<div><strong>${label}:</strong> reset ${fmtDate(usageInfo.resetDate)} • ${usageInfo.text} • ${usageInfo.usage} khối • ${fmt(price)}/khối</div>`;
 }
@@ -11864,7 +11874,7 @@ function buildWaterOverviewPeriodCell(reading = null, cycleStart = '', meterRese
   const resetPair = getWaterMeterResetPair(meterResets, reading.room_id, reading.tenant_id, cycleStart || reading.billing_month || reading.reading_date || '');
   const hotInfo = calculateWaterUsageWithReset(reading.hot_water_previous, reading.hot_water_current, resetPair.hot);
   const coldInfo = calculateWaterUsageWithReset(reading.cold_water_previous, reading.cold_water_current, resetPair.cold);
-  return { label, text: `N${hotCurrent} / L${coldCurrent}`, sub: `${resetPair.hot || resetPair.cold ? 'Reset · ' : ''}Dùng N${hotInfo.usage} / L${coldInfo.usage}`, tone: resetPair.hot || resetPair.cold ? 'reset' : 'done' };
+  return { label, text: `N${hotCurrent} / L${coldCurrent}`, sub: `${resetPair.hot || resetPair.cold ? 'Reset về 0 · ' : ''}Dùng N${hotInfo.usage} / L${coldInfo.usage}`, tone: resetPair.hot || resetPair.cold ? 'reset' : 'done' };
 }
 
 function buildWaterYearOverviewRows({
@@ -11944,7 +11954,7 @@ function buildWaterYearOverviewRows({
       notes.push(`${getWaterReadingReferenceLabel(latest)} đang bật nợ nước.`);
     }
     const roomResets = (meterResets || []).filter(row => row.room_id === room.id && row.billing_month >= yearStart && row.billing_month <= yearEndCycle);
-    roomResets.forEach(row => notes.push(`${fmtDate(row.reset_date)}: reset ${getMeterTypeLabel(row.meter_type).toLowerCase()} chốt cũ ${row.old_meter_final}, đồng hồ mới từ ${row.new_meter_start}.`));
+    roomResets.forEach(row => notes.push(`${fmtDate(row.reset_date)}: reset ${getMeterTypeLabel(row.meter_type).toLowerCase()} về ${row.new_meter_start}.`));
     roomCheckouts.forEach(row => notes.push(`${fmtDate(row.checkout_date)}: ${row.tenant_name_snapshot || 'Khách cũ'} rời tại N${row.event_meta?.hot_current ?? '—'} | L${row.event_meta?.cold_current ?? '—'}.`));
     roomMoveIns.forEach(row => notes.push(`${fmtDate(row.move_in_date)}: ${row.tenant_name_snapshot || 'Khách mới'} vào tại N${row.event_meta?.initial_hot_water ?? '—'} | L${row.event_meta?.initial_cold_water ?? '—'}.`));
     if (!yearReadings.length && !beforeYear) notes.push('Chưa có dữ liệu nước.');
@@ -12084,10 +12094,13 @@ async function loadWaterEntry() {
       ? await getPreviousReading(effectiveTenantId, prev.reading_date)
       : null;
     const carryoverText = (!debt && prev?.is_water_debt) ? 'Kỳ này đang tính dồn tiền nước do kỳ trước bật nợ nước.' : '';
-    const latestReference = `Nóng ${hotPrev} | Lạnh ${coldPrev}`;
+    const displayHotPrev = resetPair.hot ? resetPair.hot.new_meter_start : hotPrev;
+    const displayColdPrev = resetPair.cold ? resetPair.cold.new_meter_start : coldPrev;
+    const isResetBaseDisplay = !!(resetPair.hot || resetPair.cold);
+    const latestReference = `Nóng ${displayHotPrev} | Lạnh ${displayColdPrev}`;
     const referenceSourceText = prev?.is_water_debt
       ? `Kỳ trước nợ nước; mốc giữ theo ${getWaterReadingReferenceLabel(prevBeforeDebt) || getWaterReadingReferenceLabel(prev)}`
-      : (getWaterReadingReferenceLabel(prev) || (monthRowMatchesTenant && monthRow ? 'snapshot bảng tháng' : 'hồ sơ khách'));
+      : (isResetBaseDisplay ? 'Reset nước về 0.' : (getWaterReadingReferenceLabel(prev) || (monthRowMatchesTenant && monthRow ? 'snapshot bảng tháng' : 'hồ sơ khách')));
     const referenceDebtText = prev?.is_water_debt
       ? `Kỳ ${getPeriodMonthTitle(prev.billing_month || prev.reading_date).replace('THÁNG', 'Tháng')} đã bật nợ nước nên số này không phải mốc mới; kỳ này sẽ tính dồn từ mốc trên.`
       : '';
@@ -12127,7 +12140,7 @@ async function loadWaterEntry() {
         <td><input class="form-input ${missingInputClass}" type="number" id="wrHotCur-${esc(effectiveTenantId)}" value="${esc(draftHotCur)}" placeholder="Nhập số hiện tại" oninput="saveWaterDraft(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
         <td><input class="form-input ${missingInputClass}" type="number" id="wrColdCur-${esc(effectiveTenantId)}" value="${esc(draftColdCur)}" placeholder="Nhập số hiện tại" oninput="saveWaterDraft(${jsArg(room.id)},${jsArg(effectiveTenantId)},${jsArg(readingDate)})" ${debt?'readonly':''} ${isWritable ? '' : 'disabled'}></td>
         <td>
-          <div class="water-reference-main"><strong>${latestReference}</strong></div>
+          <div class="water-reference-main ${isResetBaseDisplay ? 'reset-base' : ''}"><strong>${latestReference}</strong></div>
           <div class="water-reference-sub">${esc(referenceSourceText)}</div>
           ${referenceDebtText ? `<div class="water-reference-debt">${esc(referenceDebtText)}</div>` : ''}
         </td>
@@ -12236,7 +12249,7 @@ async function loadWaterEntry() {
 function getDefaultWaterResetDate(readingDate = '') {
   const today = getTodayIsoLocal();
   const cycleEnd = readingDate ? getNextCycleStart(readingDate) : '';
-  return readingDate && today >= readingDate && (!cycleEnd || today < cycleEnd) ? today : (readingDate || today);
+  return readingDate && today >= readingDate && (!cycleEnd || today <= cycleEnd) ? today : (readingDate || today);
 }
 
 function openWaterResetModal(roomId, tenantId, readingDate) {
@@ -12248,7 +12261,8 @@ function openWaterResetModal(roomId, tenantId, readingDate) {
   waterResetCtx = { ...ctx, roomId, tenantId, readingDate };
   document.getElementById('waterResetMeta').innerHTML = `
     <strong>Phòng ${esc(ctx.roomNumber || '')} - ${esc(ctx.tenantName || '')}</strong><br>
-    Kỳ ${esc(getPeriodMonthTitle(readingDate).replace('THÁNG', 'Tháng'))}. Mốc hiện tại: Nóng ${esc(ctx.hotPrev)} | Lạnh ${esc(ctx.coldPrev)}.
+    Kỳ ${esc(getPeriodMonthTitle(readingDate).replace('THÁNG', 'Tháng'))} (${esc(getPeriodDisplayText(readingDate))}). Mốc hiện tại: Nóng ${esc(ctx.hotPrev)} | Lạnh ${esc(ctx.coldPrev)}.<br>
+    Reset chỉ áp dụng cho kỳ đang chọn. Ví dụ ngày 01/06 chốt số tháng 5 thì chọn Tháng 5/2026, không chọn Tháng 6/2026.
   `;
   document.getElementById('waterResetMeterType').value = ctx.resetPair?.cold ? 'cold' : (ctx.resetPair?.hot ? 'hot' : 'cold');
   prefillWaterResetModalFromType();
@@ -12261,16 +12275,16 @@ function prefillWaterResetModalFromType() {
   if (!waterResetCtx) return;
   const type = document.getElementById('waterResetMeterType')?.value || 'cold';
   const existing = waterResetCtx.resetPair?.[type] || null;
-  document.getElementById('waterResetDate').value = existing?.reset_date || getDefaultWaterResetDate(waterResetCtx.readingDate);
-  document.getElementById('waterResetOldFinal').value = existing ? existing.old_meter_final : '';
-  document.getElementById('waterResetNewStart').value = existing ? existing.new_meter_start : '0';
-  document.getElementById('waterResetNote').value = existing?.note || 'Reset số nước do thay đồng hồ';
   const base = type === 'hot' ? waterResetCtx.hotPrev : waterResetCtx.coldPrev;
+  document.getElementById('waterResetDate').value = existing?.reset_date || getDefaultWaterResetDate(waterResetCtx.readingDate);
+  document.getElementById('waterResetOldFinal').value = existing ? existing.old_meter_final : base;
+  document.getElementById('waterResetNewStart').value = existing ? existing.new_meter_start : '0';
+  document.getElementById('waterResetNote').value = existing?.note || 'Reset nước về 0';
   const existingEl = document.getElementById('waterResetExisting');
   if (existingEl) {
     existingEl.innerHTML = existing
-      ? `<strong>Đang có reset:</strong> ${esc(getMeterTypeLabel(type))} ngày ${esc(fmtDate(existing.reset_date))}, chốt cũ ${esc(existing.old_meter_final)}, đồng hồ mới từ ${esc(existing.new_meter_start)}.`
-      : `Chưa có reset cho ${esc(getMeterTypeLabel(type))}. Mốc cũ đang là <strong>${esc(base)}</strong>; nhập số chốt đồng hồ cũ tại ngày thay.`;
+      ? `<strong>Đang có reset:</strong> ${esc(getMeterTypeLabel(type))} ngày ${esc(fmtDate(existing.reset_date))}, reset nước về ${esc(existing.new_meter_start)}.`
+      : `Chưa có reset cho ${esc(getMeterTypeLabel(type))}. Mốc cũ <strong>${esc(base)}</strong>; kỳ này tính từ số bắt đầu đồng hồ mới.`;
   }
   const deleteBtn = document.getElementById('waterResetDeleteBtn');
   if (deleteBtn) deleteBtn.style.display = existing ? '' : 'none';
@@ -12295,13 +12309,16 @@ async function saveWaterMeterReset() {
   if (!waterResetCtx) return;
   const type = document.getElementById('waterResetMeterType')?.value || 'cold';
   const resetDate = document.getElementById('waterResetDate')?.value || '';
-  const oldFinal = getInputNumberOrNull('waterResetOldFinal');
   const newStart = getInputNumberOrNull('waterResetNewStart');
   const note = document.getElementById('waterResetNote')?.value || '';
   const base = type === 'hot' ? Number(waterResetCtx.hotPrev || 0) : Number(waterResetCtx.coldPrev || 0);
+  const oldFinal = base;
+  const cycleEnd = getNextCycleStart(waterResetCtx.readingDate);
   if (!resetDate) return toast('Chọn ngày reset số nước.', 'warning');
-  if (oldFinal === null || newStart === null) return toast('Nhập đủ số chốt đồng hồ cũ và số bắt đầu đồng hồ mới.', 'warning');
-  if (oldFinal < base) return toast(`Số chốt đồng hồ cũ không được nhỏ hơn mốc gần nhất (${oldFinal} < ${base}).`, 'warning');
+  if (resetDate < waterResetCtx.readingDate || (cycleEnd && resetDate > cycleEnd)) {
+    return toast(`Ngày reset phải nằm trong kỳ ${getPeriodMonthTitle(waterResetCtx.readingDate).replace('THÁNG', 'Tháng')} (${getPeriodDisplayText(waterResetCtx.readingDate)}).`, 'warning');
+  }
+  if (newStart === null) return toast('Nhập số bắt đầu đồng hồ mới.', 'warning');
   if (newStart < 0) return toast('Số bắt đầu đồng hồ mới không được âm.', 'warning');
   const verified = await verifyWaterResetPassword('lưu reset số nước');
   if (!verified) return;
