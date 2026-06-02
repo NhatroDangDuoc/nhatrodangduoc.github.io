@@ -3486,7 +3486,7 @@ function formatKwh(value) {
 }
 
 function parseCommonElectricDeductionNote(note = '') {
-  const pattern = /Điện dùng chung:\s*([\d.,]+)\s*(?:→|->)\s*([\d.,]+)\s*=\s*([\d.,]+)\s*kWh\s*[×x]\s*([\d.,]+)\s*=\s*([\d.,]+)đ?/i;
+  const pattern = /Điện dùng chung:\s*([\d.,]+)\s*(?:→|->)\s*([\d.,]+)\s*=\s*([\d.,]+)\s*kWh\s*[×x]\s*([\d.,]+)đ?\s*=\s*([\d.,]+)đ?/i;
   const match = String(note || '').match(pattern);
   if (!match) return null;
   return {
@@ -3504,8 +3504,14 @@ function getCommonElectricDeductionDefaults(bill = null) {
     previous: parsed?.previous ?? COMMON_ELECTRIC_DEDUCTION_BASE_READING,
     current: parsed?.current ?? '',
     price: parsed?.price ?? COMMON_ELECTRIC_DEDUCTION_DEFAULT_PRICE,
-    amount: parsed?.amount ?? (bill?.deduction_amount || 0)
+    amount: parsed?.amount ?? 0
   };
+}
+
+function getOtherDeductionAmountFromBill(bill = null, commonElectricDefaults = null) {
+  const totalDeduction = Number(bill?.deduction_amount || 0);
+  const commonDeduction = Number(commonElectricDefaults?.amount || 0);
+  return Math.max(0, totalDeduction - commonDeduction);
 }
 
 function getCommonElectricDeductionInput(roomId) {
@@ -3527,7 +3533,7 @@ function buildCommonElectricDeductionNote(info) {
 function mergeCommonElectricDeductionNote(existingNote = '', commonNote = '') {
   const cleanExisting = String(existingNote || '').trim();
   if (!cleanExisting) return commonNote;
-  const pattern = /Điện dùng chung:\s*[\d.,]+\s*(?:→|->)\s*[\d.,]+\s*=\s*[\d.,]+\s*kWh\s*[×x]\s*[\d.,]+\s*=\s*[\d.,]+đ?/i;
+  const pattern = /Điện dùng chung:\s*[\d.,]+\s*(?:→|->)\s*[\d.,]+\s*=\s*[\d.,]+\s*kWh\s*[×x]\s*[\d.,]+đ?\s*=\s*[\d.,]+đ?/i;
   if (pattern.test(cleanExisting)) {
     return cleanExisting.replace(pattern, commonNote);
   }
@@ -3551,16 +3557,16 @@ function applyCommonElectricDeduction(roomId, month) {
     toast(info.message, 'warning');
     return;
   }
-  const deductInput = document.getElementById(`bDeduct-${roomId}`);
+  const commonAmountInput = document.getElementById(`bCommonElecAmount-${roomId}`);
   const noteInput = document.getElementById(`bDeductNote-${roomId}`);
-  if (!deductInput || !noteInput) return;
+  if (!commonAmountInput || !noteInput) return;
   const note = buildCommonElectricDeductionNote(info);
-  deductInput.value = String(info.amount);
+  commonAmountInput.value = String(info.amount);
   noteInput.value = mergeCommonElectricDeductionNote(noteInput.value, note);
   previewCommonElectricDeduction(roomId);
   calcBillRoom(roomId);
   saveBillingDraft(roomId, month);
-  toast('Đã đưa điện dùng chung vào khấu trừ P9.');
+  toast('Đã cộng điện dùng chung vào tổng khấu trừ P9.');
 }
 
 function toast(msg, type = 'success') {
@@ -3671,8 +3677,13 @@ function saveBillingDraft(roomId, month) {
     extra: document.getElementById(`bExtra-${roomId}`)?.value ?? '',
     deduct: document.getElementById(`bDeduct-${roomId}`)?.value ?? '',
     deductNote: document.getElementById(`bDeductNote-${roomId}`)?.value ?? '',
+    commonElecPrev: document.getElementById(`bCommonElecPrev-${roomId}`)?.value ?? '',
+    commonElecCur: document.getElementById(`bCommonElecCur-${roomId}`)?.value ?? '',
+    commonElecPrice: document.getElementById(`bCommonElecPrice-${roomId}`)?.value ?? '',
+    commonElecAmount: document.getElementById(`bCommonElecAmount-${roomId}`)?.value ?? '',
     extraNote: document.getElementById(`bExtraNote-${roomId}`)?.value ?? '',
     note: document.getElementById(`bNote-${roomId}`)?.value ?? '',
+    deductionDraftVersion: 2,
     ts: Date.now()
   };
   getBillingDraftStore()[draftKey(roomId, month)] = payload;
@@ -3683,8 +3694,22 @@ function loadBillingDraft(roomId, month) {
     if (!d) return;
     if (document.getElementById(`bElec-${roomId}`) && (document.getElementById(`bElec-${roomId}`).value === '' || document.getElementById(`bElec-${roomId}`).value == null)) document.getElementById(`bElec-${roomId}`).value = d.elec ?? '';
     if (document.getElementById(`bExtra-${roomId}`) && (document.getElementById(`bExtra-${roomId}`).value === '' || document.getElementById(`bExtra-${roomId}`).value == null)) document.getElementById(`bExtra-${roomId}`).value = d.extra ?? '';
-    if (document.getElementById(`bDeduct-${roomId}`) && (document.getElementById(`bDeduct-${roomId}`).value === '' || document.getElementById(`bDeduct-${roomId}`).value == null)) document.getElementById(`bDeduct-${roomId}`).value = d.deduct ?? '';
+    if (document.getElementById(`bDeduct-${roomId}`) && (document.getElementById(`bDeduct-${roomId}`).value === '' || document.getElementById(`bDeduct-${roomId}`).value == null)) {
+      let draftDeduct = d.deduct ?? '';
+      const commonAmountInput = document.getElementById(`bCommonElecAmount-${roomId}`);
+      if (commonAmountInput && d.deductionDraftVersion !== 2) {
+        const parsedCommon = parseCommonElectricDeductionNote(d.deductNote || '');
+        if (parsedCommon?.amount) {
+          draftDeduct = Math.max(0, parseVietnameseNumber(draftDeduct) - Number(parsedCommon.amount || 0));
+        }
+      }
+      document.getElementById(`bDeduct-${roomId}`).value = draftDeduct;
+    }
     if (document.getElementById(`bDeductNote-${roomId}`) && !document.getElementById(`bDeductNote-${roomId}`).value) document.getElementById(`bDeductNote-${roomId}`).value = d.deductNote ?? '';
+    if (document.getElementById(`bCommonElecPrev-${roomId}`) && d.commonElecPrev !== '') document.getElementById(`bCommonElecPrev-${roomId}`).value = d.commonElecPrev ?? '';
+    if (document.getElementById(`bCommonElecCur-${roomId}`) && d.commonElecCur !== '') document.getElementById(`bCommonElecCur-${roomId}`).value = d.commonElecCur ?? '';
+    if (document.getElementById(`bCommonElecPrice-${roomId}`) && d.commonElecPrice !== '') document.getElementById(`bCommonElecPrice-${roomId}`).value = d.commonElecPrice ?? '';
+    if (document.getElementById(`bCommonElecAmount-${roomId}`) && d.commonElecAmount !== '') document.getElementById(`bCommonElecAmount-${roomId}`).value = d.commonElecAmount ?? '';
     if (document.getElementById(`bExtraNote-${roomId}`) && !document.getElementById(`bExtraNote-${roomId}`).value) document.getElementById(`bExtraNote-${roomId}`).value = d.extraNote ?? '';
     if (document.getElementById(`bNote-${roomId}`) && !document.getElementById(`bNote-${roomId}`).value) document.getElementById(`bNote-${roomId}`).value = d.note ?? '';
   } catch(e) {}
@@ -10671,8 +10696,9 @@ async function loadBillingMonth() {
     const wifiAmt = (tenant.has_wifi_override !== null ? tenant.has_wifi_override : room.has_wifi) ? (appData.settings?.wifi_price || 60000) : 0;
     const trashFee = bill?.trash_fee ?? getTrashFeeDefault();
     const deduction = bill?.deduction_amount || 0;
-    const deductionDisplay = deduction > 0 ? deduction : '';
     const commonElectricDefaults = canUseCommonElectricDeduction(room, month) ? getCommonElectricDeductionDefaults(bill) : null;
+    const otherDeduction = getOtherDeductionAmountFromBill(bill, commonElectricDefaults);
+    const deductionDisplay = otherDeduction > 0 ? otherDeduction : '';
     const elecAmount = bill?.electricity_amount || 0;
     const extraAmount = bill?.extra_fee || 0;
     const persistedTenantId = tenant.persisted_tenant_id || '';
@@ -10796,9 +10822,9 @@ async function loadBillingMonth() {
                 </div>
                 <div class="billing-field-card">
                   <div class="form-group">
-                    <label>Khấu trừ cho phòng (VNĐ)</label>
+                    <label>${commonElectricDefaults ? 'Khấu trừ khác (VNĐ)' : 'Khấu trừ cho phòng (VNĐ)'}</label>
                     <input type="text" inputmode="numeric" class="form-input" id="bDeduct-${esc(room.id)}" value="${esc(deductionDisplay)}" placeholder="Ví dụ: 100000" oninput="calcBillRoom(${jsArg(room.id)})" ${lockDisabledAttr}>
-                    <div class="money-input-preview" id="bDeductPreview-${esc(room.id)}">${deduction ? `= ${fmt(deduction)}` : ''}</div>
+                    <div class="money-input-preview" id="bDeductPreview-${esc(room.id)}">${otherDeduction ? `= ${fmt(otherDeduction)}` : ''}</div>
                   </div>
                   <div class="form-group">
                     <label>Ghi chú khấu trừ</label>
@@ -10807,6 +10833,7 @@ async function loadBillingMonth() {
                   ${commonElectricDefaults ? `
                     <div class="common-electric-helper">
                       <div class="common-electric-title">Điện dùng chung P9</div>
+                      <input type="hidden" id="bCommonElecAmount-${esc(room.id)}" value="${esc(commonElectricDefaults.amount || 0)}">
                       <div class="common-electric-grid">
                         <div class="form-group">
                           <label>Số cũ</label>
@@ -10821,8 +10848,8 @@ async function loadBillingMonth() {
                           <input type="text" inputmode="numeric" class="form-input" id="bCommonElecPrice-${esc(room.id)}" value="${esc(commonElectricDefaults.price)}" oninput="previewCommonElectricDeduction(${jsArg(room.id)})" ${lockDisabledAttr}>
                         </div>
                       </div>
-                      <button class="btn btn-outline btn-sm" type="button" onclick="applyCommonElectricDeduction(${jsArg(room.id)},${jsArg(month)})" ${lockDisabledAttr}>Tính vào khấu trừ</button>
-                      <div class="common-electric-preview" id="bCommonElecPreview-${esc(room.id)}">${commonElectricDefaults.amount ? `Đang lưu: ${fmt(commonElectricDefaults.amount)}` : 'Nhập số mới để tính khấu trừ điện/camera chung.'}</div>
+                      <button class="btn btn-outline btn-sm" type="button" onclick="applyCommonElectricDeduction(${jsArg(room.id)},${jsArg(month)})" ${lockDisabledAttr}>Cộng vào khấu trừ</button>
+                      <div class="common-electric-preview" id="bCommonElecPreview-${esc(room.id)}">${commonElectricDefaults.amount ? `Đang tính điện chung: ${fmt(commonElectricDefaults.amount)}` : 'Nhập số mới để tính khấu trừ điện/camera chung.'}</div>
                     </div>
                   ` : ''}
                 </div>
@@ -10911,7 +10938,9 @@ function calcBillRoom(roomId) {
   const elec = readMoneyInputValue(`bElec-${roomId}`);
   const trash = getTrashFeeDefault();
   const extra = readMoneyInputValue(`bExtra-${roomId}`);
-  const deduct = readMoneyInputValue(`bDeduct-${roomId}`);
+  const otherDeduct = readMoneyInputValue(`bDeduct-${roomId}`);
+  const commonElecDeduct = readMoneyInputValue(`bCommonElecAmount-${roomId}`);
+  const deduct = otherDeduct + commonElecDeduct;
 
   if (isWaitingForWater) {
     document.getElementById(`bHotLine-${roomId}`).innerHTML = `<span>Nước nóng:</span><span style="color:var(--warning)">Chờ số nước</span>`;
@@ -10927,10 +10956,13 @@ function calcBillRoom(roomId) {
   document.getElementById(`bElecLine-${roomId}`).textContent = fmt(elec);
   document.getElementById(`bTrashLine-${roomId}`).textContent = fmt(trash);
   document.getElementById(`bExtraLine-${roomId}`).innerHTML = `<span>Chi phí khác:</span><span>${extra ? fmt(extra) : 'Không'}</span>`;
-  document.getElementById(`bDeductLine-${roomId}`).innerHTML = `<span>Khấu trừ:</span><span style="color:#059669">${deduct ? `- ${fmt(deduct)}` : 'Không'}</span>`;
+  const deductDetail = commonElecDeduct
+    ? `<span style="display:block;font-size:11px;color:var(--text2);margin-top:3px">Khác ${fmt(otherDeduct)} + điện chung ${fmt(commonElecDeduct)}</span>`
+    : '';
+  document.getElementById(`bDeductLine-${roomId}`).innerHTML = `<span>Khấu trừ:</span><span style="color:#059669">${deduct ? `- ${fmt(deduct)}${deductDetail}` : 'Không'}</span>`;
   updateMoneyInputPreview(`bElecPreview-${roomId}`, elec);
   updateMoneyInputPreview(`bExtraPreview-${roomId}`, extra);
-  updateMoneyInputPreview(`bDeductPreview-${roomId}`, deduct);
+  updateMoneyInputPreview(`bDeductPreview-${roomId}`, otherDeduct);
 
   const total = roomPrice + hotAmt + coldAmt + elec + wifiAmt + trash + extra - deduct;
   document.getElementById(`bTotal-${roomId}`).textContent = `${isWaitingForWater ? 'TẠM TÍNH: ' : 'TỔNG: '}${fmt(total)}`;
@@ -11043,8 +11075,10 @@ async function saveBillRoom(roomId, tenantId, month) {
   const coldAmt = Math.round(coldUsage * coldPrice);
   const elec = readMoneyInputValue(`bElec-${roomId}`);
   const extra = readMoneyInputValue(`bExtra-${roomId}`);
-  const deduct = readMoneyInputValue(`bDeduct-${roomId}`);
-  if (hasNegativeMoneyInput([elec, extra, deduct])) {
+  const otherDeduct = readMoneyInputValue(`bDeduct-${roomId}`);
+  const commonElecDeduct = readMoneyInputValue(`bCommonElecAmount-${roomId}`);
+  const deduct = otherDeduct + commonElecDeduct;
+  if (hasNegativeMoneyInput([elec, extra, otherDeduct, commonElecDeduct])) {
     toast('Tiền điện, phụ phí và khấu trừ không được âm.', 'warning');
     return;
   }
@@ -11277,7 +11311,7 @@ async function renderBillImageAsset(roomId, tenantId, month) {
               </tr>
               <tr>
                 <td style="padding:10px 12px;border-top:2px solid #FFD1B5;border-right:2px solid #FFD1B5;vertical-align:top">
-                  <div style="font-weight:900;color:#1F2937;font-size:15px">Khấu trừ khác</div>
+                  <div style="font-weight:900;color:#1F2937;font-size:15px">Khấu trừ</div>
                   <div style="margin-top:4px;font-size:13px;color:#4B5563">${bill.deduction_note || 'Không có ghi chú khấu trừ'}</div>
                 </td>
                 <td style="padding:10px 14px;border-top:2px solid #FFD1B5;text-align:center;font-size:15px;color:#4B5563">${bill.deduction_amount ? `- ${fmt(bill.deduction_amount || 0)}` : fmt(0)}</td>
