@@ -4217,7 +4217,7 @@ async function resolveRoomMonthTenant(room, month, monthRow = null, bill = null,
   const eligibleActiveTenant = isTenantEligibleForMonth(activeTenant, month) ? activeTenant : null;
   const tenantId = bill?.tenant_id || reading?.tenant_id || monthRow?.tenant_id || eligibleActiveTenant?.id || null;
   const tenantRecord = tenantId ? await fetchTenantById(tenantId) : null;
-  const displayName = tenantRecord?.full_name || monthRow?.full_name || eligibleActiveTenant?.full_name || '';
+  const displayName = monthRow?.full_name || tenantRecord?.full_name || eligibleActiveTenant?.full_name || '';
   if (!displayName && !tenantId) return null;
   return {
     ...(tenantRecord || eligibleActiveTenant || {}),
@@ -4225,8 +4225,8 @@ async function resolveRoomMonthTenant(room, month, monthRow = null, bill = null,
     persisted_tenant_id: tenantId || null,
     room_id: room.id,
     full_name: displayName,
-    phone: normalizePhoneDigits(tenantRecord?.phone || monthRow?.phone || eligibleActiveTenant?.phone || ''),
-    cccd_number: tenantRecord?.cccd_number || monthRow?.cccd_number || eligibleActiveTenant?.cccd_number || '',
+    phone: normalizePhoneDigits(monthRow?.phone || tenantRecord?.phone || eligibleActiveTenant?.phone || ''),
+    cccd_number: monthRow?.cccd_number || tenantRecord?.cccd_number || eligibleActiveTenant?.cccd_number || '',
     room_price_override: monthRow?.room_price ?? tenantRecord?.room_price_override ?? eligibleActiveTenant?.room_price_override ?? null,
     has_wifi_override: tenantRecord?.has_wifi_override ?? eligibleActiveTenant?.has_wifi_override ?? null,
     move_in_date: tenantRecord?.move_in_date || eligibleActiveTenant?.move_in_date || null,
@@ -4696,6 +4696,11 @@ function buildBaseMonthlySheetPayload(room, billingMonth, extras = {}) {
   };
 }
 
+function getEligibleActiveTenantForRoomMonth(roomId, month) {
+  const activeTenant = getTenantForRoom(roomId);
+  return isTenantEligibleForMonth(activeTenant, month) ? activeTenant : null;
+}
+
 async function materializeDashboardMonth(month) {
   const [existingRes, billsRes, readingsRes] = await Promise.all([
     sb.from('monthly_room_sheet_data').select('room_id').eq('billing_month', month),
@@ -4736,7 +4741,7 @@ async function materializeDashboardMonth(month) {
   const upserts = missingRooms.map(room => {
     const bill = billsByRoom.get(room.id) || null;
     const reading = readingsByRoom.get(room.id) || null;
-    const tenant = monthTenantMap.get(bill?.tenant_id || reading?.tenant_id) || getTenantForRoom(room.id) || null;
+    const tenant = monthTenantMap.get(bill?.tenant_id || reading?.tenant_id) || getEligibleActiveTenantForRoomMonth(room.id, month) || null;
     return sb.from('monthly_room_sheet_data').upsert(
       buildBaseMonthlySheetPayload(room, month, { tenant, bill, reading }),
       { onConflict: 'room_id,billing_month' }
@@ -11995,10 +12000,10 @@ function buildWaterYearOverviewRows({
     });
     const tenantNames = [
       ...new Set([
-        activeTenant?.full_name || '',
-        ...roomMoveIns.map(row => row.tenant_name_snapshot || ''),
         ...roomCheckouts.map(row => row.tenant_name_snapshot || ''),
-        ...yearReadings.map(row => tenantNameById.get(row.tenant_id) || '')
+        ...yearReadings.map(row => tenantNameById.get(row.tenant_id) || ''),
+        ...roomMoveIns.map(row => row.tenant_name_snapshot || ''),
+        activeTenant && isTenantEligibleForMonth(activeTenant, yearEndCycle) ? activeTenant.full_name || '' : ''
       ].filter(Boolean))
     ];
     const notes = [];
