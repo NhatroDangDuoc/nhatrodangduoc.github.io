@@ -9214,7 +9214,7 @@ async function openRoomDetail(roomId, initialSection = 'room') {
             <div class="form-group"><label>Số nước lạnh khởi điểm</label><input type="number" class="form-input" id="tnColdBaseline" value="${baselineCold}" onchange="markUnsaved()"></div>
           </div>
         </div>
-        ${baselineFloor.hot > 0 || baselineFloor.cold > 0 ? `<div style="font-size:12px;line-height:1.55;color:var(--warning);background:rgba(201,120,23,.08);border:1px solid rgba(201,120,23,.18);border-radius:12px;padding:10px 12px;margin-bottom:12px">Mốc nước ban đầu của khách hiện tại không được thấp hơn mốc gần nhất của phòng: <strong>N${esc(baselineFloor.hot)}</strong> | <strong>L${esc(baselineFloor.cold)}</strong>${baselineFloor.sourceText ? ` (${esc(baselineFloor.sourceText)})` : ''}. Nếu muốn reset xuống thấp hơn, phải dùng <strong>HARD DELETE</strong>.</div>` : ''}
+        ${baselineFloor.hot > 0 || baselineFloor.cold > 0 ? `<div style="font-size:12px;line-height:1.55;color:var(--warning);background:rgba(201,120,23,.08);border:1px solid rgba(201,120,23,.18);border-radius:12px;padding:10px 12px;margin-bottom:12px">Mốc nước ban đầu của khách hiện tại phải tiếp nối mốc thực tế gần nhất của phòng: <strong>N${esc(baselineFloor.hot)}</strong> | <strong>L${esc(baselineFloor.cold)}</strong>${baselineFloor.sourceText ? ` (${esc(baselineFloor.sourceText)})` : ''}. Nếu số thực tế khác, kiểm tra lại checkout/reset trước khi lưu.</div>` : ''}
         <div id="roomHeadInputsFiles" class="room-head-inputs is-locked">
           <div class="grid-2">
             <div class="form-group"><label>CCCD mặt trước</label><input type="file" class="form-input" id="tnCCCDFront" accept="image/*" onchange="markUnsaved()">${cccdFrontSigned ? `<div class="file-current-preview"><a href="${esc(cccdFrontSigned)}" target="_blank"><img src="${esc(cccdFrontSigned)}" alt="CCCD mặt trước"></a><div class="file-current-meta"><div class="file-current-name">${esc(getFileNameFromPath(tenant.cccd_front_url) || 'CCCD mặt trước')}</div><button class="btn btn-danger btn-sm" type="button" onclick="deleteTenantCccdFile('front')">Xóa ảnh</button></div></div>`:''}</div>
@@ -9382,7 +9382,7 @@ async function saveRoomProfile(fromClose = false) {
   if (tenantId && moveInDateForValidation) {
     const baselineFloor = await getRoomWaterFloorBeforeDate(roomId, moveInDateForValidation, tenantId);
     if (hotBaseline < baselineFloor.hot || coldBaseline < baselineFloor.cold) {
-      toast(`Số nước khởi điểm không được thấp hơn mốc gần nhất của Phòng ${room?.room_number || ''}: N${baselineFloor.hot} | L${baselineFloor.cold}. Nếu muốn reset xuống thấp hơn, phải dùng HARD DELETE.`, 'warning');
+      toast(`Số nước khởi điểm thấp hơn mốc thực tế gần nhất của Phòng ${room?.room_number || ''}: N${baselineFloor.hot} | L${baselineFloor.cold}. Kiểm tra lại checkout/reset trước khi lưu.`, 'warning');
       return false;
     }
   }
@@ -11461,6 +11461,15 @@ async function getLatestRecordedReading(tenantId) {
   return (data && data[0]) || null;
 }
 
+function selectLatestWaterFloorCandidate(candidates = []) {
+  if (!Array.isArray(candidates) || !candidates.length) return null;
+  return candidates.slice().sort((a, b) => {
+    const dateDiff = String(b?.eventDate || '').localeCompare(String(a?.eventDate || ''));
+    if (dateDiff) return dateDiff;
+    return Number(b?.priority || 0) - Number(a?.priority || 0);
+  })[0] || null;
+}
+
 async function getRoomWaterFloorBeforeDate(roomId, referenceDate, excludeTenantId = null) {
   if (!roomId || !referenceDate) {
     return { hot: 0, cold: 0, sourceText: '' };
@@ -11474,7 +11483,7 @@ async function getRoomWaterFloorBeforeDate(roomId, referenceDate, excludeTenantI
       .order('checkout_date', { ascending: false })
       .limit(5),
     sb.from('water_readings')
-      .select('tenant_id, reading_date, hot_water_current, cold_water_current, reading_source')
+      .select('tenant_id, billing_month, reading_date, hot_water_current, cold_water_current, reading_source')
       .eq('room_id', roomId)
       .lte('reading_date', referenceDate)
       .order('reading_date', { ascending: false })
@@ -11488,33 +11497,34 @@ async function getRoomWaterFloorBeforeDate(roomId, referenceDate, excludeTenantI
     candidates.push({
       hot: parseInt(meta.hot_current) || 0,
       cold: parseInt(meta.cold_current) || 0,
+      eventDate: row.checkout_date || '',
+      priority: 30,
       sourceText: `checkout ${fmtDate(row.checkout_date)}`
     });
   });
   (readingRes.data || []).forEach(row => {
     if (excludeTenantId && row.tenant_id === excludeTenantId) return;
+    const eventDate = getReadingActualEventDate(row);
+    if (!eventDate || eventDate > referenceDate) return;
     candidates.push({
       hot: parseInt(row.hot_water_current) || 0,
       cold: parseInt(row.cold_water_current) || 0,
+      eventDate,
+      priority: row.reading_source === 'move_in_baseline' ? 10 : 20,
       sourceText: row.reading_source === 'move_in_baseline'
         ? `mốc vào ở ${fmtDate(row.reading_date)}`
-        : `số nước ${fmtDate(row.reading_date)}`
+        : getWaterReadingReferenceLabel(row)
     });
   });
 
-  if (!candidates.length) {
+  const latest = selectLatestWaterFloorCandidate(candidates);
+  if (!latest) {
     return { hot: 0, cold: 0, sourceText: '' };
   }
-
-  const floor = candidates.reduce((acc, item) => ({
-    hot: Math.max(acc.hot, item.hot || 0),
-    cold: Math.max(acc.cold, item.cold || 0)
-  }), { hot: 0, cold: 0 });
-  const source = candidates.find(item => item.hot === floor.hot && item.cold === floor.cold) || candidates[0];
   return {
-    hot: floor.hot,
-    cold: floor.cold,
-    sourceText: source?.sourceText || ''
+    hot: latest.hot || 0,
+    cold: latest.cold || 0,
+    sourceText: latest.sourceText || ''
   };
 }
 
@@ -12679,9 +12689,9 @@ async function updateProratedCalc() {
     hotInput.min = String(floor.hot || 0);
     coldInput.min = String(floor.cold || 0);
     if ((floor.hot || 0) > 0 || (floor.cold || 0) > 0) {
-      if ((parseInt(hotInput.value) || 0) < floor.hot) hotInput.value = String(floor.hot);
-      if ((parseInt(coldInput.value) || 0) < floor.cold) coldInput.value = String(floor.cold);
-      guardEl.innerHTML = `Phòng này đã có mốc số nước gần nhất của phòng: <strong>N${floor.hot}</strong> | <strong>L${floor.cold}</strong>${floor.sourceText ? ` (${floor.sourceText})` : ''}. Khách mới vào phải nhập số nước ban đầu <strong>không thấp hơn</strong> mốc này. Muốn reset xuống thấp hơn chỉ được dùng <strong>HARD DELETE</strong>.`;
+      if (!String(hotInput.value || '').trim()) hotInput.value = String(floor.hot);
+      if (!String(coldInput.value || '').trim()) coldInput.value = String(floor.cold);
+      guardEl.innerHTML = `Phòng này có mốc nước thực tế gần nhất: <strong>N${floor.hot}</strong> | <strong>L${floor.cold}</strong>${floor.sourceText ? ` (${floor.sourceText})` : ''}. Mốc khách mới phải tiếp nối sự kiện gần nhất; hệ thống sẽ không tự ghi đè số bạn đã nhập.`;
       guardEl.style.display = 'block';
     }
   }
@@ -12776,7 +12786,7 @@ async function confirmNewTenant() {
   const initColdWater = parseFloat(document.getElementById('ntColdWater').value) || 0;
   const roomWaterFloor = await getRoomWaterFloorBeforeDate(roomId, moveInDate);
   if (initHotWater < roomWaterFloor.hot || initColdWater < roomWaterFloor.cold) {
-    toast(`Số nước ban đầu không được thấp hơn mốc gần nhất của Phòng ${room.room_number}: N${roomWaterFloor.hot} | L${roomWaterFloor.cold}. Nếu muốn reset xuống thấp hơn, phải dùng HARD DELETE.`, 'warning');
+    toast(`Số nước ban đầu thấp hơn mốc thực tế gần nhất của Phòng ${room.room_number}: N${roomWaterFloor.hot} | L${roomWaterFloor.cold}. Kiểm tra lại checkout/reset trước khi lưu.`, 'warning');
     await updateProratedCalc();
     return;
   }
